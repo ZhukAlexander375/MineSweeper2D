@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a2709402e794a974893c4a4a77f74699, type: 3}
+  m_Name: Black_Gold
+  m_EditorClassIdentifier: 
+  TileActive: {fileID: 11400000, guid: 2d036aa940c783941bf15f4739160fdb, type: 2}
+  TileEmpty: {fileID: 11400000, guid: 5d78c9a185711bd41a17654cf255181e, type: 2}
+  TileMine: {fileID: 11400000, guid: f1a0c79bb4ebfc249b87fe0aa0f3df7a, type: 2}
+  TileExploded: {fileID: 11400000, guid: 4e89115ab76c68a489d779d8a2873d8b, type: 2}
+  TileFlag: {fileID: 11400000, guid: d11435f4208be724f892cf5a167f22f1, type: 2}
+  TileNum1: {fileID: 11400000, guid: 34ddb6b4faba3b54da5a90b23f2be6a5, type: 2}
+  TileNum2: {fileID: 11400000, guid: f4203a33e5b04b943b44f1017c9075b0, type: 2}
+  TileNum3: {fileID: 11400000, guid: 7ebcd3d9b7bfdf14ba61f926eda08eeb, type: 2}
+  TileNum4: {fileID: 11400000, guid: 3e6b2e1c059139a44928800802048c79, type: 2}
+  TileNum5: {fileID: 11400000, guid: 5314b8148eb27244a86e7d45e5ef98bb, type: 2}
+  TileNum6: {fileID: 11400000, guid: 02e77d158f78ff546af6938d816b68ec, type: 2}
+  TileNum7: {fileID: 11400000, guid: 03ccdc3cc5298d9498a3c440bfb2bb20, type: 2}
+  TileNum8: {fileID: 11400000, guid: 0c07570006d59964caf5cfef51e45086, type: 2}
