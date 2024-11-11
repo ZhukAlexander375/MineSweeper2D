@@ -7,6 +7,7 @@ public class GameManager : MonoBehaviour
 {
     [SerializeField] private Board _board;
     [SerializeField] private List<LevelConfig> _levels = new();
+    [SerializeField] private FreeForm _freeForm;
 
     private int _width;
     private int _height;
@@ -37,10 +38,14 @@ public class GameManager : MonoBehaviour
 
         IsGameOver = false;
         IsGenerated = false;
-        
+
 
         _cellGrid = new CellGrid(_width, _height);
         _board.Draw(_cellGrid);
+
+
+        //_cellGrid = new CellGrid((int)Mathf.Sqrt(_freeForm.GridSize), (int)Mathf.Sqrt(_freeForm.GridSize));
+        //_board.DrawFreeForm(_freeForm, _cellGrid);
     }
 
     private void SetLevelSettings()

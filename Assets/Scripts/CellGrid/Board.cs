@@ -29,6 +29,27 @@ public class Board : MonoBehaviour
         Tilemap = GetComponent<Tilemap>();
     }
 
+    /*public void DrawFreeForm(FreeForm freeGrid, CellGrid grid)
+    {
+        var width = (int)Mathf.Sqrt(freeGrid.GridSize);
+
+        for (int x = 0; x < freeGrid.GridSize; x++)
+        {            
+            if (freeGrid.ActiveCells[x])
+            {
+                Cell cell = grid[x % width, x / width];                   
+                Tilemap.SetTile(cell.CellPosition, GetTile(cell));
+            }
+
+            *//*else
+            {
+                Cell cell = grid[x - 1, y-1];
+                Tilemap.SetTile(cell.CellPosition, null);
+            } *//*
+            
+        }
+    }*/
+
     public void Draw(CellGrid grid)
     {
         int width = grid.Width;

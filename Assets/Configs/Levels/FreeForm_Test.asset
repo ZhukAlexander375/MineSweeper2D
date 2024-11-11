@@ -9,9 +9,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f6f3205de4e5c1c45b5b65196b4f6495, type: 3}
-  m_Name: Level_1
+  m_Script: {fileID: 11500000, guid: 3fb008276932aaf4196f3844e5029528, type: 3}
+  m_Name: FreeForm_Test
   m_EditorClassIdentifier: 
-  Width: 16
-  Height: 16
-  MineCount: 32
+  GridSize: 16
+  MineCount: 2
+  ActiveCells: 01010101000000000000000000000000

@@ -5,6 +5,5 @@ public class LevelConfig : ScriptableObject
 {
     public int Width;
     public int Height;
-    public int MineCount;
-    //public LevelShape Shape;
+    public int MineCount;    
 }
