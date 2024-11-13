@@ -6,23 +6,10 @@ using UnityEngine.Tilemaps;
 public class Board : MonoBehaviour
 {
     public Tilemap Tilemap { get; private set; }
-
+    
     [SerializeField] private List<TileSetConfig> _tileSets;
     private int _currentTileSetIndex = 0;
 
-    /*[SerializeField] private Tile _tileActive;
-    [SerializeField] private Tile _tileEmpty;
-    [SerializeField] private Tile _tileMine;
-    [SerializeField] private Tile _tileExploded;
-    [SerializeField] private Tile _tileFlag;
-    [SerializeField] private Tile _tileNum1;
-    [SerializeField] private Tile _tileNum2;
-    [SerializeField] private Tile _tileNum3;
-    [SerializeField] private Tile _tileNum4;
-    [SerializeField] private Tile _tileNum5;
-    [SerializeField] private Tile _tileNum6;
-    [SerializeField] private Tile _tileNum7;
-    [SerializeField] private Tile _tileNum8;*/
 
     private void Awake()
     {
@@ -60,10 +47,9 @@ public class Board : MonoBehaviour
             for (int y = 0; y < height; y++)
             {
                 Cell cell = grid[x, y];
-
                 Tilemap.SetTile(cell.CellPosition, GetTile(cell));
             }
-        }        
+        }
     }
 
     private Tile GetTile(Cell cell)

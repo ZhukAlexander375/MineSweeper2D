@@ -5,7 +5,7 @@ public class CellGrid
     private readonly Cell[,] cells;
 
     public int Width => cells.GetLength(0);
-    public int Height => cells.GetLength(1);
+    public int Height => cells.GetLength(1);    
 
     public Cell this[int x, int y] => cells[x, y];
 
@@ -159,7 +159,9 @@ public class CellGrid
 
     public bool IsAdjacent(Cell a, Cell b)
     {
+        if (a == null || b == null) return false;
+
         return Mathf.Abs(a.CellPosition.x - b.CellPosition.x) <= 1 &&
                Mathf.Abs(a.CellPosition.y - b.CellPosition.y) <= 1;
-    }    
+    }
 }
