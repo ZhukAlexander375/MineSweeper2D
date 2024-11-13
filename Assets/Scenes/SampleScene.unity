@@ -337,7 +337,7 @@ MonoBehaviour:
   moveSpeed: 0.5
   zoomSpeed: 1
   minZoom: 5
-  maxZoom: 20
+  maxZoom: 35
 --- !u!1 &1019386767
 GameObject:
   m_ObjectHideFlags: 0

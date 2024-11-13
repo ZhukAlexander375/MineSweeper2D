@@ -4,6 +4,7 @@ using UnityEngine.Tilemaps;
 [CreateAssetMenu(fileName = "NewTileSet", menuName = "Create Tile Set")]
 public class TileSetConfig : ScriptableObject
 {
+    public Tile TileInactive;
     public Tile TileActive;
     public Tile TileEmpty;
     public Tile TileMine;

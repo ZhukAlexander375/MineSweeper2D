@@ -10,7 +10,9 @@ public class Sector : MonoBehaviour
     
     public Tilemap Tilemap { get; private set; }
     public bool IsActive { get; set; }
-    public Dictionary<Vector3Int, Cell> Cells => _cells;
+    public bool IsNumbered {  get; set; }
+    public bool IsExplode { get; set; }
+    public Dictionary<Vector3Int, Cell> Cells => _cells;    
 
     private int _mineCount;
 
@@ -18,7 +20,7 @@ public class Sector : MonoBehaviour
     private Dictionary<Vector3Int, Cell> _cells = new Dictionary<Vector3Int, Cell>();
 
 
-    private void Awake()
+    private void Start()
     {
         Tilemap = GetComponent<Tilemap>();
         InitializeSector();
@@ -28,7 +30,8 @@ public class Sector : MonoBehaviour
 
     private void InitializeSector()
     {
-        _mineCount = _sectorConfig.MineCount;
+        //_mineCount = _sectorConfig.MineCount;       //random mines (2..10000)
+        _mineCount = Random.Range(8, 15);
     }
 
     private void InitializeDict()
@@ -48,15 +51,19 @@ public class Sector : MonoBehaviour
                 {
                     Cell cell = new Cell();
                     _cells[new Vector3Int(x, y, 0)] = cell;
-                    cell.CellPosition = position;
+                    cell.CellPosition = position + new Vector3Int((int)transform.position.x, (int)transform.position.y, 0);
                     cell.CellState = CellState.Empty;
+                    
+                    cell.SetOwnerSector(this);
+                    cell.SetGridManager(_gridManager);
                 }
             }
         }
     }
 
-    public void HandleCellClick(int cellX, int cellY, int click)
-    {        
+    public void HandleCellClick(int cellX, int cellY)
+    {   
+        
         cellX %= 8;
         cellY %= 8;        
 
@@ -67,31 +74,102 @@ public class Sector : MonoBehaviour
             if (!_gridManager.IsFirstClick)
             {
                 _gridManager.GenerateFirstMines(this, clickedCell, _mineCount);
-                                
-                //IsActive = true;
+
+                _gridManager.Reveal(this, clickedCell);
+
+                clickedCell.IsActive = true; // pri samom pervom click 
             }
 
-            else if (IsActive)
+            else if (clickedCell.IsActive)
             {
-
+                _gridManager.Reveal(this, clickedCell);
             }
 
-            Reveal(clickedCell);
-            
-            switch (click)
-            {
-                case 0:
-                    Tilemap.SetTile(clickedCell.CellPosition, _tileConfig.TileFlag);
-                    break;
-                case 1:
-                    Tilemap.SetTile(clickedCell.CellPosition, _tileConfig.TileMine);
-                    break;
-                case 2:
-                    Tilemap.SetTile(clickedCell.CellPosition, _tileConfig.TileActive);
-                    break;
-            }
+            //_gridManager.Reveal(this, clickedCell);
         }
     }        
+
+    public List<Cell> GetCellValues()
+    {
+        List<Cell> cells = new List<Cell>();
+
+        foreach (var cell in _cells.Values)
+        {
+            cells.Add(cell);
+        }
+
+        return cells;
+    }
+
+    public void DrawSector()
+    {
+        int width = _gridManager.SectorSize;
+        int height = _gridManager.SectorSize;
+
+        for (int x = 0; x < width; x++)
+        {
+            for (int y = 0; y < height; y++)
+            {
+                Cell cell = _cells[new Vector3Int(x, y, 0)];
+                Tilemap.SetTile(new Vector3Int(x, y, 0), GetTile(cell));
+            }
+        }
+    }
+
+    public void GenerateNumbersInSector()
+    {
+        _gridManager.GenerateNumbers(this);
+    }
+
+    private Tile GetTile(Cell cell)
+    {
+        if (cell.IsRevealed)
+        {
+            return GetRevealedTile(cell);
+        }
+
+        else if (cell.IsFlagged)
+        {
+            return _tileConfig.TileFlag;
+        }
+
+        else if (cell.IsActive && !cell.IsRevealed)
+        {
+            return _tileConfig.TileActive;
+        }
+
+        else
+        {
+            return _tileConfig.TileInactive;
+        }
+    }
+
+    private Tile GetRevealedTile(Cell cell)
+    {
+        switch (cell.CellState)
+        {
+            case CellState.Empty: return _tileConfig.TileEmpty;
+            case CellState.Mine: return cell.IsExploded ? _tileConfig.TileExploded : _tileConfig.TileMine;
+            case CellState.Number: return GetNumberTile(cell);
+            default: return null;
+        }
+    }
+
+    private Tile GetNumberTile(Cell cell)
+    {
+        switch (cell.CellNumber)
+        {
+            case 1: return _tileConfig.TileNum1;
+            case 2: return _tileConfig.TileNum2;
+            case 3: return _tileConfig.TileNum3;
+            case 4: return _tileConfig.TileNum4;
+            case 5: return _tileConfig.TileNum5;
+            case 6: return _tileConfig.TileNum6;
+            case 7: return _tileConfig.TileNum7;
+            case 8: return _tileConfig.TileNum8;
+            default: return null;
+        }
+    }
 
     private void Reveal(Cell cell)
     {
