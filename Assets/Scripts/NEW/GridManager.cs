@@ -9,19 +9,25 @@ public class GridManager : MonoBehaviour
     public int SectorSize => _sectorSize;
 
     [Header("Settings")]
-    [SerializeField] private Sector _sectorPrefab;
-    [SerializeField] private int _sectorSize = 8;
+    [SerializeField] private Sector _sectorPrefab;    
+    [SerializeField] private int _minMinesCount;
+    [SerializeField] private int _maxMinesCount;    
 
     public bool IsFirstClick;
 
-
+    private int _sectorSize = 8;            ///
     private Camera mainCamera;
     private Grid _grid;
     private Vector2 _cellGap;
     private int initialSectorsVisibleInRange = 2;
+    private int _sectorsCount;
 
     private Dictionary<Vector2Int, Sector> _sectors = new Dictionary<Vector2Int, Sector>();
     private Dictionary<Vector3Int, Cell> _allCells = new Dictionary<Vector3Int, Cell>();
+    private float _clickStartTime;
+    private bool _isHolding;
+    private bool _flagSet;
+
 
     void Start()
     {
@@ -35,15 +41,32 @@ public class GridManager : MonoBehaviour
     private void Update()
     {
         UpdateVisibleSectors();
-
+        
         if (Input.GetMouseButtonDown(0))
         {
-            GetSectorAtClick();
-            //Reveal();
+            _clickStartTime = Time.time;
+            _isHolding = true;
+            _flagSet = false;
         }
-    }    
 
-    public void GenerateFirstMines(Sector startingSector, Cell startingCell, int minesCount)
+        if (Input.GetMouseButtonUp(0))
+        {
+            if (!_flagSet && _isHolding && Time.time - _clickStartTime < 0.5f)
+            {
+                GetSectorAtClick();
+            }
+            _isHolding = false;
+        }
+
+        if (_isHolding && !_flagSet && Time.time - _clickStartTime >= 0.5f)
+        {
+            SetFlagAtClick();
+            _flagSet = true;
+        }
+    }
+ 
+
+    public void GenerateFirstSectors(Sector startingSector, Cell startingCell)
     {
         if (IsFirstClick)
         {
@@ -65,19 +88,55 @@ public class GridManager : MonoBehaviour
                     _allCells[cellWorldPosition] = cell.Value;
                 }
 
-                GenerateMinesInSector(sector, startingCell, minesCount);
-
+                GenerateMinesInSector(sector, startingCell);
                 GenerateNumbers(sector);
 
-                sector.IsActive = true;                
+                sector._isActive = true;
+
+                if (sector.IsActive)
+                {
+                    _sectorsCount++;
+                }                
             }
         }
     }
-    
-    private void GenerateMinesInSector(Sector sector, Cell startingCell, int minesCount)
+
+    public void GenerateSectors(Sector currentSector, Cell startingCell)
+    {
+        List<Sector> _sectorsToActivate = GetAdjacentSectors(currentSector);
+        _sectorsToActivate.Add(currentSector);
+
+        foreach (var sector in _sectorsToActivate)
+        {
+            if (!sector.IsActive)
+            {
+                foreach (var cell in sector.Cells)
+                {
+
+                    Vector3Int cellWorldPosition = cell.Key + new Vector3Int((int)(sector.transform.position.x), (int)(sector.transform.position.y), 0);
+                    _allCells[cellWorldPosition] = cell.Value;
+                }
+
+                GenerateMinesInSector(sector, startingCell);
+                GenerateNumbers(sector);
+
+                sector._isActive = true;
+
+                if (sector.IsActive)
+                {
+                    _sectorsCount++;
+                }                                
+            }
+        }
+
+        DrawSectors(currentSector);
+    }
+
+
+    private void GenerateMinesInSector(Sector sector, Cell startingCell)
     {
         int generatedMines = 0;
-        while (generatedMines < minesCount)
+        while (generatedMines < CalculateDynamicMinesCount(_sectorsCount))
         {
             Vector3Int randomPosition = new Vector3Int(
                 Random.Range(0, _sectorSize),
@@ -93,6 +152,21 @@ public class GridManager : MonoBehaviour
                 generatedMines++;
             }
         }
+    }
+
+    private int CalculateDynamicMinesCount(int activeSectorCount)
+    {
+        int minMines = _minMinesCount;
+        int maxMines = _maxMinesCount;
+
+        // Вычисляем, сколько раз по 3 активных секторов открыто
+        int incrementSteps = activeSectorCount / 3;
+
+        // Обновляем пороги с учетом каждого шага
+        minMines = Mathf.Min(minMines + incrementSteps, 15); // нижний порог не превышает 15
+        maxMines = Mathf.Min(maxMines + incrementSteps * 2, 25); // верхний порог не превышает 25
+
+        return Random.Range(minMines, maxMines);
     }
 
     public void GenerateNumbers(Sector sector)
@@ -150,14 +224,13 @@ public class GridManager : MonoBehaviour
                 Vector2Int adjacentPos = sectorPosition + new Vector2Int(offsetX, offsetY);
                 
                 if (_sectors.TryGetValue(adjacentPos, out Sector adjacentSector))
-                {
+                {                    
                     adjacentSectors.Add(adjacentSector);
                 }
             }
         }
 
         return adjacentSectors;
-
     }
 
     private bool IsAdjacent(Cell startingCell, Cell cell)
@@ -188,6 +261,26 @@ public class GridManager : MonoBehaviour
         }
     }
 
+    private void SetFlagAtClick()
+    {
+        Vector3 worldPosition = mainCamera.ScreenToWorldPoint(Input.mousePosition);
+        worldPosition.z = 0;
+
+        Vector2Int sectorPosition = new Vector2Int(
+            Mathf.FloorToInt(worldPosition.x / _sectorSize),
+            Mathf.FloorToInt(worldPosition.y / _sectorSize)
+        );
+
+        if (_sectors.TryGetValue(sectorPosition, out Sector clickedSector))
+        {
+            Vector2 localPositionInChunk = worldPosition - new Vector3(sectorPosition.x * _sectorSize, sectorPosition.y * _sectorSize, 0);
+            int cellX = Mathf.FloorToInt(localPositionInChunk.x);
+            int cellY = Mathf.FloorToInt(localPositionInChunk.y);
+
+            clickedSector.HandleFlag(cellX, cellY);
+        }
+    }
+
     public void Reveal(Sector currentSector, Cell cell)
     {
         if (cell.IsRevealed) return;
@@ -208,10 +301,19 @@ public class GridManager : MonoBehaviour
             default:
                 cell.IsRevealed = true;
                 cell.IsActive = true;
+
                 //CheckWinCondition();
                 break;
         }
 
+        DrawSectors(currentSector);
+    }
+
+    public void Flag(Sector currentSector, Cell cell)
+    {        
+        if (cell.IsRevealed) return;
+
+        cell.IsFlagged = !cell.IsFlagged;
         DrawSectors(currentSector);
     }
 
@@ -222,13 +324,13 @@ public class GridManager : MonoBehaviour
     }
 
     private IEnumerator Flood(Sector currentSector, Cell cell)
-    {
+    {        
         //if (IsGameOver) yield break;
         if (cell.IsRevealed) yield break;
         if (cell.CellState == CellState.Mine) yield break;
 
         cell.IsRevealed = true;
-        //cell.IsActive = true;
+        //cell.IsActive = true;        
 
         DrawSectors(currentSector);
 
@@ -268,7 +370,7 @@ public class GridManager : MonoBehaviour
             {
                 StartCoroutine(Flood(currentSector, upRight));
             }
-        }
+        }       
     }
 
     public void CellsActivate(Cell cell)
@@ -296,7 +398,7 @@ public class GridManager : MonoBehaviour
 
     private void DrawSectors(Sector currentSector)
     {
-        List<Sector> _sectorsToActivate = GetAdjacentSectors(currentSector);
+        /*List<Sector> _sectorsToActivate = GetAdjacentSectors(currentSector);
         _sectorsToActivate.Add(currentSector);
         foreach (var sector in _sectorsToActivate)
         {
@@ -304,7 +406,15 @@ public class GridManager : MonoBehaviour
             {
                 sector.DrawSector();
             }
+        }*/
+        foreach (var sector in _sectors.Values)
+        {
+            if (sector.IsActive)
+            {
+                sector.DrawSector();
+            }
         }
+
     }
 
     public bool TryGetCell(int x, int y, out Cell cell)
@@ -337,20 +447,20 @@ public class GridManager : MonoBehaviour
 
     private void UpdateVisibleSectors()
     {
-        var currentChunkPosition = GetCurrentChunkPosition();
-        var viewDistance = Mathf.CeilToInt((mainCamera.orthographicSize) / _sectorSize);
+        var currentSectorPosition = GetCurrentSectorPosition();
+        var viewDistance = Mathf.CeilToInt((mainCamera.orthographicSize) / _sectorSize) + initialSectorsVisibleInRange;
 
         for (int x = -viewDistance; x <= viewDistance; x++)
         {
             for (int y = -viewDistance; y <= viewDistance; y++)
             {
-                var chunkPosition = new Vector2Int(currentChunkPosition.x + x, currentChunkPosition.y + y);
-                CreateSector(chunkPosition);
+                var sectorPosition = new Vector2Int(currentSectorPosition.x + x, currentSectorPosition.y + y);
+                CreateSector(sectorPosition);
             }
         }
     }
 
-    private Vector2Int GetCurrentChunkPosition()
+    private Vector2Int GetCurrentSectorPosition()
     {
         var x = mainCamera.transform.position.x / _sectorSize;
         var y = mainCamera.transform.position.y / _sectorSize;

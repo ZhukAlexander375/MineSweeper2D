@@ -153,7 +153,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _sectorPrefab: {fileID: 8492993251520972708, guid: 99a682e2225c1674d9f7dd488b87dda4, type: 3}
-  _sectorSize: 8
+  _minMinesCount: 5
+  _maxMinesCount: 10
   IsFirstClick: 0
 --- !u!156049354 &43462232
 Grid:
@@ -334,8 +335,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 51e14c5d8bf981747ae04e7e0517e77c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  moveSpeed: 0.5
-  zoomSpeed: 1
+  moveSpeed: 0.025
+  zoomSpeed: 0.1
   minZoom: 5
   maxZoom: 35
 --- !u!1 &1019386767

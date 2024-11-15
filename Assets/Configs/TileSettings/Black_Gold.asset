@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a2709402e794a974893c4a4a77f74699, type: 3}
   m_Name: Black_Gold
   m_EditorClassIdentifier: 
+  TileInactive: {fileID: 11400000, guid: c3d9bdfb62a50ac40a1e7cc83c812c41, type: 2}
   TileActive: {fileID: 11400000, guid: 2d036aa940c783941bf15f4739160fdb, type: 2}
   TileEmpty: {fileID: 11400000, guid: 5d78c9a185711bd41a17654cf255181e, type: 2}
   TileMine: {fileID: 11400000, guid: f1a0c79bb4ebfc249b87fe0aa0f3df7a, type: 2}

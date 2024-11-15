@@ -6,18 +6,19 @@ using UnityEngine.Tilemaps;
 public class Sector : MonoBehaviour
 {
     [SerializeField] private TileSetConfig _tileConfig;
-    [SerializeField] private LevelConfig _sectorConfig;
-    
+    //[SerializeField] private LevelConfig _sectorConfig;
+    [SerializeField] public bool _isActive;
     public Tilemap Tilemap { get; private set; }
-    public bool IsActive { get; set; }
-    public bool IsNumbered {  get; set; }
+    public bool IsActive => _isActive;
+    public bool IsFirstCellActivated {  get; set; }
     public bool IsExplode { get; set; }
     public Dictionary<Vector3Int, Cell> Cells => _cells;    
 
-    private int _mineCount;
+    //[SerializeField] private int _mineCount;
 
     private GridManager _gridManager;
     private Dictionary<Vector3Int, Cell> _cells = new Dictionary<Vector3Int, Cell>();
+
 
 
     private void Start()
@@ -25,13 +26,13 @@ public class Sector : MonoBehaviour
         Tilemap = GetComponent<Tilemap>();
         InitializeSector();
         InitializeDict();
-
+        SignalBus.Subscribe<OnCellActiveSignal>(SectorActivate);
     }
 
     private void InitializeSector()
     {
         //_mineCount = _sectorConfig.MineCount;       //random mines (2..10000)
-        _mineCount = Random.Range(8, 15);
+        //_mineCount = Random.Range(5, 15);
     }
 
     private void InitializeDict()
@@ -62,10 +63,10 @@ public class Sector : MonoBehaviour
     }
 
     public void HandleCellClick(int cellX, int cellY)
-    {   
-        
+    {
+
         cellX %= 8;
-        cellY %= 8;        
+        cellY %= 8;
 
         if (cellX >= 0 && cellX < 8 && cellY >= 0 && cellY < 8) ///8 - hard
         {
@@ -73,7 +74,7 @@ public class Sector : MonoBehaviour
 
             if (!_gridManager.IsFirstClick)
             {
-                _gridManager.GenerateFirstMines(this, clickedCell, _mineCount);
+                _gridManager.GenerateFirstSectors(this, clickedCell);
 
                 _gridManager.Reveal(this, clickedCell);
 
@@ -87,7 +88,29 @@ public class Sector : MonoBehaviour
 
             //_gridManager.Reveal(this, clickedCell);
         }
-    }        
+    }
+
+    public void HandleFlag(int cellX, int cellY)
+    {
+
+        cellX %= 8;
+        cellY %= 8;
+
+        if (cellX >= 0 && cellX < 8 && cellY >= 0 && cellY < 8) ///8 - hard
+        {
+            var clickedCell = _cells[new Vector3Int(cellX, cellY, 0)];
+
+            if (!_gridManager.IsFirstClick)
+            {
+                return;
+            }
+
+            else if (clickedCell.IsActive)
+            {
+                _gridManager.Flag(this, clickedCell);
+            }
+        }
+    }
 
     public List<Cell> GetCellValues()
     {
@@ -135,12 +158,12 @@ public class Sector : MonoBehaviour
 
         else if (cell.IsActive && !cell.IsRevealed)
         {
-            return _tileConfig.TileActive;
+            return _tileConfig.TileActive;            ///////////////
         }
 
         else
         {
-            return _tileConfig.TileInactive;
+            return _tileConfig.TileInactive;              /////////////////////
         }
     }
 
@@ -149,7 +172,7 @@ public class Sector : MonoBehaviour
         switch (cell.CellState)
         {
             case CellState.Empty: return _tileConfig.TileEmpty;
-            case CellState.Mine: return cell.IsExploded ? _tileConfig.TileExploded : _tileConfig.TileMine;
+            case CellState.Mine: return cell.IsExploded ? _tileConfig.TileMine : _tileConfig.TileExploded;
             case CellState.Number: return GetNumberTile(cell);
             default: return null;
         }
@@ -171,11 +194,6 @@ public class Sector : MonoBehaviour
         }
     }
 
-    private void Reveal(Cell cell)
-    {
-        Debug.Log(cell.CellState);
-    }     
-    
 
     public Cell GetCell(Vector3Int coordinates)
     {
@@ -191,8 +209,30 @@ public class Sector : MonoBehaviour
         _gridManager = gridManager;
     }
 
-   
-       
+    public void SectorActivate(OnCellActiveSignal signal)
+    {
+        if (signal.Cell.Sector == this)
+        {
+            var cell = signal.Cell;
+            
+            if (!IsFirstCellActivated)
+            {
+                
+                _gridManager.GenerateSectors(this, cell);
+                IsFirstCellActivated = true;
+                _isActive = true;                
+            }
+
+            if (IsFirstCellActivated)
+            {
+                return;
+            }
+        }
+        
+    }
+
+
+
 
 
 
@@ -216,6 +256,11 @@ public class Sector : MonoBehaviour
             Tilemap.SetTile(tilePosition, _tileConfig.TileFlag);
             yield return new WaitForSeconds(0.5f);
         }        
+    }
+
+    private void OnDestroy()
+    {
+        SignalBus.Unsubscribe<OnCellActiveSignal>(SectorActivate);
     }
 }
 

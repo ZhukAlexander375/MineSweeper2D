@@ -9,6 +9,7 @@ public class Cell
     public bool IsExploded;
     public bool Ñhorded;
     public bool IsActive;
+    public Sector Sector => _sector;
 
     private bool _isRevealed;
     private Sector _sector;
@@ -24,7 +25,9 @@ public class Cell
                 _isRevealed = true;
                 CellReveal();
                 SetActiveAdjacentCells();
+                SignalBus.Fire(new OnCellActiveSignal(this));
             }
+
             else
             {
                 _isRevealed = value;
@@ -44,7 +47,7 @@ public class Cell
 
     public void CellReveal()
     {
-        _sector.GenerateNumbersInSector();
+        _sector.GenerateNumbersInSector();        
     }
 
     public void SetActiveAdjacentCells()
