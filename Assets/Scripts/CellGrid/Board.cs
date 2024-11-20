@@ -46,13 +46,13 @@ public class Board : MonoBehaviour
         {
             for (int y = 0; y < height; y++)
             {
-                Cell cell = grid[x, y];
+                BaseCell cell = grid[x, y];
                 Tilemap.SetTile(cell.CellPosition, GetTile(cell));
             }
         }
     }
 
-    private Tile GetTile(Cell cell)
+    private Tile GetTile(BaseCell cell)
     {
         if (cell.IsRevealed)
         {
@@ -68,7 +68,7 @@ public class Board : MonoBehaviour
         }
     }
 
-    private Tile GetRevealedTile(Cell cell)
+    private Tile GetRevealedTile(BaseCell cell)
     {
         switch (cell.CellState)
         {            
@@ -79,7 +79,7 @@ public class Board : MonoBehaviour
         }
     }
 
-    private Tile GetNumberTile(Cell cell)
+    private Tile GetNumberTile(BaseCell cell)
     {
         switch (cell.CellNumber)
         {

@@ -1,21 +1,15 @@
 using UnityEngine;
 
-public class Cell
-{
-    public CellState CellState;
-    public Vector3Int CellPosition;
-    public int CellNumber;
-    public bool IsFlagged;
-    public bool IsExploded;
-    public bool Ñhorded;
+public class InfiniteCell : BaseCell
+{   
     public bool IsActive;
     public Sector Sector => _sector;
 
     private bool _isRevealed;
     private Sector _sector;
-    private GridManager _gridManager;
+    private InfiniteGridManager _infiniteGridManager;
 
-    public bool IsRevealed
+    public new bool IsRevealed
     {
         get => _isRevealed;
         set
@@ -40,9 +34,9 @@ public class Cell
         _sector = sector;
     }
 
-    public void SetGridManager(GridManager gridManager)
+    public void SetGridManager(InfiniteGridManager gridManager)
     {
-        _gridManager = gridManager;
+        _infiniteGridManager = gridManager;
     }
 
     public void CellReveal()
@@ -54,7 +48,7 @@ public class Cell
     {
         if (IsRevealed && CellState != CellState.Mine)
         {
-            _gridManager.CellsActivate(this);
+            _infiniteGridManager.CellsActivate(this);
         }       
     }
 }

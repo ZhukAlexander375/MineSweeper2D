@@ -1,9 +1,9 @@
 
 public struct OnCellActiveSignal 
 {
-    public Cell Cell;
+    public InfiniteCell Cell;
 
-    public OnCellActiveSignal(Cell cell)
+    public OnCellActiveSignal(InfiniteCell cell)
     {
         Cell = cell;
     }

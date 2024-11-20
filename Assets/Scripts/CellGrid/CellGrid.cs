@@ -2,22 +2,22 @@ using UnityEngine;
 
 public class CellGrid
 {
-    private readonly Cell[,] cells;
+    private readonly BaseCell[,] cells;
 
     public int Width => cells.GetLength(0);
     public int Height => cells.GetLength(1);    
 
-    public Cell this[int x, int y] => cells[x, y];
+    public BaseCell this[int x, int y] => cells[x, y];
 
     public CellGrid(int width, int height)
     {
-        cells = new Cell[width, height];
+        cells = new BaseCell[width, height];
 
         for (int x = 0; x < width; x++)
         {
             for (int y = 0; y < height; y++)
             {
-                cells[x, y] = new Cell
+                cells[x, y] = new BaseCell
                 {
                     CellPosition = new Vector3Int(x, y, 0),
                     CellState = CellState.Empty
@@ -26,7 +26,7 @@ public class CellGrid
         }
     }
 
-    public void GenerateMines(Cell startingCell, int amount)
+    public void GenerateMines(BaseCell startingCell, int amount)
     {
         int width = Width;
         int height = Height;
@@ -36,7 +36,7 @@ public class CellGrid
             int x = Random.Range(0, width);
             int y = Random.Range(0, height);
 
-            Cell cell = cells[x, y];
+            BaseCell cell = cells[x, y];
 
             while (cell.CellState == CellState.Mine || IsAdjacent(startingCell, cell))
             {
@@ -69,7 +69,7 @@ public class CellGrid
         {
             for (int y = 0; y < height; y++)
             {
-                Cell cell = cells[x, y];
+                BaseCell cell = cells[x, y];
 
                 if (cell.CellState == CellState.Mine)
                 {
@@ -82,7 +82,7 @@ public class CellGrid
         }
     }
 
-    public int CountAdjacentMines(Cell cell)
+    public int CountAdjacentMines(BaseCell cell)
     {
         int count = 0;
 
@@ -98,7 +98,7 @@ public class CellGrid
                 int x = cell.CellPosition.x + adjacentX;
                 int y = cell.CellPosition.y + adjacentY;
 
-                if (TryGetCell(x, y, out Cell adjacent) && adjacent.CellState == CellState.Mine)
+                if (TryGetCell(x, y, out BaseCell adjacent) && adjacent.CellState == CellState.Mine)
                 {
                     count++;
                 }
@@ -108,7 +108,7 @@ public class CellGrid
         return count;
     }
 
-    public int CountAdjacentFlags(Cell cell)
+    public int CountAdjacentFlags(BaseCell cell)
     {
         int count = 0;
 
@@ -124,7 +124,7 @@ public class CellGrid
                 int x = cell.CellPosition.x + adjacentX;
                 int y = cell.CellPosition.y + adjacentY;
 
-                if (TryGetCell(x, y, out Cell adjacent) && !adjacent.IsRevealed && adjacent.IsFlagged)
+                if (TryGetCell(x, y, out BaseCell adjacent) && !adjacent.IsRevealed && adjacent.IsFlagged)
                 {
                     count++;
                 }
@@ -134,7 +134,7 @@ public class CellGrid
         return count;
     }
 
-    public Cell GetCell(int x, int y)
+    public BaseCell GetCell(int x, int y)
     {
         if (InBounds(x, y))
         {
@@ -146,7 +146,7 @@ public class CellGrid
         }
     }
 
-    public bool TryGetCell(int x, int y, out Cell cell)
+    public bool TryGetCell(int x, int y, out BaseCell cell)
     {
         cell = GetCell(x, y);
         return cell != null;
@@ -157,7 +157,7 @@ public class CellGrid
         return x >= 0 && x < Width && y >= 0 && y < Height;
     }
 
-    public bool IsAdjacent(Cell a, Cell b)
+    public bool IsAdjacent(BaseCell a, BaseCell b)
     {
         if (a == null || b == null) return false;
 
