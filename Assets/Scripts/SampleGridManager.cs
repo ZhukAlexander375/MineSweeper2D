@@ -7,6 +7,8 @@ public class SampleGridManager : MonoBehaviour
 {
     [SerializeField] private Board _board;
     [SerializeField] private List<LevelConfig> _levels = new();
+    [SerializeField] private GameObject _flagPlaceParticle;
+    [SerializeField] private GameObject _flagRemoveParticle;
     //[SerializeField] private FreeForm _freeForm;
 
     private int _width;
@@ -19,14 +21,34 @@ public class SampleGridManager : MonoBehaviour
     private bool IsGameOver;
     private bool IsGenerated;
 
+    private float _clickStartTime;
+    private bool _isHolding;
+    private bool _flagSet;
+    private float _lastClickTime = -1f;
+    private const float DoubleClickThreshold = 0.3f; // Порог для двойного клика (в секундах)
+
     private void Awake()
     {
-        Application.targetFrameRate = 60;        
+        Application.targetFrameRate = 60;
     }
 
     private void Start()
     {
-        NewGame();
+        gameObject.SetActive(false);
+        //NewGame();
+    }
+
+    public void StartLevel(int levelIndex)
+    {
+        if (levelIndex >= 0 && levelIndex < _levels.Count)
+        {
+            _currentLevel = levelIndex;
+            NewGame();
+        }
+        else
+        {
+            Debug.LogError("Level index out of range");
+        }
     }
 
     private void NewGame()
@@ -64,7 +86,40 @@ public class SampleGridManager : MonoBehaviour
 
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.N) || Input.GetKeyDown(KeyCode.R) || Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.Space))
+        if (Input.GetMouseButtonDown(0))
+        {
+            float currentTime = Time.time;
+
+            // Проверка на двойной клик
+            if (currentTime - _lastClickTime <= DoubleClickThreshold)
+            {
+                Unchord();
+                _lastClickTime = -1f; // Сброс времени клика
+            }
+            else
+            {
+                _clickStartTime = currentTime;
+                _isHolding = true;
+                _flagSet = false;
+                _lastClickTime = currentTime; // Обновляем время последнего клика
+            }
+        }
+
+        if (Input.GetMouseButtonUp(0))
+        {
+            if (!_flagSet && _isHolding && Time.time - _clickStartTime < 0.3f)
+            {
+                Reveal();
+            }
+            _isHolding = false;
+        }
+
+        if (_isHolding && !_flagSet && Time.time - _clickStartTime >= 0.3f)
+        {
+            Flag();
+            _flagSet = true;
+        }
+        /*if (Input.GetKeyDown(KeyCode.N) || Input.GetKeyDown(KeyCode.R) || Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.Space))
         {
             NewGame();
             return;
@@ -88,7 +143,7 @@ public class SampleGridManager : MonoBehaviour
             {
                 Unchord();
             }
-        }
+        }*/
     }
 
     private void Reveal()
@@ -168,13 +223,37 @@ public class SampleGridManager : MonoBehaviour
         if (!TryGetCellAtMousePosition(out BaseCell cell)) return;
         if (cell.IsRevealed) return;
 
+        bool isPlacingFlag = !cell.IsFlagged;
         cell.IsFlagged = !cell.IsFlagged;
+
+        InstantiateParticleAtCell(isPlacingFlag ? _flagPlaceParticle : _flagRemoveParticle, cell);
+        VibrateOnAction();
+
         _board.Draw(_cellGrid);
     }
 
-    private void Chord()
+    private void InstantiateParticleAtCell(GameObject particlePrefab, BaseCell cell)
     {
-        // unchord previous cells
+        // Получаем мировую позицию ячейки
+        Vector3 worldPosition = cell.CellPosition; // Предполагается, что у ячейки есть мировая позиция
+
+        // Инстанцируем партикл в позиции ячейки
+        GameObject particleInstance = Instantiate(particlePrefab, worldPosition, Quaternion.identity);
+
+        // Уничтожаем партикл после завершения анимации
+        Destroy(particleInstance, 2f); // Убедитесь, что время совпадает с длиной анимации
+    }
+
+    private void VibrateOnAction()
+    {
+#if UNITY_ANDROID || UNITY_IOS
+        Handheld.Vibrate();
+#endif
+    }
+
+    private void Unchord()
+    {
+        // Сброс состояния всех ячеек
         for (int x = 0; x < _width; x++)
         {
             for (int y = 0; y < _height; y++)
@@ -183,74 +262,50 @@ public class SampleGridManager : MonoBehaviour
             }
         }
 
-        // chord new cells
-        if (TryGetCellAtMousePosition(out BaseCell chord))
+        if (TryGetCellAtMousePosition(out BaseCell clickedCell))
         {
-            for (int adjacentX = -1; adjacentX <= 1; adjacentX++)
+            // Если ячейка не открыта и не помечена флагом, помечаем соседние ячейки
+            if (!clickedCell.IsRevealed && !clickedCell.IsFlagged)
             {
-                for (int adjacentY = -1; adjacentY <= 1; adjacentY++)
+                for (int adjacentX = -1; adjacentX <= 1; adjacentX++)
                 {
-                    int x = chord.CellPosition.x + adjacentX;
-                    int y = chord.CellPosition.y + adjacentY;
-
-                    if (_cellGrid.TryGetCell(x, y, out BaseCell cell))
+                    for (int adjacentY = -1; adjacentY <= 1; adjacentY++)
                     {
-                        cell.Chorded = !cell.IsRevealed && !cell.IsFlagged;
+                        int x = clickedCell.CellPosition.x + adjacentX;
+                        int y = clickedCell.CellPosition.y + adjacentY;
+
+                        if (_cellGrid.TryGetCell(x, y, out BaseCell adjacentCell))
+                        {
+                            adjacentCell.Chorded = !adjacentCell.IsRevealed && !adjacentCell.IsFlagged;
+                        }
                     }
                 }
             }
-        }
-
-        _board.Draw(_cellGrid);
-    }
-
-    private void Unchord()
-    {
-        for (int x = 0; x < _width; x++)
-        {
-            for (int y = 0; y < _height; y++)
+            else if (clickedCell.IsRevealed && clickedCell.CellState == CellState.Number)
             {
-                BaseCell cell = _cellGrid[x, y];
-
-                if (cell.Chorded)
+                // Проверяем флаги вокруг и открываем ячейки
+                for (int adjacentX = -1; adjacentX <= 1; adjacentX++)
                 {
-                    Unchord(cell);
-                }
-            }
-        }
-
-        _board.Draw(_cellGrid);
-    }
-
-    private void Unchord(BaseCell chord)
-    {
-        chord.Chorded = false;
-
-        for (int adjacentX = -1; adjacentX <= 1; adjacentX++)
-        {
-            for (int adjacentY = -1; adjacentY <= 1; adjacentY++)
-            {
-                if (adjacentX == 0 && adjacentY == 0)
-                {
-                    continue;
-                }
-
-                int x = chord.CellPosition.x + adjacentX;
-                int y = chord.CellPosition.y + adjacentY;
-
-                if (_cellGrid.TryGetCell(x, y, out BaseCell cell))
-                {
-                    if (cell.IsRevealed && cell.CellState == CellState.Number)
+                    for (int adjacentY = -1; adjacentY <= 1; adjacentY++)
                     {
-                        if (_cellGrid.CountAdjacentFlags(cell) >= cell.CellNumber)
+                        if (adjacentX == 0 && adjacentY == 0) continue;
+
+                        int x = clickedCell.CellPosition.x + adjacentX;
+                        int y = clickedCell.CellPosition.y + adjacentY;
+
+                        if (_cellGrid.TryGetCell(x, y, out BaseCell adjacentCell))
                         {
-                            Reveal(chord);
-                            return;
+                            if (_cellGrid.CountAdjacentFlags(clickedCell) >= clickedCell.CellNumber)
+                            {
+                                Reveal(adjacentCell);
+                            }
                         }
                     }
                 }
             }
         }
+
+        _board.Draw(_cellGrid);
     }
 
     private void Explode(BaseCell cell)
