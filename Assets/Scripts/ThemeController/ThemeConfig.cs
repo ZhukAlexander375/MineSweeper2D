@@ -5,12 +5,13 @@ using UnityEngine;
 public class ThemeConfig : ScriptableObject
 {
     [Header("Colors")]
-    public Color MainBackgroundColor;
-    public Color MainTitleColor;
+    public Color TopFieldColor;
     public Color IconsColor;
-    public Color TitleTextColor;
-    public Color SettingWindowsColor;
+    public Color TransparentBGColor;
+    public Color MenuFrameBGColor;    
+    public Color MenuTitleTextColor;    
     public Color ButtonsColor;
-    public Color ButtonsTextColorDark;
-    public Color ButtonsTextColorLight;
+    public Color TextsOnButtons;
+    //public Color ButtonsTextColorLight;
+    public Color CameraBackground;
 }

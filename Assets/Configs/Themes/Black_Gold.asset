@@ -12,11 +12,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 306023503bff95243918f42da33194d5, type: 3}
   m_Name: Black_Gold
   m_EditorClassIdentifier: 
-  MainBackgroundColor: {r: 0.05490196, g: 0.05490196, b: 0.05490196, a: 1}
-  MainTitleColor: {r: 0.14901961, g: 0.14901961, b: 0.13333334, a: 0}
-  IconsColor: {r: 1, g: 1, b: 1, a: 0}
-  TitleTextColor: {r: 1, g: 1, b: 1, a: 0}
-  SettingWindowsColor: {r: 0.09019608, g: 0.09019608, b: 0.09019608, a: 0}
-  ButtonsColor: {r: 0.25490198, g: 0.25490198, b: 0.25490198, a: 0}
-  ButtonsTextColorDark: {r: 0, g: 0, b: 0, a: 0}
-  ButtonsTextColorLight: {r: 1, g: 1, b: 1, a: 0}
+  TopFieldColor: {r: 0.14901961, g: 0.14117648, b: 0.13333334, a: 1}
+  IconsColor: {r: 1, g: 1, b: 1, a: 1}
+  TransparentBGColor: {r: 0.15686275, g: 0.14509805, b: 0.13725491, a: 0.5882353}
+  MenuFrameBGColor: {r: 0.09019608, g: 0.09019608, b: 0.09019608, a: 1}
+  MenuTitleTextColor: {r: 1, g: 1, b: 1, a: 1}
+  ButtonsColor: {r: 0.25490198, g: 0.25490198, b: 0.25490198, a: 1}
+  TextsOnButtons: {r: 1, g: 1, b: 1, a: 1}
+  CameraBackground: {r: 0.11764707, g: 0.10980393, b: 0.10588236, a: 1}

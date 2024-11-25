@@ -1,14 +1,17 @@
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
 [RequireComponent(typeof(Tilemap))]
 public class Board : MonoBehaviour
-{
+{ 
     public Tilemap Tilemap { get; private set; }
-    
+
     [SerializeField] private List<TileSetConfig> _tileSets;
-    private int _currentTileSetIndex = 0;
+
+    private TileSetConfig _currentTileSet;
+    private int _currentTileSetIndex;
 
 
     private void Awake()
@@ -16,6 +19,11 @@ public class Board : MonoBehaviour
         Tilemap = GetComponent<Tilemap>();
     }
 
+    private void Start()
+    {
+        SignalBus.Subscribe<ThemeChangeSignal>(OnThemeChanged);
+        TryApplyTheme(ThemeManager.Instance.CurrentThemeIndex);
+    }
     /*public void DrawFreeForm(FreeForm freeGrid, CellGrid grid)
     {
         var width = (int)Mathf.Sqrt(freeGrid.GridSize);
@@ -36,9 +44,18 @@ public class Board : MonoBehaviour
             
         }
     }*/
+    public void ClearGrid()
+    {
+        if (Tilemap != null)
+        {
+            Tilemap.ClearAllTiles();
+        }
+    }
 
     public void Draw(CellGrid grid)
     {
+        // Œ◊»Ÿ≈Õ»≈!!!!!!!!!!!!!!!!!!!!!!!! ◊≈  œ–» —Œ’–¿Õ≈Õ»» ◊“Œ ƒ≈À¿“‹???????????
+        ClearGrid();
         int width = grid.Width;
         int height = grid.Height;
 
@@ -71,7 +88,7 @@ public class Board : MonoBehaviour
     private Tile GetRevealedTile(BaseCell cell)
     {
         switch (cell.CellState)
-        {            
+        {
             case CellState.Empty: return _tileSets[_currentTileSetIndex].TileEmpty;
             case CellState.Mine: return cell.IsExploded ? _tileSets[_currentTileSetIndex].TileExploded : _tileSets[_currentTileSetIndex].TileMine;
             case CellState.Number: return GetNumberTile(cell);
@@ -93,5 +110,37 @@ public class Board : MonoBehaviour
             case 8: return _tileSets[_currentTileSetIndex].TileNum8;
             default: return null;
         }
+    }
+
+    private void TryApplyTheme(int themeIndex)
+    {
+        if (themeIndex < 0 || themeIndex >= _tileSets.Count)
+        {
+            Debug.LogWarning($"ÕÂ‰ÓÔÛÒÚËÏ˚È ËÌ‰ÂÍÒ ÚÂÏ˚: {themeIndex}");
+            return;
+        }
+        
+        _currentTileSet = _tileSets[themeIndex];
+        _currentTileSetIndex = themeIndex;
+                
+        RedrawGrid();
+    }
+
+    private void RedrawGrid()
+    {
+        if (Tilemap != null)
+        {
+            Tilemap.RefreshAllTiles();
+        }
+    }
+
+    private void OnThemeChanged(ThemeChangeSignal signal)
+    {
+        TryApplyTheme(signal.ThemeIndex);
+    }
+
+    private void OnDestroy()
+    {
+        SignalBus.Unsubscribe<ThemeChangeSignal>(OnThemeChanged);
     }
 }

@@ -7,13 +7,18 @@ public class CameraController : MonoBehaviour
     [SerializeField] private float zoomSpeed = 1.0f;
     [SerializeField] private float minZoom = 5f;
     [SerializeField] private float maxZoom = 20f;
+
     private Camera mainCamera;
     private Vector3 touchStartPos;
+
+    private ThemeConfig _currentAppliedTheme;
 
     private void Start()
     {
         Application.targetFrameRate = 1000;
         mainCamera = Camera.main;
+        SignalBus.Subscribe<ThemeChangeSignal>(OnThemeChanged);
+        TryApplyTheme(ThemeManager.Instance.CurrentTheme);
     }
 
     private void Update()
@@ -83,5 +88,40 @@ public class CameraController : MonoBehaviour
     {
         var newSize = mainCamera.orthographicSize - deltaDistance;
         mainCamera.orthographicSize = Mathf.Clamp(newSize, minZoom, maxZoom);
+    }
+
+    private void OnThemeChanged(ThemeChangeSignal signal)
+    {
+        TryApplyTheme(signal.Theme);
+    }
+
+    private void TryApplyTheme(ThemeConfig theme)
+    {
+        if (theme == null)
+        {
+            return;
+        }
+
+        if (_currentAppliedTheme == theme)
+        {
+            return;
+        }
+
+        ApplyTheme(theme);
+    }
+
+    private void ApplyTheme(ThemeConfig theme)
+    {
+        if (theme == null)
+        {
+            return;
+        }
+
+        mainCamera.backgroundColor = theme.CameraBackground;
+    }
+
+    private void OnDestroy()
+    {
+        SignalBus.Unsubscribe<ThemeChangeSignal>(OnThemeChanged);
     }
 }

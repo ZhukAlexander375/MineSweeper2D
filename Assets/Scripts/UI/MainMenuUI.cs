@@ -14,7 +14,6 @@ public class MainMenuUI : MonoBehaviour
     [SerializeField] private Button _settingsButton;
 
     [Header("Screens")]
-    [SerializeField] private Canvas _classicGameScreen;
     [SerializeField] private Canvas _episodeGameScreen;
     [SerializeField] private Canvas _shopScreen;
     [SerializeField] private Canvas _themeScreen;
@@ -24,11 +23,13 @@ public class MainMenuUI : MonoBehaviour
 
     private void Awake()
     {
-        _sceneLoader = FindObjectOfType<SceneLoader>();
+        //_sceneLoader = SceneLoader.Instance;
     }
 
     private void Start()
     {
+        _sceneLoader = SceneLoader.Instance;              
+
         _infinityGameButton.onClick.AddListener(OpenInfinityGame);
         _classicGameMenuButton.onClick.AddListener(OpenClassicGame);
         _hardcoreGameMenuButton.onClick.AddListener(OpenHardcoreGame);
@@ -39,8 +40,8 @@ public class MainMenuUI : MonoBehaviour
     }
 
 
-    private void OpenInfinityGame()
-    {
+    private void OpenInfinityGame() 
+    {        
         _sceneLoader.LoadInfiniteMinesweeperScene();
     }
 

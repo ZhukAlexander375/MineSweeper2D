@@ -5,28 +5,30 @@ using UnityEngine.Tilemaps;
 
 public class Sector : MonoBehaviour
 {
-    [SerializeField] private TileSetConfig _tileConfig;
+    [SerializeField] private List<TileSetConfig> _tileSets;
     //[SerializeField] private LevelConfig _sectorConfig;
     
     public Tilemap Tilemap { get; private set; }
     public bool IsActive;
     public bool IsFirstCellActivated {  get; set; }
     public bool IsExplode { get; set; }
-    public Dictionary<Vector3Int, InfiniteCell> Cells => _cells;    
-
-    //[SerializeField] private int _mineCount;
+    public Dictionary<Vector3Int, InfiniteCell> Cells => _cells;   
+       
 
     private InfiniteGridManager _infiniteGridManager;
     private Dictionary<Vector3Int, InfiniteCell> _cells = new Dictionary<Vector3Int, InfiniteCell>();
-
+    private TileSetConfig _currentTileSet;
+    private int _currentTileSetIndex;
 
 
     private void Start()
     {
         Tilemap = GetComponent<Tilemap>();
-        InitializeSector();
+        //InitializeSector();
         InitializeDict();
         SignalBus.Subscribe<OnCellActiveSignal>(SectorActivate);
+        SignalBus.Subscribe<ThemeChangeSignal>(OnThemeChanged);
+        TryApplyTheme(ThemeManager.Instance.CurrentThemeIndex);
     }
 
     private void InitializeSector()
@@ -179,17 +181,17 @@ public class Sector : MonoBehaviour
 
         else if (cell.IsFlagged)
         {
-            return _tileConfig.TileFlag;
+            return _tileSets[_currentTileSetIndex].TileFlag;
         }
 
         else if (cell.IsActive && !cell.IsRevealed)
         {
-            return _tileConfig.TileActive;            ///////////////
+            return _tileSets[_currentTileSetIndex].TileActive;            ///////////////
         }
 
         else
         {
-            return _tileConfig.TileInactive;              /////////////////////
+            return _tileSets[_currentTileSetIndex].TileInactive;              /////////////////////
         }
     }
 
@@ -197,8 +199,8 @@ public class Sector : MonoBehaviour
     {
         switch (cell.CellState)
         {
-            case CellState.Empty: return _tileConfig.TileEmpty;
-            case CellState.Mine: return cell.IsExploded ? _tileConfig.TileMine : _tileConfig.TileExploded;
+            case CellState.Empty: return _tileSets[_currentTileSetIndex].TileEmpty;
+            case CellState.Mine: return cell.IsExploded ? _tileSets[_currentTileSetIndex].TileMine : _tileSets[_currentTileSetIndex].TileExploded;
             case CellState.Number: return GetNumberTile(cell);
             default: return null;
         }
@@ -208,14 +210,14 @@ public class Sector : MonoBehaviour
     {
         switch (cell.CellNumber)
         {
-            case 1: return _tileConfig.TileNum1;
-            case 2: return _tileConfig.TileNum2;
-            case 3: return _tileConfig.TileNum3;
-            case 4: return _tileConfig.TileNum4;
-            case 5: return _tileConfig.TileNum5;
-            case 6: return _tileConfig.TileNum6;
-            case 7: return _tileConfig.TileNum7;
-            case 8: return _tileConfig.TileNum8;
+            case 1: return _tileSets[_currentTileSetIndex].TileNum1;
+            case 2: return _tileSets[_currentTileSetIndex].TileNum2;
+            case 3: return _tileSets[_currentTileSetIndex].TileNum3;
+            case 4: return _tileSets[_currentTileSetIndex].TileNum4;
+            case 5: return _tileSets[_currentTileSetIndex].TileNum5;
+            case 6: return _tileSets[_currentTileSetIndex].TileNum6;
+            case 7: return _tileSets[_currentTileSetIndex].TileNum7;
+            case 8: return _tileSets[_currentTileSetIndex].TileNum8;
             default: return null;
         }
     }
@@ -233,7 +235,7 @@ public class Sector : MonoBehaviour
     public void SetManager(InfiniteGridManager gridManager)
     {
         _infiniteGridManager = gridManager;
-    }
+    }    
 
     public void SectorActivate(OnCellActiveSignal signal)
     {
@@ -253,10 +255,41 @@ public class Sector : MonoBehaviour
             {
                 return;
             }
-        }
-        
+        }        
     }
 
+    public void TryApplyTheme(int themeIndex)
+    {
+        if (themeIndex < 0 || themeIndex >= _tileSets.Count)
+        {
+            Debug.LogWarning($"Недопустимый индекс темы: {themeIndex}");
+            return;
+        }
+
+        _currentTileSet = _tileSets[themeIndex];
+        _currentTileSetIndex = themeIndex;
+
+        RedrawGrid();
+    }
+
+    private void RedrawGrid()
+    {
+        if (Tilemap != null)
+        {
+            Tilemap.RefreshAllTiles();
+        }
+    }
+
+    private void OnThemeChanged(ThemeChangeSignal signal)
+    {
+        TryApplyTheme(signal.ThemeIndex);
+    }
+
+    private void OnDestroy()
+    {
+        SignalBus.Unsubscribe<OnCellActiveSignal>(SectorActivate);
+        SignalBus.Unsubscribe<ThemeChangeSignal>(OnThemeChanged);
+    }
 
 
 
@@ -279,14 +312,9 @@ public class Sector : MonoBehaviour
         foreach (var pos in _cells.Keys)
         {            
             Vector3Int tilePosition = new Vector3Int(pos.x, pos.y, 0);
-            Tilemap.SetTile(tilePosition, _tileConfig.TileFlag);
+            Tilemap.SetTile(tilePosition, _tileSets[_currentTileSetIndex].TileFlag);
             yield return new WaitForSeconds(0.5f);
         }        
-    }
-
-    private void OnDestroy()
-    {
-        SignalBus.Unsubscribe<OnCellActiveSignal>(SectorActivate);
     }
 }
 

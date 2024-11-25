@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 2124351663902796935}
   - component: {fileID: 8492993251520972708}
   m_Layer: 0
-  m_Name: Sector
+  m_Name: DarkSector
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -801,5 +801,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cfb26d037e43303418c39000dc0e3db0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _tileConfig: {fileID: 11400000, guid: 4c75a55d96038614d8aed41b4b7a69c1, type: 2}
-  _isActive: 0
+  _tileSets:
+  - {fileID: 11400000, guid: 4c75a55d96038614d8aed41b4b7a69c1, type: 2}
+  - {fileID: 11400000, guid: 62285a932d4535a42a968d2a8e354c58, type: 2}
+  IsActive: 0

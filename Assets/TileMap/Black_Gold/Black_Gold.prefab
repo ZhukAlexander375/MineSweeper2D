@@ -347,7 +347,7 @@ GameObject:
   - component: {fileID: 1442605775980309168}
   - component: {fileID: 3605337681479386568}
   m_Layer: 0
-  m_Name: TileMap
+  m_Name: Black_Gold
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

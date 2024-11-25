@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 [DefaultExecutionOrder(-1)]
 public class SampleGridManager : MonoBehaviour
@@ -86,6 +87,12 @@ public class SampleGridManager : MonoBehaviour
 
     private void Update()
     {
+        // check click on ui or gamefield
+        if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject())
+        {
+            return; 
+        }
+
         if (Input.GetMouseButtonDown(0))
         {
             float currentTime = Time.time;
@@ -215,6 +222,22 @@ public class SampleGridManager : MonoBehaviour
             {
                 StartCoroutine(Flood(up));
             }
+            if (_cellGrid.TryGetCell(cell.CellPosition.x - 1, cell.CellPosition.y - 1, out BaseCell downLeft))
+            {
+                StartCoroutine(Flood(downLeft));
+            }
+            if (_cellGrid.TryGetCell(cell.CellPosition.x + 1, cell.CellPosition.y - 1, out BaseCell downRight))
+            {
+                StartCoroutine(Flood(downRight));
+            }
+            if (_cellGrid.TryGetCell(cell.CellPosition.x - 1, cell.CellPosition.y + 1, out BaseCell upLeft))
+            {
+                StartCoroutine(Flood(upLeft));
+            }
+            if (_cellGrid.TryGetCell(cell.CellPosition.x + 1, cell.CellPosition.y + 1, out BaseCell upRight))
+            {
+                StartCoroutine(Flood(upRight));
+            }
         }
     }
 
@@ -233,15 +256,12 @@ public class SampleGridManager : MonoBehaviour
     }
 
     private void InstantiateParticleAtCell(GameObject particlePrefab, BaseCell cell)
-    {
-        // ѕолучаем мировую позицию €чейки
-        Vector3 worldPosition = cell.CellPosition; // ѕредполагаетс€, что у €чейки есть мирова€ позици€
+    {        
+        Vector3 worldPosition = cell.CellPosition;
 
-        // »нстанцируем партикл в позиции €чейки
         GameObject particleInstance = Instantiate(particlePrefab, worldPosition, Quaternion.identity);
 
-        // ”ничтожаем партикл после завершени€ анимации
-        Destroy(particleInstance, 2f); // ”бедитесь, что врем€ совпадает с длиной анимации
+        Destroy(particleInstance, 2f); 
     }
 
     private void VibrateOnAction()

@@ -9,7 +9,7 @@ public class InfiniteGameUI : MonoBehaviour
 
     private void Awake()
     {
-        _sceneLoader = FindObjectOfType<SceneLoader>();
+        _sceneLoader = SceneLoader.Instance;
     }
 
     private void Start()

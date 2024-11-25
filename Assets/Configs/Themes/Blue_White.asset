@@ -12,11 +12,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 306023503bff95243918f42da33194d5, type: 3}
   m_Name: Blue_White
   m_EditorClassIdentifier: 
-  MainBackgroundColor: {r: 0.8980393, g: 0.8980393, b: 0.8980393, a: 0}
-  MainTitleColor: {r: 0.31764707, g: 0.69803923, b: 0.89019614, a: 1}
-  IconsColor: {r: 1, g: 1, b: 1, a: 0}
-  TitleTextColor: {r: 1, g: 1, b: 1, a: 0}
-  SettingWindowsColor: {r: 0.24705884, g: 0.6666667, b: 0.882353, a: 0}
-  ButtonsColor: {r: 1, g: 1, b: 1, a: 0}
-  ButtonsTextColorDark: {r: 0.12941177, g: 0.12941177, b: 0.12941177, a: 0}
-  ButtonsTextColorLight: {r: 1, g: 1, b: 1, a: 0}
+  TopFieldColor: {r: 0.31764707, g: 0.69803923, b: 0.89019614, a: 1}
+  IconsColor: {r: 1, g: 1, b: 1, a: 1}
+  TransparentBGColor: {r: 0.24705882, g: 0.6666667, b: 0.88235295, a: 0.5882353}
+  MenuFrameBGColor: {r: 0.24705884, g: 0.6666667, b: 0.882353, a: 1}
+  MenuTitleTextColor: {r: 1, g: 1, b: 1, a: 1}
+  ButtonsColor: {r: 1, g: 1, b: 1, a: 1}
+  TextsOnButtons: {r: 0, g: 0, b: 0, a: 1}
+  CameraBackground: {r: 0.8980393, g: 0.8980393, b: 0.8980393, a: 1}
