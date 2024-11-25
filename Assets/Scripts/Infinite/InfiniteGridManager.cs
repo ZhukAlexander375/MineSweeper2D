@@ -11,8 +11,12 @@ public class InfiniteGridManager : MonoBehaviour
 {
     public int SectorSize => _sectorSize;
 
+    /// <summary>
+    /// хглемемхе опетаюнб онкмюъ уепэ, мюдн ядекюрэ вепег оепепхянбйс
+    /// </summary>
+    /// 
     [Header("Settings")]
-    [SerializeField] private List<Sector> _sectorPrefabs;
+    [SerializeField] private List<Sector> _sectorPrefabs; 
     [SerializeField] private int _minMinesCount;
     [SerializeField] private int _maxMinesCount;
     [SerializeField] private GameObject _flagPlaceParticle;
