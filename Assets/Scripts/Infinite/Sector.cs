@@ -262,22 +262,28 @@ public class Sector : MonoBehaviour
     {
         if (themeIndex < 0 || themeIndex >= _tileSets.Count)
         {
-            Debug.LogWarning($"Недопустимый индекс темы: {themeIndex}");
             return;
         }
 
         _currentTileSet = _tileSets[themeIndex];
         _currentTileSetIndex = themeIndex;
-
-        RedrawGrid();
-    }
-
-    private void RedrawGrid()
-    {
         if (Tilemap != null)
         {
-            Tilemap.RefreshAllTiles();
+            RedrawGrid();
         }
+    }
+
+    public void RedrawGrid()
+    {
+        if (Tilemap == null) return;
+               
+        foreach (var cellPosition in _cells.Keys)
+        {
+            var cell = _cells[cellPosition];
+            Tilemap.SetTile(cellPosition, GetTile(cell));
+        }
+
+        Tilemap.RefreshAllTiles();
     }
 
     private void OnThemeChanged(ThemeChangeSignal signal)

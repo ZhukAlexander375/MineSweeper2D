@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 2124351663902796935}
   - component: {fileID: 8492993251520972708}
   m_Layer: 0
-  m_Name: DarkSector
+  m_Name: Sector
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

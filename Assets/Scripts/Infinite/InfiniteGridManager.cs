@@ -11,12 +11,8 @@ public class InfiniteGridManager : MonoBehaviour
 {
     public int SectorSize => _sectorSize;
 
-    /// <summary>
-    /// ИЗМЕНЕНИЕ ПРЕФБАОВ ПОЛНАЯ ХЕРЬ, НАДО СДЕЛАТЬ ЧЕРЕЗ ПЕРЕРИСОВКУ
-    /// </summary>
-    /// 
     [Header("Settings")]
-    [SerializeField] private List<Sector> _sectorPrefabs; 
+    [SerializeField] private Sector _sectorPrefab;
     [SerializeField] private int _minMinesCount;
     [SerializeField] private int _maxMinesCount;
     [SerializeField] private GameObject _flagPlaceParticle;
@@ -38,9 +34,6 @@ public class InfiniteGridManager : MonoBehaviour
     private bool _flagSet;
     private float _lastClickTime = -1f; // Время последнего клика
     private const float DoubleClickThreshold = 0.3f; // Порог для двойного клика (в секундах)
-
-    private Sector _currentSectorPrefab;
-    private int _currentTileSetIndex;
 
 
     void Start()
@@ -598,15 +591,15 @@ public class InfiniteGridManager : MonoBehaviour
     {
         if (!_sectors.ContainsKey(position))
         {
-            int themeIndex = ThemeManager.Instance != null ? ThemeManager.Instance.CurrentThemeIndex : 0;
-           
-            _currentSectorPrefab = _sectorPrefabs[themeIndex];
-            _currentTileSetIndex = themeIndex;
-            Debug.Log(_currentTileSetIndex);
-
             var sectorWorldPosition = new Vector3(position.x * _sectorSize, position.y * _sectorSize, 0);
-            var newSector = Instantiate(_sectorPrefabs[_currentTileSetIndex], sectorWorldPosition, Quaternion.identity, transform);
+            var newSector = Instantiate(_sectorPrefab, sectorWorldPosition, Quaternion.identity, transform);
             newSector.SetManager(this);
+
+            if (ThemeManager.Instance != null)
+            {
+                newSector.TryApplyTheme(ThemeManager.Instance.CurrentThemeIndex);
+            }
+
             _sectors.Add(position, newSector);
         }
     }
