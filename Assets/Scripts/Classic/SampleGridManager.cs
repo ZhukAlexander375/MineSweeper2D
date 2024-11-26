@@ -44,6 +44,7 @@ public class SampleGridManager : MonoBehaviour
         if (levelIndex >= 0 && levelIndex < _levels.Count)
         {
             _currentLevel = levelIndex;
+            SetLevelSettings();
             NewGame();
         }
         else
@@ -52,20 +53,21 @@ public class SampleGridManager : MonoBehaviour
         }
     }
 
+    public void StartCustomLevel(ClassicGameSettings settings)
+    {
+        SetCustomLevelSettings(settings);
+        NewGame();       
+    }
+
     private void NewGame()
     {
-        StopAllCoroutines();
-
-        SetLevelSettings();
-        
+        StopAllCoroutines();               
 
         IsGameOver = false;
         IsGenerated = false;
 
-
         _cellGrid = new CellGrid(_width, _height);
         _board.Draw(_cellGrid);
-
 
         //_cellGrid = new CellGrid((int)Mathf.Sqrt(_freeForm.GridSize), (int)Mathf.Sqrt(_freeForm.GridSize));
         //_board.DrawFreeForm(_freeForm, _cellGrid);
@@ -77,13 +79,45 @@ public class SampleGridManager : MonoBehaviour
         _height = _levels[_currentLevel].Height;
         _mineCount = _levels[_currentLevel].MineCount;
         _mineCount = Mathf.Clamp(_mineCount, 0, _width * _height);
-        Camera.main.transform.position = new Vector3(_width / 2f, _height / 2f, -10f);
+
+        AdjustCameraToGridSize(_width, _height);
+        //Camera.main.transform.position = new Vector3(_width / 2f, _height / 2f, -10f);
     }
 
-    /*private void OnValidate()
+    private void SetCustomLevelSettings(ClassicGameSettings settings)
     {
-        _mineCount = Mathf.Clamp(_mineCount, 0, _width * _height);
-    }*/
+        int width = ClassicGameMinSize.ClampValue(settings.Width, ClassicGameMinSize.MinWidth, ClassicGameMinSize.MaxWidth);
+        int height = ClassicGameMinSize.ClampValue(settings.Height, ClassicGameMinSize.MinHeight, ClassicGameMinSize.MaxHeight);
+        int maxMines = ClassicGameMinSize.MaxMines(width, height);
+        int mines = ClassicGameMinSize.ClampValue(settings.Mines, ClassicGameMinSize.MinMines(width, height), maxMines);
+
+        _width = width;
+        _height = height;
+        _mineCount = mines;
+
+        AdjustCameraToGridSize(width, height);
+        //Camera.main.transform.position = new Vector3(_width / 2f, _height / 2f, -10f);
+    }
+
+    private void AdjustCameraToGridSize(int gridWidth, int gridHeight)
+    {        
+        Camera camera = Camera.main;
+        if (camera.orthographic)
+        {
+            float aspectRatio = (float)Screen.width / Screen.height;
+            
+            float cameraSizeX = gridWidth / 2f;
+            float cameraSizeY = gridHeight / 2f;
+
+            camera.orthographicSize = Mathf.Max(cameraSizeY, cameraSizeX / aspectRatio);
+
+            camera.transform.position = new Vector3(gridWidth / 2f, gridHeight / 2f, -10f);
+        }
+        else
+        {
+            Debug.LogError("Camera is not set to orthographic mode.");
+        }
+    }
 
     private void Update()
     {

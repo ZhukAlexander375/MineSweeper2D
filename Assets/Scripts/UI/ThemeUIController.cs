@@ -1,3 +1,4 @@
+using System.Net;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -10,7 +11,8 @@ public class ThemeUIController : MonoBehaviour
     [SerializeField] private Image _menuFrameBackground;
     [SerializeField] private Button[] _buttons;
     [SerializeField] private TMP_Text _menuTitleText;        
-    [SerializeField] private TMP_Text[] _textsOnButtons;    
+    [SerializeField] private TMP_Text[] _textsOnButtons;
+    [SerializeField] private InputFieldHandler[] _inputFields;
     
 
     private ThemeConfig _currentAppliedTheme;
@@ -63,7 +65,8 @@ public class ThemeUIController : MonoBehaviour
 
         ApplyTextsColors(_currentAppliedTheme);
         ApplyButtonsColor(_currentAppliedTheme);
-        ApplyBackgrounsColor(_currentAppliedTheme);                
+        ApplyBackgrounsColor(_currentAppliedTheme);
+        ApplyInputFieldsColor(_currentAppliedTheme);
     }
 
     private void ApplyTextsColors(ThemeConfig theme)
@@ -78,6 +81,21 @@ public class ThemeUIController : MonoBehaviour
             foreach (var text in _textsOnButtons)
             {
                 text.color = theme.TextsOnButtons;
+            }
+        }
+
+        if (_inputFields != null && _inputFields.Length > 0)
+        {
+            foreach (var field in _inputFields)
+            {
+                if (field?.InputField != null && field.InputField.placeholder != null)
+                {                    
+                    field.InputField.placeholder.color = theme.TextsOnButtons;
+                }
+                else
+                {
+                    Debug.LogWarning($"InputField или его placeholder отсутствует на объекте {field?.name ?? "неизвестный"}.");
+                }
             }
         }
 
@@ -128,12 +146,31 @@ public class ThemeUIController : MonoBehaviour
 
         if (_icons.Length > 0)
         {
-            foreach(var icon in _icons)
+            foreach (var icon in _icons)
             {
                 icon.color = theme.IconsColor;
             }
         }
+    }
 
+    private void ApplyInputFieldsColor(ThemeConfig theme)
+    {
+        if (_inputFields == null || _inputFields.Length == 0)
+        {
+            return;
+        }
+
+        foreach (var field in _inputFields)
+        {
+            if (field?.InputField != null && field.InputField.image != null)
+            {
+                field.InputField.image.color = theme.ButtonsColor;
+            }
+            else
+            {
+                Debug.LogWarning($"InputField или его image отсутствует на объекте {field?.name ?? "неизвестный"}.");
+            }
+        }
     }
 
     private void OnDestroy()
