@@ -719,7 +719,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2a38930aa413fff47a54b2f962aa49ab, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _topFieldImage: {fileID: 6785572153428019442}
+  _topFieldImage:
+  - {fileID: 6785572153428019442}
   _icons:
   - {fileID: 6785572153428019441}
   - {fileID: 6785572153428019440}
@@ -1524,7 +1525,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2a38930aa413fff47a54b2f962aa49ab, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _topFieldImage: {fileID: 720483874}
+  _topFieldImage:
+  - {fileID: 720483874}
   _icons:
   - {fileID: 243945623}
   - {fileID: 1323332383}
@@ -3338,7 +3340,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2a38930aa413fff47a54b2f962aa49ab, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _topFieldImage: {fileID: 6785572153428019452}
+  _topFieldImage:
+  - {fileID: 6785572153428019452}
   _icons:
   - {fileID: 6785572153428019451}
   - {fileID: 6785572153428019450}

@@ -1,8 +1,9 @@
 using UnityEngine;
 
 public class InfiniteCell : BaseCell
-{   
+{
     public bool IsActive;
+    public bool IsAward;
     public Sector Sector => _sector;
 
     private bool _isRevealed;

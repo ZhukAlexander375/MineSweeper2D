@@ -18,4 +18,6 @@ public class TileSetConfig : ScriptableObject
     public Tile TileNum6;
     public Tile TileNum7;
     public Tile TileNum8;
+    public Tile TileInactivePrize;
+    public Tile TileActivePrize;
 }

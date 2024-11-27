@@ -380,7 +380,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2a38930aa413fff47a54b2f962aa49ab, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _topFieldImage: {fileID: 1917743398589785100}
+  _topFieldImage:
+  - {fileID: 1917743398589785100}
   _icons:
   - {fileID: 1917743398589785099}
   - {fileID: 1917743398589785098}
@@ -390,6 +391,7 @@ MonoBehaviour:
   _buttons: []
   _menuTitleText: {fileID: 1917743398589785097}
   _textsOnButtons: []
+  _inputFields: []
 --- !u!1001 &1917743398589785094
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -673,7 +675,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2a38930aa413fff47a54b2f962aa49ab, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _topFieldImage: {fileID: 1917743398589785105}
+  _topFieldImage:
+  - {fileID: 1917743398589785105}
   _icons:
   - {fileID: 1917743398589785104}
   - {fileID: 1917743398589785103}
@@ -682,6 +685,7 @@ MonoBehaviour:
   _buttons: []
   _menuTitleText: {fileID: 1917743398589785101}
   _textsOnButtons: []
+  _inputFields: []
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

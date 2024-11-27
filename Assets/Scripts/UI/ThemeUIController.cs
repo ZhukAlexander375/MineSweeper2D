@@ -5,7 +5,7 @@ using UnityEngine.UI;
 
 public class ThemeUIController : MonoBehaviour
 {
-    [SerializeField] private Image _topFieldImage;
+    [SerializeField] private Image[] _topFieldImage;
     [SerializeField] private Image[] _icons;
     [SerializeField] private Image _transparentBackground;
     [SerializeField] private Image _menuFrameBackground;
@@ -129,9 +129,12 @@ public class ThemeUIController : MonoBehaviour
 
     private void ApplyBackgrounsColor(ThemeConfig theme)
     {
-        if (_topFieldImage != null)
+        if (_topFieldImage.Length > 0)
         {
-            _topFieldImage.color = theme.TopFieldColor;
+            foreach (var image in _topFieldImage)
+            {
+                image.color = theme.TopFieldColor;
+            }
         }
 
         if (_transparentBackground != null)

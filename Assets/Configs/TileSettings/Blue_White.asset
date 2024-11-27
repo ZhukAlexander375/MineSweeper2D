@@ -26,3 +26,5 @@ MonoBehaviour:
   TileNum6: {fileID: 11400000, guid: 6fdf097f861c1424bac27c4cff0b4b42, type: 2}
   TileNum7: {fileID: 11400000, guid: ddf57290ce5e3af40a282c037acc3962, type: 2}
   TileNum8: {fileID: 11400000, guid: 49d00645a68ce8e4e82e8e88cf9c6052, type: 2}
+  TileInactivePrize: {fileID: 11400000, guid: 53568cd32ed566248ac68613e37c2cbd, type: 2}
+  TileActivePrize: {fileID: 11400000, guid: b249f2916f2ff52499039368f481a87d, type: 2}

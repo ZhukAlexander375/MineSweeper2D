@@ -1,4 +1,3 @@
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -27,7 +26,7 @@ public class InfiniteGridManager : MonoBehaviour
     private int initialSectorsVisibleInRange = 2;
     private int _sectorsCount;
 
-    private Dictionary<Vector2Int, Sector> _sectors = new Dictionary<Vector2Int, Sector>();
+    private Dictionary<Vector2Int, Sector> _sectors = new Dictionary<Vector2Int, Sector>();    
     private Dictionary<Vector3Int, InfiniteCell> _allCells = new Dictionary<Vector3Int, InfiniteCell>();
     private float _clickStartTime;
     private bool _isHolding;
@@ -100,10 +99,10 @@ public class InfiniteGridManager : MonoBehaviour
 
         IsFirstClick = true;
 
-        List<Sector> _sectorsToActivate = GetAdjacentSectors(startingSector);
-        _sectorsToActivate.Add(startingSector);
-
-        foreach (var sector in _sectorsToActivate)
+        List<Sector> initializeSectors = GetAdjacentSectors(startingSector);
+        //initializeSectors.Add(startingSector);
+        
+        foreach (var sector in initializeSectors)
         {
             if (!sector.IsActive)
             {
@@ -122,8 +121,12 @@ public class InfiniteGridManager : MonoBehaviour
                 {
                     _sectorsCount++;
                 }
+
+                sector.IsPrizePlaced = true;
             }
         }
+
+        GenerateSectorAwards(); 
     }
 
     public void GenerateSectors(Sector currentSector, InfiniteCell startingCell)
@@ -132,19 +135,18 @@ public class InfiniteGridManager : MonoBehaviour
         _sectorsToActivate.Add(currentSector);
 
         foreach (var sector in _sectorsToActivate)
-        {
+        {            
             if (!sector.IsActive)
             {
                 foreach (var cell in sector.Cells)
                 {
-
                     Vector3Int cellWorldPosition = cell.Key + new Vector3Int((int)(sector.transform.position.x), (int)(sector.transform.position.y), 0);
                     _allCells[cellWorldPosition] = cell.Value;
                 }
 
                 GenerateMinesInSector(sector, startingCell);
                 GenerateNumbers(sector);
-
+                
                 sector.IsActive = true;
 
                 if (sector.IsActive)
@@ -154,6 +156,7 @@ public class InfiniteGridManager : MonoBehaviour
             }
         }
 
+        //GenerateSectorAwards();
         DrawSectors();
     }
 
@@ -237,6 +240,17 @@ public class InfiniteGridManager : MonoBehaviour
         }
 
         return count;
+    }
+
+    private void GenerateSectorAwards()
+    {
+        if (IsFirstClick)
+        {
+            foreach (var sector in _sectors.Values)
+            {
+                sector.GenerateAward();
+            }
+        }        
     }
 
 
@@ -329,14 +343,19 @@ public class InfiniteGridManager : MonoBehaviour
     }
 
     public void Reveal(Sector currentSector, InfiniteCell cell)
-    {
+    {        
         if (cell.IsRevealed) return;
         if (cell.IsFlagged) return;
+
+        if (cell.IsAward)
+        {
+            AwardBonus(cell);
+        }
 
         switch (cell.CellState)
         {
             case CellState.Mine:
-                Explode(cell);
+                Explode(currentSector, cell);
                 break;
 
             case CellState.Empty:
@@ -345,10 +364,10 @@ public class InfiniteGridManager : MonoBehaviour
                 //CheckWinCondition();
                 break;
 
-            default:
+            default:                
                 cell.IsRevealed = true;
                 cell.IsActive = true;
-
+                
                 //CheckWinCondition();
                 break;
         }
@@ -363,23 +382,23 @@ public class InfiniteGridManager : MonoBehaviour
         bool isPlacingFlag = !cell.IsFlagged;
         cell.IsFlagged = !cell.IsFlagged;
 
+        if (isPlacingFlag && cell.IsAward)
+        {
+            AwardBonus(cell);
+        }
+
         InstantiateParticleAtCell(isPlacingFlag ? _flagPlaceParticle : _flagRemoveParticle, cell);
 
         // Вибрация и перерисовка
-        VibrateOnAction();
+        // VibrateOnAction();
         DrawSectors();
     }
 
     private void InstantiateParticleAtCell(GameObject particlePrefab, InfiniteCell cell)
     {
-        // Получаем мировую позицию ячейки
-        Vector3 worldPosition = cell.CellPosition; // Предполагается, что у ячейки есть мировая позиция
-
-        // Инстанцируем партикл в позиции ячейки
+        Vector3 worldPosition = cell.CellPosition;
         GameObject particleInstance = Instantiate(particlePrefab, worldPosition, Quaternion.identity);
-
-        // Уничтожаем партикл после завершения анимации
-        Destroy(particleInstance, 2f); // Убедитесь, что время совпадает с длиной анимации
+        Destroy(particleInstance, 2f);
     }
 
     private void VibrateOnAction()
@@ -461,13 +480,10 @@ public class InfiniteGridManager : MonoBehaviour
         return flagCount;
     }
 
-
-
-
-    private void Explode(InfiniteCell cell)
-    {
-        cell.IsRevealed = true;    
-
+    private void Explode(Sector currentSector, InfiniteCell cell)
+    {        
+        cell.IsRevealed = true;               
+        currentSector.CloseSector();
         // Add logic of lose in sector/game?
     }
 
@@ -476,6 +492,11 @@ public class InfiniteGridManager : MonoBehaviour
         //if (IsGameOver) yield break;
         if (cell.IsRevealed) yield break;
         if (cell.CellState == CellState.Mine) yield break;
+
+        if (cell.IsAward)
+        {
+            AwardBonus(cell);
+        }
 
         cell.IsRevealed = true;
         //cell.IsActive = true;        
@@ -521,6 +542,12 @@ public class InfiniteGridManager : MonoBehaviour
         }       
     }
 
+    private void AwardBonus(InfiniteCell cell)
+    {       
+        SignalBus.Fire(new OnGameRewardSignal(0, 1));
+        cell.IsAward = false;
+    }
+
     public void CellsActivate(InfiniteCell cell)
     {
         for (int adjacentX = -1; adjacentX <= 1; adjacentX++)
@@ -553,7 +580,6 @@ public class InfiniteGridManager : MonoBehaviour
                 sector.DrawSector();
             }
         }
-
     }
 
     public bool TryGetCell(int x, int y, out InfiniteCell cell)
@@ -593,14 +619,14 @@ public class InfiniteGridManager : MonoBehaviour
         {
             var sectorWorldPosition = new Vector3(position.x * _sectorSize, position.y * _sectorSize, 0);
             var newSector = Instantiate(_sectorPrefab, sectorWorldPosition, Quaternion.identity, transform);
-            newSector.SetManager(this);
+            newSector.SetManager(this);                
 
             if (ThemeManager.Instance != null)
             {
                 newSector.TryApplyTheme(ThemeManager.Instance.CurrentThemeIndex);
             }
 
-            _sectors.Add(position, newSector);
+            _sectors.Add(position, newSector);            
         }
     }
 

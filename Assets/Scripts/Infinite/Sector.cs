@@ -6,12 +6,14 @@ using UnityEngine.Tilemaps;
 public class Sector : MonoBehaviour
 {
     [SerializeField] private List<TileSetConfig> _tileSets;
+    [SerializeField] private SectorUI _sectorUi;
     //[SerializeField] private LevelConfig _sectorConfig;
     
     public Tilemap Tilemap { get; private set; }
     public bool IsActive;
     public bool IsFirstCellActivated {  get; set; }
-    public bool IsExplode { get; set; }
+    public bool IsExploded { get; set; }
+    public bool IsPrizePlaced { get; set; }
     public Dictionary<Vector3Int, InfiniteCell> Cells => _cells;   
        
 
@@ -19,13 +21,14 @@ public class Sector : MonoBehaviour
     private Dictionary<Vector3Int, InfiniteCell> _cells = new Dictionary<Vector3Int, InfiniteCell>();
     private TileSetConfig _currentTileSet;
     private int _currentTileSetIndex;
-
-
+    
+    
     private void Start()
     {
         Tilemap = GetComponent<Tilemap>();
         //InitializeSector();
         InitializeDict();
+        GenerateAward();
         SignalBus.Subscribe<OnCellActiveSignal>(SectorActivate);
         SignalBus.Subscribe<ThemeChangeSignal>(OnThemeChanged);
         TryApplyTheme(ThemeManager.Instance.CurrentThemeIndex);
@@ -72,6 +75,12 @@ public class Sector : MonoBehaviour
 
         if (cellX >= 0 && cellX < 8 && cellY >= 0 && cellY < 8) ///8 - hard
         {
+            if (IsExploded)
+            {
+                Debug.Log("This sector is exploded and cannot be interacted with.");
+                return;
+            }
+
             var clickedCell = _cells[new Vector3Int(cellX, cellY, 0)];
 
             if (!_infiniteGridManager.IsFirstClick)
@@ -100,6 +109,11 @@ public class Sector : MonoBehaviour
 
         if (cellX >= 0 && cellX < 8 && cellY >= 0 && cellY < 8) ///8 - hard
         {
+            if (IsExploded)
+            {                
+                return;
+            }
+
             var clickedCell = _cells[new Vector3Int(cellX, cellY, 0)];
 
             if (!_infiniteGridManager.IsFirstClick)
@@ -121,11 +135,16 @@ public class Sector : MonoBehaviour
         
         if (cellX >= 0 && cellX < 8 && cellY >= 0 && cellY < 8) // 8 - размер сектора
         {
+            if (IsExploded)
+            {
+                return;
+            }
+
             var clickedCell = _cells[new Vector3Int(cellX, cellY, 0)];
 
             if (!_infiniteGridManager.IsFirstClick)
             {
-                return; // Игнорируем до первого клика
+                return;
             }
 
             if (clickedCell.IsRevealed && clickedCell.CellState == CellState.Number)
@@ -140,20 +159,26 @@ public class Sector : MonoBehaviour
         }
     }
 
-    public List<InfiniteCell> GetCellValues()
+    public void GenerateAward()
     {
-        List<InfiniteCell> cells = new List<InfiniteCell>();
-
-        foreach (var cell in _cells.Values)
+        if (_infiniteGridManager.IsFirstClick && !IsPrizePlaced)
         {
-            cells.Add(cell);
-        }
+            Vector3Int randomPosition = new Vector3Int(
+                Random.Range(0, _infiniteGridManager.SectorSize),
+                Random.Range(0, _infiniteGridManager.SectorSize),
+                0
+                );
+            InfiniteCell cell = GetCell(randomPosition);
 
-        return cells;
+            cell.IsAward = true;
+            IsPrizePlaced = true;
+
+            DrawSector();
+        }
     }
 
     public void DrawSector()
-    {
+    {        
         int width = _infiniteGridManager.SectorSize;
         int height = _infiniteGridManager.SectorSize;
 
@@ -175,7 +200,7 @@ public class Sector : MonoBehaviour
     private Tile GetTile(InfiniteCell cell)
     {
         if (cell.IsRevealed)
-        {
+        { 
             return GetRevealedTile(cell);
         }
 
@@ -184,10 +209,20 @@ public class Sector : MonoBehaviour
             return _tileSets[_currentTileSetIndex].TileFlag;
         }
 
+        else if (cell.IsActive && cell.IsAward)
+        {
+            return _tileSets[_currentTileSetIndex].TileActivePrize;
+        }
+
         else if (cell.IsActive && !cell.IsRevealed)
         {
             return _tileSets[_currentTileSetIndex].TileActive;            ///////////////
-        }
+        }        
+
+        else if (!cell.IsActive && cell.IsAward)
+        {
+            return _tileSets[_currentTileSetIndex].TileInactivePrize;
+        }        
 
         else
         {
@@ -244,8 +279,7 @@ public class Sector : MonoBehaviour
             var cell = signal.Cell;
             
             if (!IsFirstCellActivated)
-            {
-                
+            {                
                 _infiniteGridManager.GenerateSectors(this, cell);
                 IsFirstCellActivated = true;
                 IsActive = true;                
@@ -269,11 +303,11 @@ public class Sector : MonoBehaviour
         _currentTileSetIndex = themeIndex;
         if (Tilemap != null)
         {
-            RedrawGrid();
+            RedrawSector();
         }
     }
 
-    public void RedrawGrid()
+    public void RedrawSector()
     {
         if (Tilemap == null) return;
                
@@ -284,6 +318,22 @@ public class Sector : MonoBehaviour
         }
 
         Tilemap.RefreshAllTiles();
+    }
+
+    public void CloseSector()
+    {
+        IsExploded = true;
+
+        foreach (var cellPosition in _cells.Keys)
+        {
+            var cell = _cells[cellPosition];
+           
+            cell.IsActive = false;                        
+        }
+
+        _sectorUi.gameObject.SetActive(true);
+        _sectorUi.HideSector();
+        //RedrawSector();
     }
 
     private void OnThemeChanged(ThemeChangeSignal signal)
