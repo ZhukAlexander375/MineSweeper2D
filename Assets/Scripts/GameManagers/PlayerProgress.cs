@@ -31,7 +31,7 @@ public class PlayerProgress : MonoBehaviour
                 StarAward += signal.Count;
                 break;
         }
-        Debug.Log(StarAward);
+        //Debug.Log(StarAward);
     }
 
     private void OnDestroy()

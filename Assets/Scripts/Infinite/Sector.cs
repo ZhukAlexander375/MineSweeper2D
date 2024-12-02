@@ -178,7 +178,8 @@ public class Sector : MonoBehaviour
     }
 
     public void DrawSector()
-    {        
+    {
+        //Debug.Log(1);
         int width = _infiniteGridManager.SectorSize;
         int height = _infiniteGridManager.SectorSize;
 

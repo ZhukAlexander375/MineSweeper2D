@@ -1,3 +1,4 @@
+using DG.Tweening;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,15 +17,18 @@ public class InfiniteGridManager : MonoBehaviour
     [SerializeField] private int _maxMinesCount;
     [SerializeField] private GameObject _flagPlaceParticle;
     [SerializeField] private GameObject _flagRemoveParticle;
+    [SerializeField] private GameObject _targetRewardUIElement;
+    [SerializeField] private GameObject _awardSpritePrefab;
 
     public bool IsFirstClick;
 
     private int _sectorSize = 8;            ///
     private Camera mainCamera;
     private Grid _grid;
-    private Vector2 _cellGap;
+    //private Vector2 _cellGap;
     private int initialSectorsVisibleInRange = 2;
     private int _sectorsCount;
+    private Vector3 _lastClickPosition;
 
     private Dictionary<Vector2Int, Sector> _sectors = new Dictionary<Vector2Int, Sector>();    
     private Dictionary<Vector3Int, InfiniteCell> _allCells = new Dictionary<Vector3Int, InfiniteCell>();
@@ -40,8 +44,8 @@ public class InfiniteGridManager : MonoBehaviour
         mainCamera = Camera.main;
         _grid = GetComponent<Grid>();
 
-        _cellGap.x = _grid.cellGap.x;
-        _cellGap.y = _grid.cellGap.y;
+        //_cellGap.x = _grid.cellGap.x;
+        //_cellGap.y = _grid.cellGap.y;
     }
 
     private void Update()
@@ -156,7 +160,6 @@ public class InfiniteGridManager : MonoBehaviour
             }
         }
 
-        //GenerateSectorAwards();
         DrawSectors();
     }
 
@@ -325,7 +328,7 @@ public class InfiniteGridManager : MonoBehaviour
     private void GetSectorAtDoubleClick()
     {
         Vector3 worldPosition = mainCamera.ScreenToWorldPoint(Input.mousePosition);
-        worldPosition.z = 0;
+        worldPosition.z = 0;       
 
         Vector2Int sectorPosition = new Vector2Int(
             Mathf.FloorToInt(worldPosition.x / _sectorSize),
@@ -372,6 +375,8 @@ public class InfiniteGridManager : MonoBehaviour
                 break;
         }
 
+        _lastClickPosition = cell.CellPosition;
+
         DrawSectors();
     }
 
@@ -388,6 +393,8 @@ public class InfiniteGridManager : MonoBehaviour
         }
 
         InstantiateParticleAtCell(isPlacingFlag ? _flagPlaceParticle : _flagRemoveParticle, cell);
+
+        _lastClickPosition = cell.CellPosition;
 
         // Вибрация и перерисовка
         // VibrateOnAction();
@@ -471,12 +478,11 @@ public class InfiniteGridManager : MonoBehaviour
 
                 if (_allCells.TryGetValue(position, out InfiniteCell adjacentCell) && adjacentCell.IsFlagged)
                 {
-                    flagCount++;
-                    //Debug.Log($"Flag found at position: {position}");
+                    flagCount++;                    
                 }
             }
         }
-        //Debug.Log($"Total flags around cell at {cell.CellPosition}: {flagCount}");
+
         return flagCount;
     }
 
@@ -543,10 +549,40 @@ public class InfiniteGridManager : MonoBehaviour
     }
 
     private void AwardBonus(InfiniteCell cell)
-    {       
+    {
+        if (!cell.IsAward) return;
+
         SignalBus.Fire(new OnGameRewardSignal(0, 1));
         cell.IsAward = false;
+
+        MoveAwardSprite(cell, _targetRewardUIElement);
     }
+
+    private void MoveAwardSprite(InfiniteCell cell, GameObject targetRewardUIElement)
+    {
+        Vector3 startPosition = cell.CellPosition;
+               
+        GameObject awardSprite = Instantiate(_awardSpritePrefab, startPosition, Quaternion.identity);
+        awardSprite.transform.localScale = Vector3.one;
+
+        Vector3 targetPosition = Camera.main.ScreenToWorldPoint(new Vector3(
+            _targetRewardUIElement.transform.position.x,
+            _targetRewardUIElement.transform.position.y,
+            Camera.main.nearClipPlane));
+                
+        awardSprite.transform.DOMove(targetPosition, 1.5f)
+            .SetEase(Ease.InOutQuad) 
+            .OnComplete(() =>
+            {                
+                Destroy(awardSprite);
+            });
+       
+       // awardSprite.transform.DOScale(0f, 1f).SetEase(Ease.InOutQuad);
+                
+       // var spriteRenderer = awardSprite.GetComponent<SpriteRenderer>();
+        //spriteRenderer.DOFade(0f, 1f);
+    }
+
 
     public void CellsActivate(InfiniteCell cell)
     {
@@ -635,5 +671,14 @@ public class InfiniteGridManager : MonoBehaviour
         var x = mainCamera.transform.position.x / _sectorSize;
         var y = mainCamera.transform.position.y / _sectorSize;
         return new Vector2Int(Mathf.FloorToInt(x), Mathf.FloorToInt(y));
-    } 
+    }
+
+    // ! ! ! ! ADD IN INSPECTOR
+    public void ReturnCameraToLastClick()
+    {
+        if (_lastClickPosition != Vector3.zero)
+        {
+            mainCamera.transform.position = new Vector3(_lastClickPosition.x, _lastClickPosition.y, mainCamera.transform.position.z);
+        }
+    }
 }

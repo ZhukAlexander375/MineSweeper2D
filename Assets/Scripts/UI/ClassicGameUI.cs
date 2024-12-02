@@ -7,14 +7,23 @@ using Zenject.Asteroids;
 public class ClassicGameUI : MonoBehaviour
 {
     [Header("Buttons")]
+    [SerializeField] private Button _settingsButton;
+    [SerializeField] private Button _pauseButton;
+    [SerializeField] private Button _continueButton;
+    [SerializeField] private Button _settingsOnPauseButton;
+    [SerializeField] private Button _replyLevel;
+    [SerializeField] private Button _backToClassicGameMenu;
+
     [SerializeField] private Button _easyLvlButton;
     [SerializeField] private Button _mediumLvlButton;
     [SerializeField] private Button _hardLvlButton;
     [SerializeField] private Button _customLvlButton;
-    [SerializeField] private Button _backToMainMenuButton;
-    [SerializeField] private Button _backToMenuButton;
-    [SerializeField] private Button _backToClassicGameMwnu;
     [SerializeField] private Button _startCustomGameButton;
+
+    [SerializeField] private Button _backToMainMenuButton;        
+    //[SerializeField] private Button _backToMenuButton;
+    //[SerializeField] private Button _backToClassicGameMenu;
+    
 
     [Header("InputFields")]
     [SerializeField] private InputFieldHandler _inputWidth;
@@ -25,6 +34,8 @@ public class ClassicGameUI : MonoBehaviour
     [SerializeField] private TMP_Text _gameModeName;
 
     [Header("Screens")]
+    [SerializeField] private Canvas _pauseMenuScreen;
+    [SerializeField] private Canvas _settingsScreen;
     [SerializeField] private Canvas _classicGameMenuScreen;
     [SerializeField] private Canvas _gameScreen;
     [SerializeField] private Canvas _customGameSettingsScreen;
@@ -38,7 +49,7 @@ public class ClassicGameUI : MonoBehaviour
     [SerializeField] private int _maxSize = 100;
     [SerializeField] private int _minMines = 1;
     [SerializeField] private int _maxMines = 5000;
-    [SerializeField]private ClassicGameController _classicGameController;
+    [SerializeField] private ClassicGameController _classicGameController;
 
     private SceneLoader _sceneLoader;  
 
@@ -50,15 +61,37 @@ public class ClassicGameUI : MonoBehaviour
 
     private void Start()
     {
+        _settingsButton.onClick.AddListener(OpenSettings);
+        _pauseButton.onClick.AddListener(OpenPauseMenu);
+        _continueButton.onClick.AddListener(ClosePauseMenu);
+        _settingsOnPauseButton.onClick.AddListener(OpenSettings);
+        //_replyLevel.onClick.AddListener(RESTART GAME);
+        _backToClassicGameMenu.onClick.AddListener(ReturnToClassicGameMenu);
+        //_goHomeButtonOnPause.onClick.AddListener(ReturnToMainMenu);
+
         _easyLvlButton.onClick.AddListener(() => StartLevel("Easy", 0));
         _mediumLvlButton.onClick.AddListener(() => StartLevel("Medium", 1));
         _hardLvlButton.onClick.AddListener(() => StartLevel("Hard", 2));
         _customLvlButton.onClick.AddListener(OpenCustomGameSettingsScreen);
         _startCustomGameButton.onClick.AddListener(StartCustomLevel);
-
+                
         _backToMainMenuButton.onClick.AddListener(ReturnToMainMenu);
-        _backToMenuButton.onClick.AddListener(ReturnToClassicGameMenu);
-        _backToClassicGameMwnu.onClick.AddListener(ReturnToClassicGameMenu);
+        //_backToMenuButton.onClick.AddListener(ReturnToClassicGameMenu);        
+    }
+
+    private void OpenPauseMenu()
+    {
+        _pauseMenuScreen.gameObject.SetActive(true);
+    }
+
+    private void ClosePauseMenu()
+    {
+        _pauseMenuScreen.gameObject.SetActive(false);
+    }
+
+    private void OpenSettings()
+    {
+        _settingsScreen.gameObject.SetActive(true);
     }
 
     private void StartLevel(string modeName, int levelIndex)
@@ -70,7 +103,9 @@ public class ClassicGameUI : MonoBehaviour
 
     private void OpenCustomGameSettingsScreen()
     {
+        _classicGameMenuScreen.gameObject.SetActive(false);
         _customGameSettingsScreen.gameObject.SetActive(true);
+
     }
 
     private void StartCustomLevel()
@@ -121,6 +156,7 @@ public class ClassicGameUI : MonoBehaviour
     private void ReturnToClassicGameMenu()
     {
         ClearInputFields();
+        _pauseMenuScreen.gameObject.SetActive(false);
         _classicGameMenuScreen.gameObject.SetActive(true);
         _customGameSettingsScreen.gameObject.SetActive(false);
         _gameScreen.gameObject.SetActive(false);
@@ -135,5 +171,5 @@ public class ClassicGameUI : MonoBehaviour
         }
         
         return defaultValue;
-    }
+    }    
 }

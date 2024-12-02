@@ -8,15 +8,11 @@ public class MainMenuUI : MonoBehaviour
     [SerializeField] private Button _infinityGameButton;
     [SerializeField] private Button _classicGameMenuButton;
     [SerializeField] private Button _hardcoreGameMenuButton;
-    [SerializeField] private Button _episodeGameMenuButton;
-    [SerializeField] private Button _shopButton;
-    [SerializeField] private Button _themeButton;
+    [SerializeField] private Button _episodeGameMenuButton;    
     [SerializeField] private Button _settingsButton;
 
     [Header("Screens")]
-    [SerializeField] private Canvas _episodeGameScreen;
-    [SerializeField] private Canvas _shopScreen;
-    [SerializeField] private Canvas _themeScreen;
+    [SerializeField] private Canvas[] _mainMenuScreens;
     [SerializeField] private Canvas _settingsScreen;
 
     private SceneLoader _sceneLoader;
@@ -33,13 +29,22 @@ public class MainMenuUI : MonoBehaviour
         _infinityGameButton.onClick.AddListener(OpenInfinityGame);
         _classicGameMenuButton.onClick.AddListener(OpenClassicGame);
         _hardcoreGameMenuButton.onClick.AddListener(OpenHardcoreGame);
-        _episodeGameMenuButton.onClick.AddListener(OpenEpisodeGame);
-        _shopButton.onClick.AddListener(OpenShopScreen);
-        _themeButton.onClick.AddListener(OpenThemeScreen);
+        _episodeGameMenuButton.onClick.AddListener(OpenEpisodeGame);        
         _settingsButton.onClick.AddListener(OpenSettingsScreen);
     }
 
+    public void SelectMenu(int index)
+    {
+        SetActiveScreen(index);
+    }
 
+    private void SetActiveScreen(int index)
+    {
+        for (int i = 0; i < _mainMenuScreens.Length; i++)
+        {
+            _mainMenuScreens[i].gameObject.SetActive(i == index);
+        }
+    }
     private void OpenInfinityGame() 
     {        
         _sceneLoader.LoadInfiniteMinesweeperScene();
@@ -58,17 +63,7 @@ public class MainMenuUI : MonoBehaviour
     private void OpenEpisodeGame()
     {
 
-    }
-
-    private void OpenShopScreen()
-    {
-        _shopScreen.gameObject.SetActive(true);
-    }
-
-    private void OpenThemeScreen()
-    {
-        _themeScreen.gameObject.SetActive(true);
-    }
+    }       
 
     private void OpenSettingsScreen()
     {

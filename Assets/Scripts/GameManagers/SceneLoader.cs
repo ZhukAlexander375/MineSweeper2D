@@ -6,9 +6,9 @@ public class SceneLoader : MonoBehaviour
 {
     public static SceneLoader Instance { get; private set; }
 
-    [SerializeField] private SceneAsset _mainMenuScene;
-    [SerializeField] private SceneAsset _infiniteMinesweeperScene;
-    [SerializeField] private SceneAsset _classicMinesweeperScene;
+    [SerializeField] private string _mainMenuScene;
+    [SerializeField] private string _infiniteMinesweeperScene;
+    [SerializeField] private string _classicMinesweeperScene;
 
     private void Awake()
     {
@@ -24,24 +24,24 @@ public class SceneLoader : MonoBehaviour
 
     public void LoadMainMenuScene()
     {
-        LoadScene(_mainMenuScene.name);
+        LoadScene(_mainMenuScene);
     }
 
     public void LoadInfiniteMinesweeperScene()
     {
-        LoadScene(_infiniteMinesweeperScene.name);
+        LoadScene(_infiniteMinesweeperScene);
     }
 
     public void LoadClassicMinesweeperScene()
     {
-        LoadScene(_classicMinesweeperScene.name);
+        LoadScene(_classicMinesweeperScene);
     }
 
     private void LoadScene(string sceneName)
     {
         if (!IsSceneInBuildSettings(sceneName))
         {
-            Debug.Log($"Scene '{sceneName}' is not added to Build Settings!");
+            Debug.LogError($"Scene '{sceneName}' is not added to Build Settings!");
             return;
         }
 

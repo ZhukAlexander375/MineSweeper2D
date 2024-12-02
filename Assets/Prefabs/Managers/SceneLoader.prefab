@@ -44,6 +44,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 17c225833767ad841955c0ece6d039c2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _mainMenuScene: {fileID: 102900000, guid: 2cda990e2423bbf4892e6590ba056729, type: 3}
-  _infiniteMinesweeperScene: {fileID: 102900000, guid: 0e6dfd3fabc23834191fd9d10ae9a06b, type: 3}
-  _classicMinesweeperScene: {fileID: 102900000, guid: 3222958404709854aadaaab5520ca56e, type: 3}
+  _mainMenuScene: Minesweeper
+  _infiniteMinesweeperScene: InfiniteMineSweeper
+  _classicMinesweeperScene: ClassicMinesweeper
