@@ -1,7 +1,7 @@
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using Zenject.Asteroids;
+
 
 public class ClassicGameUI : MonoBehaviour
 {
@@ -10,7 +10,7 @@ public class ClassicGameUI : MonoBehaviour
     [SerializeField] private Button _pauseButton;
     [SerializeField] private Button _continueButton;
     [SerializeField] private Button _settingsOnPauseButton;
-    [SerializeField] private Button _replyLevel;
+    [SerializeField] private Button _replayLevel;
     [SerializeField] private Button _backToClassicGameMenu;
 
     [SerializeField] private Button _easyLvlButton;
@@ -64,7 +64,7 @@ public class ClassicGameUI : MonoBehaviour
         _pauseButton.onClick.AddListener(OpenPauseMenu);
         _continueButton.onClick.AddListener(ClosePauseMenu);
         _settingsOnPauseButton.onClick.AddListener(OpenSettings);
-        //_replyLevel.onClick.AddListener(RESTART GAME);
+        //_replayLevel.onClick.AddListener(RESTART GAME);
         _backToClassicGameMenu.onClick.AddListener(ReturnToClassicGameMenu);
         //_goHomeButtonOnPause.onClick.AddListener(ReturnToMainMenu);
 

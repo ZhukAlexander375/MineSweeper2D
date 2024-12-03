@@ -44,8 +44,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 96ba8491a0ce22940b1edb9082a9457a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _isSoundEnabled: 1
-  _isMusicEnabled: 1
-  _isVibrationEnabled: 1
+  IsSoundEnabled: 1
+  IsMusicEnabled: 1
+  IsVibrationEnabled: 1
+  _cameraZoomMin: 0.05
+  _cameraZoomMax: 2
   _cameraZoom: 0.1
+  _holdTimeMin: 0.15
+  _holdTimeMax: 0.75
   _holdTime: 0.3

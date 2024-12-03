@@ -43,7 +43,7 @@ public class InfiniteGridManager : MonoBehaviour
     {
         mainCamera = Camera.main;
         _grid = GetComponent<Grid>();
-
+        
         //_cellGap.x = _grid.cellGap.x;
         //_cellGap.y = _grid.cellGap.y;
     }
@@ -79,14 +79,14 @@ public class InfiniteGridManager : MonoBehaviour
 
         if (Input.GetMouseButtonUp(0))
         {
-            if (!_flagSet && _isHolding && Time.time - _clickStartTime < 0.3f)
-            {
+            if (!_flagSet && _isHolding && Time.time - _clickStartTime < GameSettingsManager.Instance.HoldTime)
+            {                
                 GetSectorAtClick();
             }
             _isHolding = false;
         }
 
-        if (_isHolding && !_flagSet && Time.time - _clickStartTime >= 0.3f)
+        if (_isHolding && !_flagSet && Time.time - _clickStartTime >= GameSettingsManager.Instance.HoldTime)
         {
             SetSectorForFlagAtClick();
             _flagSet = true;

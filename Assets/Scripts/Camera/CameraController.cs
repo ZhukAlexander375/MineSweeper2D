@@ -4,7 +4,7 @@ public class CameraController : MonoBehaviour
 {
     [Header("Settings")]
     [SerializeField] private float moveSpeed = 0.5f;
-    [SerializeField] private float zoomSpeed = 1.0f;
+    [SerializeField] private float zoomSpeed;
     [SerializeField] private float minZoom = 5f;
     [SerializeField] private float maxZoom = 20f;
 
@@ -19,6 +19,8 @@ public class CameraController : MonoBehaviour
         mainCamera = Camera.main;
         SignalBus.Subscribe<ThemeChangeSignal>(OnThemeChanged);
         TryApplyTheme(ThemeManager.Instance.CurrentTheme);
+
+        zoomSpeed = GameSettingsManager.Instance.CameraZoom;        
     }
 
     private void Update()
@@ -59,7 +61,7 @@ public class CameraController : MonoBehaviour
                 var previousDistance = Vector2.Distance(touch0.position - touch0.deltaPosition, touch1.position - touch1.deltaPosition);
                 var deltaDistance = currentDistance - previousDistance;
 
-                ZoomCamera(deltaDistance * zoomSpeed);
+                ZoomCamera(deltaDistance * GameSettingsManager.Instance.CameraZoom);
             }
         }
     }
@@ -74,7 +76,7 @@ public class CameraController : MonoBehaviour
 
         if (Input.mouseScrollDelta.y != 0)
         {
-            ZoomCamera(Input.mouseScrollDelta.y * zoomSpeed);
+            ZoomCamera(Input.mouseScrollDelta.y * GameSettingsManager.Instance.CameraZoom);
         }
     }
 

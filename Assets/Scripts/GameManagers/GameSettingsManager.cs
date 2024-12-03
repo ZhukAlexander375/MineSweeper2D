@@ -13,7 +13,7 @@ public class GameSettingsManager : MonoBehaviour
 
     [Header("Camera Settings")]
     [SerializeField] public float _cameraZoomMin = 0.05f;
-    [SerializeField] public float _cameraZoomMax = 1f;
+    [SerializeField] public float _cameraZoomMax = 2f;
     [SerializeField] private float _cameraZoom = 0.1f;      
 
     [Header("Hold Duration")]
@@ -35,10 +35,31 @@ public class GameSettingsManager : MonoBehaviour
         LoadSettings();
     }
 
-    void Start() 
-    { 
+    void Start()
+    {
         QualitySettings.vSyncCount = 0;
         Application.targetFrameRate = 300;
+    }
+
+    public void ToggleSound()
+    {
+        IsSoundEnabled = !IsSoundEnabled;
+        // Вызов логики включения/выключения звука
+        //AudioManager.Instance.SetSoundState(_settingsManager._isSoundEnabled);
+
+        SaveSettings();
+    }
+
+    public void ToggleMusic()
+    {
+        IsMusicEnabled = !IsMusicEnabled;
+        SaveSettings();
+    }
+
+    public void ToggleVibration()
+    {
+        IsVibrationEnabled = !IsVibrationEnabled;
+        SaveSettings();
     }
 
     public float CameraZoom
@@ -66,9 +87,9 @@ public class GameSettingsManager : MonoBehaviour
         PlayerPrefs.SetInt("IsSoundEnabled", IsSoundEnabled ? 1 : 0);
         PlayerPrefs.SetInt("IsMusicEnabled", IsMusicEnabled ? 1 : 0);
         PlayerPrefs.SetInt("IsVibrationEnabled", IsVibrationEnabled ? 1 : 0);
-        PlayerPrefs.SetFloat("CameraZoom", CameraZoom);
-        PlayerPrefs.SetFloat("HoldTime", HoldTime);
-        
+        PlayerPrefs.SetFloat("CameraZoom", _cameraZoom); 
+        PlayerPrefs.SetFloat("HoldTime", _holdTime);
+
         PlayerPrefs.Save();
     }
 
@@ -80,5 +101,4 @@ public class GameSettingsManager : MonoBehaviour
         CameraZoom = PlayerPrefs.GetFloat("CameraZoom", 0.1f);
         HoldTime = PlayerPrefs.GetFloat("HoldTime", 0.3f);        
     }
-
 }

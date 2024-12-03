@@ -1,4 +1,3 @@
-using System;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -31,14 +30,28 @@ public class SettingsScreenUI : MonoBehaviour
         _settingsManager = GameSettingsManager.Instance;
         _settingsManager.LoadSettings();
 
-        _soundButton.onClick.AddListener(ToggleSound);
-        _musicButton.onClick.AddListener(ToggleMusic);
-        _vibrationButton.onClick.AddListener(ToggleVibration);        
+        UpdateSettingsScreen();
+
+        _soundButton.onClick.AddListener(() =>
+        {
+            _settingsManager.ToggleSound();
+            UpdateSoundButtonSprite();
+        });
+
+        _musicButton.onClick.AddListener(() =>
+        {
+            _settingsManager.ToggleMusic();
+            UpdateMusicButtonSprite();
+        });
+
+        _vibrationButton.onClick.AddListener(() =>
+        {
+            _settingsManager.ToggleVibration();
+            UpdateVibrationButtonSprite();
+        });
 
         _cameraZoomSlider.onValueChanged.AddListener(OnZoomValueChanged);
-        _holdDurationSlider.onValueChanged.AddListener(OnHoldDurationChanged);
-
-        UpdateSettingsScreen();
+        _holdDurationSlider.onValueChanged.AddListener(OnHoldDurationChanged);        
     }
 
     public void UpdateSettingsScreen()
@@ -46,47 +59,28 @@ public class SettingsScreenUI : MonoBehaviour
         UpdateSoundButtonSprite();
         UpdateMusicButtonSprite();
         UpdateVibrationButtonSprite();
+
         SetCameraZoomSliderValue();
         SetTimeDurationSliderValue();
-        UpdateCameraZoomText(GameSettingsManager.Instance.CameraZoom);
-        UpdateHoldDurationText(GameSettingsManager.Instance.HoldTime);
+
+        UpdateCameraZoomText(_settingsManager.CameraZoom);
+        UpdateHoldDurationText(_settingsManager.HoldTime);
     }
 
     private void SetCameraZoomSliderValue()
     {
-        _cameraZoomSlider.minValue = GameSettingsManager.Instance._cameraZoomMin;
-        _cameraZoomSlider.maxValue = GameSettingsManager.Instance._cameraZoomMax;
-        _cameraZoomSlider.value = GameSettingsManager.Instance.CameraZoom;        
+        _cameraZoomSlider.minValue = _settingsManager._cameraZoomMin;
+        _cameraZoomSlider.maxValue = _settingsManager._cameraZoomMax;
+        _cameraZoomSlider.value = _settingsManager.CameraZoom;        
     }
 
     private void SetTimeDurationSliderValue()
     {
-        _holdDurationSlider.minValue = GameSettingsManager.Instance._holdTimeMin;
-        _holdDurationSlider.maxValue = GameSettingsManager.Instance._holdTimeMax;
-        _holdDurationSlider.value = GameSettingsManager.Instance.HoldTime;
+        _holdDurationSlider.minValue = _settingsManager._holdTimeMin;
+        _holdDurationSlider.maxValue = _settingsManager._holdTimeMax;
+        _holdDurationSlider.value = _settingsManager.HoldTime;
     }
-
-    private void ToggleSound()
-    {
-        _settingsManager.IsSoundEnabled = !_settingsManager.IsSoundEnabled;
-        UpdateSoundButtonSprite();
-
-        // Вызов логики включения/выключения звука
-        //AudioManager.Instance.SetSoundState(_settingsManager._isSoundEnabled);
-    }
-
-    private void ToggleMusic()
-    {
-        _settingsManager.IsMusicEnabled = !_settingsManager.IsMusicEnabled;
-        UpdateMusicButtonSprite();
-    }
-
-    private void ToggleVibration()
-    {
-        _settingsManager.IsVibrationEnabled = !_settingsManager.IsVibrationEnabled;
-        UpdateVibrationButtonSprite();
-    }
-
+    
     private void UpdateSoundButtonSprite()
     {
         _soundButton.image.sprite = _settingsManager.IsSoundEnabled ? _soundOnSprite : _soundOffSprite;
