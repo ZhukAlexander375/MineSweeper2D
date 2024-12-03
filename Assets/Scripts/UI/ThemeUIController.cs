@@ -5,11 +5,27 @@ using UnityEngine.UI;
 
 public class ThemeUIController : MonoBehaviour
 {
+    [SerializeField] private Image[] _menuFrameBackgrounds;
+    [SerializeField] private Shadow[] _menuFrameShadows;
+    [SerializeField] private Button[] _buttonsMain;
+    [SerializeField] private Shadow[] _buttonsShadowMain;
+    [SerializeField] private Button[] _buttonsMinor;    
+    [SerializeField] private Shadow[] _buttonsShadowMinor;
+
+    /// <summary>
+    /// ZATYCHKA FOR NAVIGATION PANEL AND MENU TITLE IMAGE 
+    /// </summary>
+
+    [SerializeField] private Image _menuTitleImage;
+    [SerializeField] private Image _navigationPanelImage;
+    ///
+    ///
+
     [SerializeField] private Image[] _topFieldImage;
     [SerializeField] private Image[] _icons;
     [SerializeField] private Image _transparentBackground;
-    [SerializeField] private Image _menuFrameBackground;
-    [SerializeField] private Button[] _buttons;
+    
+    
     [SerializeField] private TMP_Text _menuTitleText;        
     [SerializeField] private TMP_Text[] _textsOnButtons;
     [SerializeField] private InputFieldHandler[] _inputFields;
@@ -63,13 +79,16 @@ public class ThemeUIController : MonoBehaviour
 
         _currentAppliedTheme = theme;
 
-        ApplyTextsColors(_currentAppliedTheme);
+        //ApplyTextsColors(_currentAppliedTheme);
         ApplyButtonsColor(_currentAppliedTheme);
         ApplyBackgrounsColor(_currentAppliedTheme);
         ApplyInputFieldsColor(_currentAppliedTheme);
+
+        ApplyMenuTitleImage(_currentAppliedTheme);
+        ApplyNavigationPanel(_currentAppliedTheme);
     }
 
-    private void ApplyTextsColors(ThemeConfig theme)
+    /*private void ApplyTextsColors(ThemeConfig theme)
     {
         if (_menuTitleText != null)
         {
@@ -99,7 +118,7 @@ public class ThemeUIController : MonoBehaviour
             }
         }
 
-        /*if (_lightTextsOnButtons.Length > 0)
+        *//*if (_lightTextsOnButtons.Length > 0)
         {
             foreach (var text in _lightTextsOnButtons)
             {
@@ -113,16 +132,40 @@ public class ThemeUIController : MonoBehaviour
             {
                 text.color = theme.ButtonsTextColorDark;
             }
-        }*/
-    }
+        }*//*
+    }*/
 
     private void ApplyButtonsColor(ThemeConfig theme)
     {
-        if (_buttons.Length > 0)
+        if (_buttonsMain.Length > 0)
         {
-            foreach (var button in _buttons)
+            foreach (var button in _buttonsMain)
             {
-                button.image.color = theme.ButtonsColor;
+                button.image.color = theme.ButtonsMainColor;
+            }
+        }
+
+        if (_buttonsShadowMain.Length > 0)
+        {
+            foreach (var shadow in _buttonsShadowMain)
+            {
+                shadow.effectColor = theme.ButtonsMainShadowColor;
+            }
+        }
+
+        if (_buttonsMinor.Length > 0)
+        {
+            foreach (var button in _buttonsMinor)
+            {
+                button.image.color = theme.ButtonsMinorColor;
+            }
+        }
+
+        if (_buttonsShadowMinor.Length > 0)
+        {
+            foreach (var shadow in _buttonsShadowMinor)
+            {
+                shadow.effectColor = theme.ButtonsMinorShadowColor;
             }
         }
     }
@@ -137,23 +180,34 @@ public class ThemeUIController : MonoBehaviour
             }
         }
 
-        if (_transparentBackground != null)
+        /*if (_transparentBackground != null)
         {
             _transparentBackground.color = theme.TransparentBGColor;
-        }
+        }*/
 
-        if (_menuFrameBackground != null)
+        if (_menuFrameBackgrounds.Length > 0)
         {
-            _menuFrameBackground.color = theme.MenuFrameBGColor;
+            foreach (var image in _menuFrameBackgrounds)
+            {
+                image.color = theme.MenuFrameBGColor;
+            }
+        }
+        
+        if (_menuFrameShadows.Length > 0)
+        {
+            foreach (var shadow in _menuFrameShadows)
+            {
+                shadow.effectColor = theme.MenuFrameShadowColor;
+            }
         }
 
-        if (_icons.Length > 0)
+        /*if (_icons.Length > 0)
         {
             foreach (var icon in _icons)
             {
                 icon.color = theme.IconsColor;
             }
-        }
+        }*/
     }
 
     private void ApplyInputFieldsColor(ThemeConfig theme)
@@ -163,7 +217,7 @@ public class ThemeUIController : MonoBehaviour
             return;
         }
 
-        foreach (var field in _inputFields)
+        /*foreach (var field in _inputFields)
         {
             if (field?.InputField != null && field.InputField.image != null)
             {
@@ -173,6 +227,22 @@ public class ThemeUIController : MonoBehaviour
             {
                 Debug.LogWarning($"InputField или его image отсутствует на объекте {field?.name ?? "неизвестный"}.");
             }
+        }*/
+    }
+
+    private void ApplyNavigationPanel(ThemeConfig theme)
+    {
+        if (_navigationPanelImage != null)
+        {
+            _navigationPanelImage.sprite = theme.NavigationPanel;
+        }
+    }
+
+    private void ApplyMenuTitleImage(ThemeConfig theme)
+    {
+        if (_menuTitleImage != null)
+        {
+            _menuTitleImage.sprite = theme.MenuTitleImage;
         }
     }
 

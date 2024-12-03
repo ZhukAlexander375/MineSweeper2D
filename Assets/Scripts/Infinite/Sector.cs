@@ -350,8 +350,7 @@ public class Sector : MonoBehaviour
 
 
 
-
-
+        
 
 
 
@@ -373,5 +372,39 @@ public class Sector : MonoBehaviour
             yield return new WaitForSeconds(0.5f);
         }        
     }
+
+    public SectorData SaveSectorData()
+    {
+        var sectorData = new SectorData
+        {
+            SectorPosition = transform.position,
+            IsActive = IsActive,
+            IsFirstCellActivated = IsFirstCellActivated,
+            IsExploded = IsExploded,
+            IsPrizePlaced = IsPrizePlaced
+        };
+
+        foreach (var cellPair in _cells)
+        {
+            var cell = cellPair.Value;
+            var cellData = new CellData
+            {
+                Position = cellPair.Key,
+                CellState = cell.CellState,
+                IsActive = cell.IsActive,
+                IsAward = cell.IsAward,
+                IsRevealed = cell.IsRevealed,
+                IsFlagged = cell.IsFlagged,
+                IsExploded = cell.IsExploded,
+                Chorded = cell.Chorded,
+                CellNumber = cell.CellNumber
+            };
+
+            sectorData.Cells.Add(cellData);
+        }
+
+        return sectorData;
+    }
+
 }
 
