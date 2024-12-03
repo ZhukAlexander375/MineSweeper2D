@@ -369,11 +369,14 @@ public class InfiniteGridManager : MonoBehaviour
 
             default:                
                 cell.IsRevealed = true;
+
+                SignalBus.Fire<CellRevealedSignal>();
+
                 cell.IsActive = true;
                 
                 //CheckWinCondition();
                 break;
-        }
+        }       
 
         _lastClickPosition = cell.CellPosition;
 
@@ -512,6 +515,11 @@ public class InfiniteGridManager : MonoBehaviour
 
         cell.IsRevealed = true;
         //cell.IsActive = true;        
+
+        if (cell.IsRevealed)
+        {
+            SignalBus.Fire<CellRevealedSignal>();
+        }
 
         DrawSectors();
 

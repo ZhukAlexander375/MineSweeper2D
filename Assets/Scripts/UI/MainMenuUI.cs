@@ -1,4 +1,5 @@
 using System;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -15,7 +16,12 @@ public class MainMenuUI : MonoBehaviour
     [SerializeField] private Canvas[] _mainMenuScreens;
     [SerializeField] private Canvas _settingsScreen;
 
+    [SerializeField] private TMP_Text _timeSpentText;
+    [SerializeField] private TMP_Text _cellsOpenText;
+    [SerializeField] private TMP_Text _flagsPlacedText;
+
     private SceneLoader _sceneLoader;
+    private PlayerProgress _playerProgress;
 
     private void Awake()
     {
@@ -24,13 +30,16 @@ public class MainMenuUI : MonoBehaviour
 
     private void Start()
     {
-        _sceneLoader = SceneLoader.Instance;              
+        _sceneLoader = SceneLoader.Instance;
+        _playerProgress = PlayerProgress.Instance;
 
         _infinityGameButton.onClick.AddListener(OpenInfinityGame);
         _classicGameMenuButton.onClick.AddListener(OpenClassicGame);
         _hardcoreGameMenuButton.onClick.AddListener(OpenHardcoreGame);
         _episodeGameMenuButton.onClick.AddListener(OpenEpisodeGame);        
         _settingsButton.onClick.AddListener(OpenSettingsScreen);
+
+        UpdateLastSessionStatistic();
     }
 
     public void SelectMenu(int index)
@@ -68,6 +77,13 @@ public class MainMenuUI : MonoBehaviour
     private void OpenSettingsScreen()
     {
         _settingsScreen.gameObject.SetActive(true);
+    }
+
+    private void UpdateLastSessionStatistic()
+    {
+        //_timeSpentText.text = _playerProgress.;
+        _cellsOpenText.text = "Cells Open: " + _playerProgress.OpenedCells.ToString();
+        _flagsPlacedText.text = "Checkboxes placed: " + _playerProgress.PlacedFlags.ToString();
     }
 
 }

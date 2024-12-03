@@ -20,10 +20,12 @@ public class InfiniteGameUI : MonoBehaviour
     [SerializeField] private TMP_Text _flagsTexts;
 
     private SceneLoader _sceneLoader;
+    private PlayerProgress _playerProgress;
 
     private void Awake()
     {
         _sceneLoader = SceneLoader.Instance;
+        _playerProgress = PlayerProgress.Instance;
     }
 
     private void Start()
@@ -45,6 +47,7 @@ public class InfiniteGameUI : MonoBehaviour
     private void ReplayGame()
     {
         _sceneLoader.LoadInfiniteMinesweeperScene();
+        _playerProgress.ResetSessionStatistic();
     }
 
     private void OpenPauseMenu()
@@ -64,7 +67,7 @@ public class InfiniteGameUI : MonoBehaviour
 
     private void UpdateAwardUI(OnGameRewardSignal signal)
     {
-        _awardText.text = PlayerProgress.Instance.StarAward.ToString();
+        _awardText.text = PlayerProgress.Instance.Award.ToString();
     }
 
     private void UpdateFlagUI(FlagPlacingSignal signal)

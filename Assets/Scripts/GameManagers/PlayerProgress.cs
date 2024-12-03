@@ -3,8 +3,9 @@ using UnityEngine;
 public class PlayerProgress : MonoBehaviour
 {
     public static PlayerProgress Instance { get; private set; }
-    public int StarAward { get; private set; }
+    public int Award { get; private set; }
     public int PlacedFlags { get; private set; }
+    public int OpenedCells { get; private set; }
 
 
     private void Awake()
@@ -21,22 +22,35 @@ public class PlayerProgress : MonoBehaviour
 
     private void Start()
     {
-        SignalBus.Subscribe<OnGameRewardSignal>(ChangePlayerProgress);
+        SignalBus.Subscribe<OnGameRewardSignal>(ChangePlayersAward);
         SignalBus.Subscribe<FlagPlacingSignal>(UpdateFlagsCount);
+        SignalBus.Subscribe<CellRevealedSignal>(UpdateCellsCount);
     }
 
-    private void ChangePlayerProgress(OnGameRewardSignal signal)
+    public void ResetSessionStatistic()
+    {
+        OpenedCells = 0;
+        PlacedFlags = 0;
+    }
+
+    private void ChangePlayersAward(OnGameRewardSignal signal)
     {
         switch (signal.RewardId)
         {
             case 0:
-                StarAward += signal.Count;
+                Award += signal.Count;
                 break;
         }
         //Debug.Log(StarAward);
     }
 
-    public void UpdateFlagsCount(FlagPlacingSignal signal)
+    private void UpdateCellsCount(CellRevealedSignal signal)
+    {
+        OpenedCells += 1;
+        Debug.Log(OpenedCells);
+    }
+
+    private void UpdateFlagsCount(FlagPlacingSignal signal)
     {
         bool isPlacingFlag = signal.IsFlagPlaced;
 
@@ -50,7 +64,8 @@ public class PlayerProgress : MonoBehaviour
 
     private void OnDestroy()
     {
-        SignalBus.Unsubscribe<OnGameRewardSignal>(ChangePlayerProgress);
+        SignalBus.Unsubscribe<OnGameRewardSignal>(ChangePlayersAward);
         SignalBus.Unsubscribe<FlagPlacingSignal>(UpdateFlagsCount);
+        SignalBus.Unsubscribe<CellRevealedSignal>(UpdateCellsCount);
     }
 }
