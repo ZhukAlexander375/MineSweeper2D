@@ -3,9 +3,9 @@ using UnityEngine;
 public static class ClassicGameMinSize
 {
     public const int MinWidth = 5;
-    public const int MaxWidth = 250;
+    public const int MaxWidth = 100;
     public const int MinHeight = 5;
-    public const int MaxHeight = 250;    
+    public const int MaxHeight = 100;    
 
     public static int MaxMines(int width, int height)
     {

@@ -387,6 +387,8 @@ public class InfiniteGridManager : MonoBehaviour
         bool isPlacingFlag = !cell.IsFlagged;
         cell.IsFlagged = !cell.IsFlagged;
 
+        SignalBus.Fire(new FlagPlacingSignal(isPlacingFlag));
+
         if (isPlacingFlag && cell.IsAward)
         {
             AwardBonus(cell);
@@ -397,7 +399,11 @@ public class InfiniteGridManager : MonoBehaviour
         _lastClickPosition = cell.CellPosition;
 
         // Вибрация и перерисовка
-        // VibrateOnAction();
+        if (GameSettingsManager.Instance.IsVibrationEnabled)
+        {
+            VibrateOnAction();
+        }
+            
         DrawSectors();
     }
 

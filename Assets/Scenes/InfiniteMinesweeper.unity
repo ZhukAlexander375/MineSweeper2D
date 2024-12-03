@@ -527,11 +527,11 @@ PrefabInstance:
     - target: {fileID: 4211235589458227462, guid: 940730ca445e36c4d93404062094054e, type: 3}
       propertyPath: _awardSpritePrefab
       value: 
-      objectReference: {fileID: 5036576122278152499, guid: 0853437a247b4df4fb1bc111431359a7, type: 3}
+      objectReference: {fileID: 3520625102968784899, guid: 6294eb778ab46d64fabbd9c0fd657ce8, type: 3}
     - target: {fileID: 4211235589458227462, guid: 940730ca445e36c4d93404062094054e, type: 3}
       propertyPath: _targetRewardUIElement
       value: 
-      objectReference: {fileID: 2280231688101725175}
+      objectReference: {fileID: 3869234871166336805}
     - target: {fileID: 4211235589458227462, guid: 940730ca445e36c4d93404062094054e, type: 3}
       propertyPath: _sectorPrefabs.Array.size
       value: 2
@@ -665,7 +665,7 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 21674685f4d1d5141a78e5eee6c98f75, type: 3}
---- !u!1 &2280231688101725175 stripped
+--- !u!1 &3869234871166336805 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 3032974504718040275, guid: 21674685f4d1d5141a78e5eee6c98f75, type: 3}
   m_PrefabInstance: {fileID: 2280231688101725174}

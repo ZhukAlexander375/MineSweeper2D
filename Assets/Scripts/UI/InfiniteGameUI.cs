@@ -8,7 +8,7 @@ public class InfiniteGameUI : MonoBehaviour
     [SerializeField] private Button _pauseButton;
     [SerializeField] private Button _continueButton;
     [SerializeField] private Button _settingsButton;
-    [SerializeField] private Button _replyLevel;
+    [SerializeField] private Button _replayLevelButton;
     [SerializeField] private Button _goHomeButton;
 
     [Header("Screens")]
@@ -17,6 +17,7 @@ public class InfiniteGameUI : MonoBehaviour
 
     [Header("Texts")]
     [SerializeField] private TMP_Text _awardText;
+    [SerializeField] private TMP_Text _flagsTexts;
 
     private SceneLoader _sceneLoader;
 
@@ -26,18 +27,24 @@ public class InfiniteGameUI : MonoBehaviour
     }
 
     private void Start()
-    {
+    {        
         _pauseButton.onClick.AddListener(OpenPauseMenu);
         _continueButton.onClick.AddListener(ClosePauseMenu);
         _settingsButton.onClick.AddListener(OpenSettings);
-        //_replyLevel.onClick.AddListener(RESTART GAME);
+        _replayLevelButton.onClick.AddListener(ReplayGame);
         _goHomeButton.onClick.AddListener(ReturnToMainMenu);
-        SignalBus.Subscribe<OnGameRewardSignal>(UpdateUI);
+        SignalBus.Subscribe<OnGameRewardSignal>(UpdateAwardUI);
+        SignalBus.Subscribe<FlagPlacingSignal>(UpdateFlagUI);
     }
 
     private void ReturnToMainMenu()
     {
         _sceneLoader.LoadMainMenuScene();
+    }
+
+    private void ReplayGame()
+    {
+        _sceneLoader.LoadInfiniteMinesweeperScene();
     }
 
     private void OpenPauseMenu()
@@ -55,13 +62,19 @@ public class InfiniteGameUI : MonoBehaviour
         _settingsScreen.gameObject.SetActive(true);
     }
 
-    private void UpdateUI(OnGameRewardSignal signal)
+    private void UpdateAwardUI(OnGameRewardSignal signal)
     {
         _awardText.text = PlayerProgress.Instance.StarAward.ToString();
     }
 
+    private void UpdateFlagUI(FlagPlacingSignal signal)
+    {
+        _flagsTexts.text = PlayerProgress.Instance.PlacedFlags.ToString();
+    }
+
     private void OnDestroy()
     {
-        SignalBus.Unsubscribe<OnGameRewardSignal>(UpdateUI);
+        SignalBus.Unsubscribe<OnGameRewardSignal>(UpdateAwardUI);
+        SignalBus.Unsubscribe<FlagPlacingSignal>(UpdateFlagUI);
     }
 }
