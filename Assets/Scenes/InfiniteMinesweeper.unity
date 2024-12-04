@@ -336,7 +336,7 @@ Camera:
   m_Enabled: 1
   serializedVersion: 2
   m_ClearFlags: 2
-  m_BackGroundColor: {r: 0.05490196, g: 0.05490196, b: 0.05490196, a: 0}
+  m_BackGroundColor: {r: 1, g: 1, b: 1, a: 0}
   m_projectionMatrixMode: 1
   m_GateFitMode: 2
   m_FOVAxisMode: 0
@@ -525,28 +525,16 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4211235589458227462, guid: 940730ca445e36c4d93404062094054e, type: 3}
-      propertyPath: _awardSpritePrefab
-      value: 
-      objectReference: {fileID: 3520625102968784899, guid: 6294eb778ab46d64fabbd9c0fd657ce8, type: 3}
-    - target: {fileID: 4211235589458227462, guid: 940730ca445e36c4d93404062094054e, type: 3}
       propertyPath: _targetRewardUIElement
       value: 
       objectReference: {fileID: 3869234871166336805}
-    - target: {fileID: 4211235589458227462, guid: 940730ca445e36c4d93404062094054e, type: 3}
-      propertyPath: _sectorPrefabs.Array.size
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 4211235589458227462, guid: 940730ca445e36c4d93404062094054e, type: 3}
-      propertyPath: _sectorPrefabs.Array.data[0]
-      value: 
-      objectReference: {fileID: 8492993251520972708, guid: 99a682e2225c1674d9f7dd488b87dda4, type: 3}
-    - target: {fileID: 4211235589458227462, guid: 940730ca445e36c4d93404062094054e, type: 3}
-      propertyPath: _sectorPrefabs.Array.data[1]
-      value: 
-      objectReference: {fileID: 8492993251520972708, guid: 365b3ae4a1e4a4f45a34a3d0897a54dc, type: 3}
     - target: {fileID: 4334848355939422619, guid: 940730ca445e36c4d93404062094054e, type: 3}
       propertyPath: m_Name
       value: InfiniteGrid
+      objectReference: {fileID: 0}
+    - target: {fileID: 5287510148563548809, guid: 940730ca445e36c4d93404062094054e, type: 3}
+      propertyPath: m_Enabled
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

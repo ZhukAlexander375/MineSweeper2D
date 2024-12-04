@@ -603,17 +603,23 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2a38930aa413fff47a54b2f962aa49ab, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _mainBackground: {fileID: 0}
   _topFieldImage:
   - {fileID: 2143243940541402842}
   - {fileID: 5068740426987064276}
   - {fileID: 4482682270554258005}
-  _icons: []
   _transparentBackground: {fileID: 0}
-  _menuFrameBackground: {fileID: 0}
-  _buttons: []
+  _menuFrameBackgrounds: []
+  _menuFrameShadows: []
+  _buttonsMain: []
+  _buttonsShadowMain: []
+  _buttonsMinor: []
+  _buttonsShadowMinor: []
+  _iconsSettingsBack: []
   _menuTitleText: {fileID: 5049457223409398722}
-  _textsOnButtons: []
-  _inputFields: []
+  _mainMenuTexts: []
+  _navigationPanelImage: {fileID: 0}
+  _menuTitleImage: {fileID: 0}
 --- !u!1 &7608627554652279030
 GameObject:
   m_ObjectHideFlags: 0

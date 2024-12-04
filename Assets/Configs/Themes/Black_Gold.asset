@@ -16,11 +16,16 @@ MonoBehaviour:
   MenuFrameShadowColor: {r: 0.39607847, g: 0.24313727, b: 0, a: 1}
   ButtonsMainColor: {r: 0.8470589, g: 0.15686275, b: 0.28235295, a: 1}
   ButtonsMainShadowColor: {r: 0.63529414, g: 0.11764707, b: 0.21176472, a: 1}
-  ButtonsMainTextColor: {r: 1, g: 1, b: 1, a: 0}
   ButtonsMinorColor: {r: 0.28235295, g: 0.03529412, b: 0.098039225, a: 1}
   ButtonsMinorShadowColor: {r: 0.21176472, g: 0.027450982, b: 0.07450981, a: 1}
+  CameraBackground: {r: 0.09019608, g: 0, b: 0.08235294, a: 1}
+  MainBackgroundColor: {r: 0.09019608, g: 0, b: 0.08235294, a: 1}
+  TransparentBackgroundColor: {r: 0.20392157, g: 0.07058824, b: 0.14901961, a: 1}
+  TopFieldColor: {r: 0.15294118, g: 0.14117648, b: 0.13333334, a: 1}
+  IconsSettingsBackColor: {r: 1, g: 1, b: 1, a: 1}
+  MenuTitleTextColor: {r: 1, g: 1, b: 1, a: 1}
+  MainMenuTextsColor: {r: 1, g: 1, b: 1, a: 1}
+  ButtonsMainTextColor: {r: 1, g: 1, b: 1, a: 1}
   ButtonsMinorTextColor: {r: 0.6, g: 0.08627451, b: 0.19215688, a: 1}
   NavigationPanel: {fileID: 21300000, guid: aada9155286cfbc4ca92eab253e3a882, type: 3}
-  MenuTitleImage: {fileID: 21300000, guid: c51194740d3f06842bd55034d4a045ef, type: 3}
-  TopFieldColor: {r: 0.14901961, g: 0.14117648, b: 0.13333334, a: 1}
-  CameraBackground: {r: 0.11764707, g: 0.10980393, b: 0.10588236, a: 1}
+  MenuTitleImage: {fileID: 21300000, guid: 5ddeabd7aebde3641a0c2d57b11d4280, type: 3}

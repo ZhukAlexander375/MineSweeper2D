@@ -281,7 +281,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 4c2ab636c0f68884f885c8c2716ffeb0, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 956a5cd8af22a53468ce999a5a7771f5, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -599,7 +599,7 @@ Camera:
   m_Enabled: 1
   serializedVersion: 2
   m_ClearFlags: 1
-  m_BackGroundColor: {r: 0.05490196, g: 0.05490196, b: 0.05490196, a: 0}
+  m_BackGroundColor: {r: 1, g: 1, b: 1, a: 1}
   m_projectionMatrixMode: 1
   m_GateFitMode: 2
   m_FOVAxisMode: 0
@@ -770,14 +770,6 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 2859864910235547853, guid: b0c6144c9e64e724eb102662d4834c31, type: 3}
-      propertyPath: m_SortingOrder
-      value: 3
-      objectReference: {fileID: 0}
-    - target: {fileID: 4454194672935398971, guid: b0c6144c9e64e724eb102662d4834c31, type: 3}
-      propertyPath: m_text
-      value: Height (5-100)
-      objectReference: {fileID: 0}
     - target: {fileID: 4454402736467532439, guid: b0c6144c9e64e724eb102662d4834c31, type: 3}
       propertyPath: _sampleGrid
       value: 
@@ -790,29 +782,9 @@ PrefabInstance:
       propertyPath: _classicGameController
       value: 
       objectReference: {fileID: 1123650385}
-    - target: {fileID: 5669094868801849531, guid: b0c6144c9e64e724eb102662d4834c31, type: 3}
-      propertyPath: m_SortingOrder
-      value: 4
-      objectReference: {fileID: 0}
-    - target: {fileID: 6230867907701559386, guid: b0c6144c9e64e724eb102662d4834c31, type: 3}
-      propertyPath: m_SortingOrder
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 6405874245106717536, guid: b0c6144c9e64e724eb102662d4834c31, type: 3}
-      propertyPath: m_text
-      value: Width (5-100)
-      objectReference: {fileID: 0}
     - target: {fileID: 6728940931585832074, guid: b0c6144c9e64e724eb102662d4834c31, type: 3}
       propertyPath: m_Name
       value: ClassicGameCanvas
-      objectReference: {fileID: 0}
-    - target: {fileID: 7382839280603940363, guid: b0c6144c9e64e724eb102662d4834c31, type: 3}
-      propertyPath: m_text
-      value: Mines
-      objectReference: {fileID: 0}
-    - target: {fileID: 8744419416422510875, guid: b0c6144c9e64e724eb102662d4834c31, type: 3}
-      propertyPath: m_IsActive
-      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

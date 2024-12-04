@@ -1,34 +1,43 @@
-using System.Net;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class ThemeUIController : MonoBehaviour
 {
+    [Header("Backgrounds Colors")]
+    [SerializeField] private Image _mainBackground;
+    [SerializeField] private Image[] _topFieldImage;
+    [SerializeField] private Image _transparentBackground;
+
+    [Header("Frames Colors")]
     [SerializeField] private Image[] _menuFrameBackgrounds;
     [SerializeField] private Shadow[] _menuFrameShadows;
+
+    [Header("Buttons Colors")]
     [SerializeField] private Button[] _buttonsMain;
     [SerializeField] private Shadow[] _buttonsShadowMain;
     [SerializeField] private Button[] _buttonsMinor;    
     [SerializeField] private Shadow[] _buttonsShadowMinor;
 
+    [Header("Icons Colors")]
+    [SerializeField] private Image[] _iconsSettingsBack;
+
+    [Header("Texts Colors")]
+    [SerializeField] private TMP_Text _menuTitleText;    
+    [SerializeField] private TMP_Text[] _mainMenuTexts;
+    //[SerializeField] private TMP_Text[] _textsOnButtons;
+
+
     /// <summary>
     /// ZATYCHKA FOR NAVIGATION PANEL AND MENU TITLE IMAGE 
     /// </summary>
-
-    [SerializeField] private Image _menuTitleImage;
+    [Header("Images")]
     [SerializeField] private Image _navigationPanelImage;
-    ///
-    ///
+    [SerializeField] private Image _menuTitleImage; 
 
-    [SerializeField] private Image[] _topFieldImage;
-    [SerializeField] private Image[] _icons;
-    [SerializeField] private Image _transparentBackground;
-    
-    
-    [SerializeField] private TMP_Text _menuTitleText;        
-    [SerializeField] private TMP_Text[] _textsOnButtons;
-    [SerializeField] private InputFieldHandler[] _inputFields;
+
+
+    //[SerializeField] private InputFieldHandler[] _inputFields;
     
 
     private ThemeConfig _currentAppliedTheme;
@@ -79,7 +88,7 @@ public class ThemeUIController : MonoBehaviour
 
         _currentAppliedTheme = theme;
 
-        //ApplyTextsColors(_currentAppliedTheme);
+        ApplyTextsColors(_currentAppliedTheme);
         ApplyButtonsColor(_currentAppliedTheme);
         ApplyBackgrounsColor(_currentAppliedTheme);
         ApplyInputFieldsColor(_currentAppliedTheme);
@@ -88,14 +97,26 @@ public class ThemeUIController : MonoBehaviour
         ApplyNavigationPanel(_currentAppliedTheme);
     }
 
-    /*private void ApplyTextsColors(ThemeConfig theme)
+    private void ApplyTextsColors(ThemeConfig theme)
     {
         if (_menuTitleText != null)
         {
             _menuTitleText.color = theme.MenuTitleTextColor;
+
+            Material textMaterial = _menuTitleText.fontMaterial;
+            textMaterial.SetColor(ShaderUtilities.ID_FaceColor, theme.MenuTitleTextColor);
+            textMaterial.SetColor(ShaderUtilities.ID_GlowColor, theme.MenuTitleTextColor);
+        }
+        
+        if (_mainMenuTexts.Length > 0)
+        {
+            foreach (var text in _mainMenuTexts)
+            {
+                text.color = theme.MainMenuTextsColor;
+            }
         }
 
-        if (_textsOnButtons.Length > 0)
+        /*if (_textsOnButtons.Length > 0)
         {
             foreach (var text in _textsOnButtons)
             {
@@ -118,7 +139,7 @@ public class ThemeUIController : MonoBehaviour
             }
         }
 
-        *//*if (_lightTextsOnButtons.Length > 0)
+        if (_lightTextsOnButtons.Length > 0)
         {
             foreach (var text in _lightTextsOnButtons)
             {
@@ -132,8 +153,8 @@ public class ThemeUIController : MonoBehaviour
             {
                 text.color = theme.ButtonsTextColorDark;
             }
-        }*//*
-    }*/
+        }*/
+    }
 
     private void ApplyButtonsColor(ThemeConfig theme)
     {
@@ -180,10 +201,15 @@ public class ThemeUIController : MonoBehaviour
             }
         }
 
-        /*if (_transparentBackground != null)
+        if (_mainBackground != null)
         {
-            _transparentBackground.color = theme.TransparentBGColor;
-        }*/
+            _mainBackground.color = theme.MainBackgroundColor;
+        }
+
+        if (_transparentBackground != null)
+        {
+            _transparentBackground.color = theme.TransparentBackgroundColor;
+        }
 
         if (_menuFrameBackgrounds.Length > 0)
         {
@@ -201,21 +227,21 @@ public class ThemeUIController : MonoBehaviour
             }
         }
 
-        /*if (_icons.Length > 0)
+        if (_iconsSettingsBack.Length > 0)
         {
-            foreach (var icon in _icons)
+            foreach (var icon in _iconsSettingsBack)
             {
-                icon.color = theme.IconsColor;
+                icon.color = theme.IconsSettingsBackColor;
             }
-        }*/
+        }
     }
 
     private void ApplyInputFieldsColor(ThemeConfig theme)
     {
-        if (_inputFields == null || _inputFields.Length == 0)
+        /*if (_inputFields == null || _inputFields.Length == 0)
         {
             return;
-        }
+        }*/
 
         /*foreach (var field in _inputFields)
         {
