@@ -14,15 +14,23 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   MenuFrameBGColor: {r: 0.2784314, g: 0.43137258, b: 0.92549026, a: 1}
   MenuFrameShadowColor: {r: 0.10980393, g: 0.17254902, b: 0.36862746, a: 1}
+  EnabledSettingColor: {r: 0.14901961, g: 0.19607845, b: 0.654902, a: 1}
+  DisabledSettingColor: {r: 0.10196079, g: 0.121568635, b: 0.31764707, a: 1}
   ButtonsMainColor: {r: 0.16862746, g: 0.2627451, b: 0.83921576, a: 1}
-  ButtonsMainShadowColor: {r: 0.11764707, g: 0.1764706, b: 0.60784316, a: 1}
-  ButtonsMinorColor: {r: 0.08235294, g: 0.098039225, b: 0.2627451, a: 1}
-  ButtonsMinorShadowColor: {r: 0.050980397, g: 0.054901965, b: 0.13725491, a: 1}
+  ButtonsMainShadowColor: {r: 0.1137255, g: 0.1764706, b: 0.60784316, a: 1}
+  ButtonsInactiveColor: {r: 0.10196079, g: 0.121568635, b: 0.31764707, a: 1}
+  ButtonsInactiveShadowColor: {r: 0, g: 0, b: 0, a: 0}
+  DropdownColor: {r: 0.16862746, g: 0.2627451, b: 0.83921576, a: 1}
+  DropdownShadowColor: {r: 0.1137255, g: 0.1764706, b: 0.60784316, a: 1}
   CameraBackground: {r: 0.8980393, g: 0.8980393, b: 0.8980393, a: 1}
   MainBackgroundColor: {r: 0.9568628, g: 0.9568628, b: 0.9568628, a: 1}
   TransparentBackgroundColor: {r: 0.16470589, g: 0.24313727, b: 0.49411768, a: 1}
   TopFieldColor: {r: 0.25490198, g: 0.3921569, b: 0.8431373, a: 1}
   IconsSettingsBackColor: {r: 0, g: 0, b: 0, a: 1}
+  IconsOnActiveButtonColor: {r: 1, g: 1, b: 1, a: 1}
+  IconsOnInactiveButtonColor: {r: 0.15294118, g: 0.23137257, b: 0.8078432, a: 1}
+  SliderFillColor: {r: 0.6, g: 0.72156864, b: 0.9686275, a: 1}
+  SliderHandleColor: {r: 0.14901961, g: 0.19607845, b: 0.654902, a: 1}
   MenuTitleTextColor: {r: 0.2784314, g: 0.43137258, b: 0.92549026, a: 1}
   MainMenuTextsColor: {r: 0, g: 0, b: 0, a: 1}
   ButtonsMainTextColor: {r: 1, g: 1, b: 1, a: 1}

@@ -6,14 +6,14 @@ public class SettingsScreenUI : MonoBehaviour
 {
     [Header("Buttons")]
     [SerializeField] private Button _soundButton;
-    [SerializeField] private Sprite _soundOnSprite;
-    [SerializeField] private Sprite _soundOffSprite;
+    [SerializeField] private Image _soundOnImage;
+    [SerializeField] private Image _soundOffImage;
     [SerializeField] private Button _musicButton;
-    [SerializeField] private Sprite _musicOnSprite;
-    [SerializeField] private Sprite _musicOffSprite;
+    [SerializeField] private Image _musicOnImage;
+    [SerializeField] private Image _musicOffImage;
     [SerializeField] private Button _vibrationButton;
-    [SerializeField] private Sprite _vibrationOnSprite;
-    [SerializeField] private Sprite _vibrationOffSprite;
+    [SerializeField] private Image _vibrationOnImage;
+    [SerializeField] private Image _vibrationOffImage;
 
     [Header("Sliders")]
     [SerializeField] private Slider _holdDurationSlider;
@@ -24,7 +24,7 @@ public class SettingsScreenUI : MonoBehaviour
     [SerializeField] private TMP_Text _cameraZoomText;
 
     private GameSettingsManager _settingsManager;
-
+    
     private void Start()
     {
         _settingsManager = GameSettingsManager.Instance;
@@ -80,20 +80,23 @@ public class SettingsScreenUI : MonoBehaviour
         _holdDurationSlider.maxValue = _settingsManager._holdTimeMax;
         _holdDurationSlider.value = _settingsManager.HoldTime;
     }
-    
+
     private void UpdateSoundButtonSprite()
     {
-        _soundButton.image.sprite = _settingsManager.IsSoundEnabled ? _soundOnSprite : _soundOffSprite;
+        _soundOnImage.gameObject.SetActive(_settingsManager.IsSoundEnabled);
+        _soundOffImage.gameObject.SetActive(!_settingsManager.IsSoundEnabled);
     }
 
     private void UpdateMusicButtonSprite()
     {
-        _musicButton.image.sprite = _settingsManager.IsMusicEnabled ? _musicOnSprite : _musicOffSprite;
+        _musicOnImage.gameObject.SetActive(_settingsManager.IsMusicEnabled);
+        _musicOffImage.gameObject.SetActive(!_settingsManager.IsMusicEnabled);
     }
 
     private void UpdateVibrationButtonSprite()
     {
-        _vibrationButton.image.sprite = _settingsManager.IsVibrationEnabled ? _vibrationOnSprite : _vibrationOffSprite;
+        _vibrationOnImage.gameObject.SetActive(_settingsManager.IsVibrationEnabled);
+        _vibrationOffImage.gameObject.SetActive(!_settingsManager.IsVibrationEnabled);
     }
 
 

@@ -6,8 +6,7 @@ using UnityEngine.Tilemaps;
 public class Sector : MonoBehaviour
 {
     [SerializeField] private List<TileSetConfig> _tileSets;
-    [SerializeField] private SectorUI _sectorUi;
-    //[SerializeField] private LevelConfig _sectorConfig;
+    [SerializeField] private SectorUI _sectorUi;    
     
     public Tilemap Tilemap { get; private set; }
     public bool IsActive;
@@ -25,20 +24,13 @@ public class Sector : MonoBehaviour
     
     private void Start()
     {
-        Tilemap = GetComponent<Tilemap>();
-        //InitializeSector();
+        Tilemap = GetComponent<Tilemap>();        
         InitializeDict();
         GenerateAward();
         SignalBus.Subscribe<OnCellActiveSignal>(SectorActivate);
         SignalBus.Subscribe<ThemeChangeSignal>(OnThemeChanged);
         TryApplyTheme(ThemeManager.Instance.CurrentThemeIndex);
-    }
-
-    private void InitializeSector()
-    {
-        //_mineCount = _sectorConfig.MineCount;       //random mines (2..10000)
-        //_mineCount = Random.Range(5, 15);
-    }
+    }    
 
     private void InitializeDict()
     {
@@ -373,7 +365,7 @@ public class Sector : MonoBehaviour
         }        
     }
 
-    public SectorData SaveSectorData()
+    /*public SectorData SaveSectorData()
     {
         var sectorData = new SectorData
         {
@@ -404,7 +396,6 @@ public class Sector : MonoBehaviour
         }
 
         return sectorData;
-    }
-
+    }*/
 }
 

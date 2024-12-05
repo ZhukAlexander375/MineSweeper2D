@@ -7,12 +7,18 @@ public class ThemeConfig : ScriptableObject
     [Header("Frames Colors")]
     public Color MenuFrameBGColor;
     public Color MenuFrameShadowColor;
+    public Color EnabledSettingColor;
+    public Color DisabledSettingColor;
 
     [Header("Buttons Colors")]
     public Color ButtonsMainColor;
     public Color ButtonsMainShadowColor;    
-    public Color ButtonsMinorColor;
-    public Color ButtonsMinorShadowColor;    
+    public Color ButtonsInactiveColor;
+    public Color ButtonsInactiveShadowColor;
+
+    [Header("Dropdowns Colors")]
+    public Color DropdownColor;
+    public Color DropdownShadowColor;
 
     [Header("Backgrounds Colors")]
     public Color CameraBackground;
@@ -22,6 +28,12 @@ public class ThemeConfig : ScriptableObject
 
     [Header("Icons Colors")]
     public Color IconsSettingsBackColor;
+    public Color IconsOnActiveButtonColor;
+    public Color IconsOnInactiveButtonColor;
+
+    [Header("Sliders Colors")]
+    public Color SliderFillColor;
+    public Color SliderHandleColor;
 
     [Header("Texts Colors")]
     public Color MenuTitleTextColor;

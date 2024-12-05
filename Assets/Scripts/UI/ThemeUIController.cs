@@ -8,6 +8,8 @@ public class ThemeUIController : MonoBehaviour
     [SerializeField] private Image _mainBackground;
     [SerializeField] private Image[] _topFieldImage;
     [SerializeField] private Image _transparentBackground;
+    [SerializeField] private Image[] _enabledSettingsImage;
+    [SerializeField] private Image[] _disabledSettingsImage;
 
     [Header("Frames Colors")]
     [SerializeField] private Image[] _menuFrameBackgrounds;
@@ -19,8 +21,18 @@ public class ThemeUIController : MonoBehaviour
     [SerializeField] private Button[] _buttonsMinor;    
     [SerializeField] private Shadow[] _buttonsShadowMinor;
 
+    [Header("Dropdown Colors")]
+    [SerializeField] private Image _dropdown;
+    [SerializeField] private Shadow _dropdownShadow;
+
     [Header("Icons Colors")]
     [SerializeField] private Image[] _iconsSettingsBack;
+    [SerializeField] private Image[] _iconsOnActiveButtons;
+    [SerializeField] private Image[] _iconsOnInactiveButtons;
+
+    [Header("Sliders Colors")]
+    [SerializeField] private Image[] _slidersFillImage;
+    [SerializeField] private Image[] _slidersHandleImage;
 
     [Header("Texts Colors")]
     [SerializeField] private TMP_Text _menuTitleText;    
@@ -90,6 +102,9 @@ public class ThemeUIController : MonoBehaviour
 
         ApplyTextsColors(_currentAppliedTheme);
         ApplyButtonsColor(_currentAppliedTheme);
+        ApplyDropdownColor(_currentAppliedTheme);
+        ApplyIconsColor(_currentAppliedTheme);
+        ApplySlidersColor(_currentAppliedTheme);
         ApplyBackgrounsColor(_currentAppliedTheme);
         ApplyInputFieldsColor(_currentAppliedTheme);
 
@@ -178,7 +193,7 @@ public class ThemeUIController : MonoBehaviour
         {
             foreach (var button in _buttonsMinor)
             {
-                button.image.color = theme.ButtonsMinorColor;
+                button.image.color = theme.ButtonsInactiveColor;
             }
         }
 
@@ -186,8 +201,21 @@ public class ThemeUIController : MonoBehaviour
         {
             foreach (var shadow in _buttonsShadowMinor)
             {
-                shadow.effectColor = theme.ButtonsMinorShadowColor;
+                shadow.effectColor = theme.ButtonsInactiveShadowColor;
             }
+        }
+    }
+
+    private void ApplyDropdownColor(ThemeConfig theme)
+    {
+        if (_dropdown != null)
+        {
+            _dropdown.color = theme.DropdownColor;
+        }
+
+        if (_dropdownShadow != null)
+        {
+            _dropdownShadow.effectColor = theme.DropdownShadowColor;
         }
     }
 
@@ -218,7 +246,7 @@ public class ThemeUIController : MonoBehaviour
                 image.color = theme.MenuFrameBGColor;
             }
         }
-        
+
         if (_menuFrameShadows.Length > 0)
         {
             foreach (var shadow in _menuFrameShadows)
@@ -227,11 +255,65 @@ public class ThemeUIController : MonoBehaviour
             }
         }
 
+        if (_enabledSettingsImage.Length > 0)
+        {
+            foreach (var image in _enabledSettingsImage)
+            {
+                image.color = theme.EnabledSettingColor;
+            }
+        }
+
+        if (_disabledSettingsImage.Length > 0)
+        {
+            foreach (var image in _disabledSettingsImage)
+            {
+                image.color = theme.DisabledSettingColor;
+            }
+        }
+    }
+
+    private void ApplyIconsColor(ThemeConfig theme)
+    {
         if (_iconsSettingsBack.Length > 0)
         {
             foreach (var icon in _iconsSettingsBack)
             {
                 icon.color = theme.IconsSettingsBackColor;
+            }
+        }
+
+        if (_iconsOnActiveButtons.Length > 0)
+        {
+            foreach (var icon in _iconsOnActiveButtons)
+            {
+                icon.color = theme.IconsOnActiveButtonColor;
+            }
+        }
+
+        if (_iconsOnInactiveButtons.Length > 0)
+        {
+            foreach (var icon in _iconsOnInactiveButtons)
+            {
+                icon.color = theme.IconsOnInactiveButtonColor;
+            }
+        }
+    }      
+    
+    private void ApplySlidersColor(ThemeConfig theme)
+    {
+        if (_slidersFillImage.Length > 0)
+        {
+            foreach (var fill in _slidersFillImage)
+            {
+                fill.color = theme.SliderFillColor;
+            }
+        }
+
+        if (_slidersHandleImage.Length > 0)
+        {
+            foreach (var handle in _slidersHandleImage)
+            {
+                handle.color = theme.SliderHandleColor;
             }
         }
     }
