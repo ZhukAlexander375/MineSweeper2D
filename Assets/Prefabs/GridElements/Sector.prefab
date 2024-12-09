@@ -490,7 +490,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &5521448340385759358
 RectTransform:
   m_ObjectHideFlags: 0
@@ -609,13 +609,21 @@ MonoBehaviour:
   - {fileID: 5068740426987064276}
   - {fileID: 4482682270554258005}
   _transparentBackground: {fileID: 0}
+  _enabledSettingsImage: []
+  _disabledSettingsImage: []
   _menuFrameBackgrounds: []
   _menuFrameShadows: []
   _buttonsMain: []
   _buttonsShadowMain: []
   _buttonsMinor: []
   _buttonsShadowMinor: []
+  _dropdown: {fileID: 0}
+  _dropdownShadow: {fileID: 0}
   _iconsSettingsBack: []
+  _iconsOnActiveButtons: []
+  _iconsOnInactiveButtons: []
+  _slidersFillImage: []
+  _slidersHandleImage: []
   _menuTitleText: {fileID: 5049457223409398722}
   _mainMenuTexts: []
   _navigationPanelImage: {fileID: 0}
@@ -1426,7 +1434,9 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 4c75a55d96038614d8aed41b4b7a69c1, type: 2}
   - {fileID: 11400000, guid: 62285a932d4535a42a968d2a8e354c58, type: 2}
   _sectorUi: {fileID: 5095245884701438918}
+  _tilemap: {fileID: 9221489435694033697}
   IsActive: 0
+  IsLOADED: 0
 --- !u!1 &8043713731756792799
 GameObject:
   m_ObjectHideFlags: 0

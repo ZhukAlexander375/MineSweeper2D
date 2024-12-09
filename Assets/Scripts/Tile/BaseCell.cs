@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class BaseCell 
 {    
-    public Vector3Int CellPosition;
+    public Vector3Int GlobalCellPosition;
     public CellState CellState;
     public int CellNumber;
     public bool IsRevealed;

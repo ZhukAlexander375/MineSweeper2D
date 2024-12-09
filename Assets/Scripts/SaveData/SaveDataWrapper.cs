@@ -4,4 +4,5 @@ using System.Collections.Generic;
 public class SaveDataWrapper
 {
     public List<SectorData> Sectors;
+    public int SelectedThemeIndex;
 }

@@ -19,7 +19,7 @@ public class CellGrid
             {
                 cells[x, y] = new BaseCell
                 {
-                    CellPosition = new Vector3Int(x, y, 0),
+                    GlobalCellPosition = new Vector3Int(x, y, 0),
                     CellState = CellState.Empty
                 };
             }
@@ -95,8 +95,8 @@ public class CellGrid
                     continue;
                 }
 
-                int x = cell.CellPosition.x + adjacentX;
-                int y = cell.CellPosition.y + adjacentY;
+                int x = cell.GlobalCellPosition.x + adjacentX;
+                int y = cell.GlobalCellPosition.y + adjacentY;
 
                 if (TryGetCell(x, y, out BaseCell adjacent) && adjacent.CellState == CellState.Mine)
                 {
@@ -121,8 +121,8 @@ public class CellGrid
                     continue;
                 }
 
-                int x = cell.CellPosition.x + adjacentX;
-                int y = cell.CellPosition.y + adjacentY;
+                int x = cell.GlobalCellPosition.x + adjacentX;
+                int y = cell.GlobalCellPosition.y + adjacentY;
 
                 if (TryGetCell(x, y, out BaseCell adjacent) && !adjacent.IsRevealed && adjacent.IsFlagged)
                 {
@@ -161,7 +161,7 @@ public class CellGrid
     {
         if (a == null || b == null) return false;
 
-        return Mathf.Abs(a.CellPosition.x - b.CellPosition.x) <= 1 &&
-               Mathf.Abs(a.CellPosition.y - b.CellPosition.y) <= 1;
+        return Mathf.Abs(a.GlobalCellPosition.x - b.GlobalCellPosition.x) <= 1 &&
+               Mathf.Abs(a.GlobalCellPosition.y - b.GlobalCellPosition.y) <= 1;
     }
 }

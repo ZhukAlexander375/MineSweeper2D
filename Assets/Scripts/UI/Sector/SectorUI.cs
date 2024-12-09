@@ -13,8 +13,8 @@ public class SectorUI : MonoBehaviour
     private void Start()
     {
         _loupeButton.onClick.AddListener(ShowSector);
-        _closeButton.onClick.AddListener(HideSector);  
-        gameObject.SetActive(false);
+        _closeButton.onClick.AddListener(HideSector);
+        //gameObject.SetActive(false);
     }
 
     private void ShowSector()

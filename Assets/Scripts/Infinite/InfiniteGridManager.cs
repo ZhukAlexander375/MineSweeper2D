@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.UIElements;
 using Random = UnityEngine.Random;
 
 
@@ -21,6 +22,7 @@ public class InfiniteGridManager : MonoBehaviour
     [SerializeField] private GameObject _awardSpritePrefab;
 
     public bool IsFirstClick;
+    public bool IsGenerateEnabled;
 
     private int _sectorSize = 8;            ///
     private Camera mainCamera;
@@ -37,24 +39,27 @@ public class InfiniteGridManager : MonoBehaviour
     private float _lastClickTime = -1f; // Время последнего клика
     private const float DoubleClickThreshold = 0.3f; // Порог для двойного клика (в секундах)
 
-    //private SaveManager _saveManager;
+    private SaveManager _saveManager;
 
     void Start()
     {
-        //_saveManager = SaveManager.Instance;
+        _saveManager = SaveManager.Instance;
 
         mainCamera = Camera.main;
         _grid = GetComponent<Grid>();
 
-        /*if (_saveManager.HasSavedData())
+        if (_saveManager.HasSavedData())
         {
             LoadSavedGame();
-        }*/
+        }
     }
 
     private void Update()
     {
-        UpdateVisibleSectors();
+        //if (IsGenerateEnabled)
+        //{
+            UpdateVisibleSectors();
+        //}//        
 
         // check click on ui or gamefield
         if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject())
@@ -95,6 +100,12 @@ public class InfiniteGridManager : MonoBehaviour
             SetSectorForFlagAtClick();
             _flagSet = true;
         }
+
+        if (Input.GetKeyDown(KeyCode.S))
+        {
+            SaveCurrentGame();
+            Debug.Log("Save?");
+        }
     }
 
 
@@ -116,8 +127,8 @@ public class InfiniteGridManager : MonoBehaviour
             {
                 foreach (var cell in sector.Cells)
                 {
-                    Vector3Int cellWorldPosition = cell.Key + new Vector3Int((int)(sector.transform.position.x), (int)(sector.transform.position.y), 0);
-                    _allCells[cellWorldPosition] = cell.Value;
+                    Vector3Int globalCellPosition = cell.Key + new Vector3Int((int)(sector.transform.position.x), (int)(sector.transform.position.y), 0);
+                    _allCells[globalCellPosition] = cell.Value;                    
                 }
 
                 GenerateMinesInSector(sector, startingCell);
@@ -212,7 +223,7 @@ public class InfiniteGridManager : MonoBehaviour
         {
             if (cell.Value.CellState != CellState.Mine)
             {
-                int adjacentMines = CountAdjacentMines(cell.Value.CellPosition);
+                int adjacentMines = CountAdjacentMines(cell.Value.GlobalCellPosition);
                 cell.Value.CellNumber = adjacentMines;
 
                 if (adjacentMines > 0)
@@ -283,8 +294,8 @@ public class InfiniteGridManager : MonoBehaviour
 
     private bool IsAdjacent(InfiniteCell startingCell, InfiniteCell cell)
     {
-        Vector3Int start = startingCell.CellPosition;
-        Vector3Int pos = cell.CellPosition;
+        Vector3Int start = startingCell.GlobalCellPosition;
+        Vector3Int pos = cell.GlobalCellPosition;
 
         return Mathf.Abs(start.x - pos.x) <= 1 && Mathf.Abs(start.y - pos.y) <= 1;
     }
@@ -382,7 +393,7 @@ public class InfiniteGridManager : MonoBehaviour
                 break;
         }
 
-        _lastClickPosition = cell.CellPosition;
+        _lastClickPosition = cell.GlobalCellPosition;
 
         DrawSectors();
     }
@@ -403,7 +414,7 @@ public class InfiniteGridManager : MonoBehaviour
 
         InstantiateParticleAtCell(isPlacingFlag ? _flagPlaceParticle : _flagRemoveParticle, cell);
 
-        _lastClickPosition = cell.CellPosition;
+        _lastClickPosition = cell.GlobalCellPosition;
 
         // Вибрация и перерисовка
         if (GameSettingsManager.Instance.IsVibrationEnabled)
@@ -416,7 +427,7 @@ public class InfiniteGridManager : MonoBehaviour
 
     private void InstantiateParticleAtCell(GameObject particlePrefab, InfiniteCell cell)
     {
-        Vector3 worldPosition = cell.CellPosition;
+        Vector3 worldPosition = cell.GlobalCellPosition;
         GameObject particleInstance = Instantiate(particlePrefab, worldPosition, Quaternion.identity);
         Destroy(particleInstance, 2f);
     }
@@ -454,7 +465,7 @@ public class InfiniteGridManager : MonoBehaviour
                             continue;
                         }
 
-                        Vector3Int position = currentCell.CellPosition + new Vector3Int(adjacentX, adjacentY, 0);
+                        Vector3Int position = currentCell.GlobalCellPosition + new Vector3Int(adjacentX, adjacentY, 0);
 
                         if (_allCells.TryGetValue(position, out InfiniteCell adjacentCell))
                         {
@@ -487,7 +498,7 @@ public class InfiniteGridManager : MonoBehaviour
             {
                 if (dx == 0 && dy == 0) continue;
 
-                Vector3Int position = cell.CellPosition + new Vector3Int(dx, dy, 0);
+                Vector3Int position = cell.GlobalCellPosition + new Vector3Int(dx, dy, 0);
 
                 if (_allCells.TryGetValue(position, out InfiniteCell adjacentCell) && adjacentCell.IsFlagged)
                 {
@@ -531,35 +542,35 @@ public class InfiniteGridManager : MonoBehaviour
 
         if (cell.CellState == CellState.Empty)
         {
-            if (TryGetCell(cell.CellPosition.x - 1, cell.CellPosition.y, out InfiniteCell left))
+            if (TryGetCell(cell.GlobalCellPosition.x - 1, cell.GlobalCellPosition.y, out InfiniteCell left))
             {
                 StartCoroutine(Flood(currentSector, left));
             }
-            if (TryGetCell(cell.CellPosition.x + 1, cell.CellPosition.y, out InfiniteCell right))
+            if (TryGetCell(cell.GlobalCellPosition.x + 1, cell.GlobalCellPosition.y, out InfiniteCell right))
             {
                 StartCoroutine(Flood(currentSector, right));
             }
-            if (TryGetCell(cell.CellPosition.x, cell.CellPosition.y - 1, out InfiniteCell down))
+            if (TryGetCell(cell.GlobalCellPosition.x, cell.GlobalCellPosition.y - 1, out InfiniteCell down))
             {
                 StartCoroutine(Flood(currentSector, down));
             }
-            if (TryGetCell(cell.CellPosition.x, cell.CellPosition.y + 1, out InfiniteCell up))
+            if (TryGetCell(cell.GlobalCellPosition.x, cell.GlobalCellPosition.y + 1, out InfiniteCell up))
             {
                 StartCoroutine(Flood(currentSector, up));
             }
-            if (TryGetCell(cell.CellPosition.x - 1, cell.CellPosition.y - 1, out InfiniteCell downLeft))
+            if (TryGetCell(cell.GlobalCellPosition.x - 1, cell.GlobalCellPosition.y - 1, out InfiniteCell downLeft))
             {
                 StartCoroutine(Flood(currentSector, downLeft));
             }
-            if (TryGetCell(cell.CellPosition.x + 1, cell.CellPosition.y - 1, out InfiniteCell downRight))
+            if (TryGetCell(cell.GlobalCellPosition.x + 1, cell.GlobalCellPosition.y - 1, out InfiniteCell downRight))
             {
                 StartCoroutine(Flood(currentSector, downRight));
             }
-            if (TryGetCell(cell.CellPosition.x - 1, cell.CellPosition.y + 1, out InfiniteCell upLeft))
+            if (TryGetCell(cell.GlobalCellPosition.x - 1, cell.GlobalCellPosition.y + 1, out InfiniteCell upLeft))
             {
                 StartCoroutine(Flood(currentSector, upLeft));
             }
-            if (TryGetCell(cell.CellPosition.x + 1, cell.CellPosition.y + 1, out InfiniteCell upRight))
+            if (TryGetCell(cell.GlobalCellPosition.x + 1, cell.GlobalCellPosition.y + 1, out InfiniteCell upRight))
             {
                 StartCoroutine(Flood(currentSector, upRight));
             }
@@ -578,7 +589,7 @@ public class InfiniteGridManager : MonoBehaviour
 
     private void MoveAwardSprite(InfiniteCell cell, GameObject targetRewardUIElement)
     {
-        Vector3 startPosition = cell.CellPosition;
+        Vector3 startPosition = cell.GlobalCellPosition;
 
         GameObject awardSprite = Instantiate(_awardSpritePrefab, startPosition, Quaternion.identity);
         awardSprite.transform.localScale = Vector3.one;
@@ -613,8 +624,8 @@ public class InfiniteGridManager : MonoBehaviour
                     continue;
                 }
 
-                int x = cell.CellPosition.x + adjacentX;
-                int y = cell.CellPosition.y + adjacentY;
+                int x = cell.GlobalCellPosition.x + adjacentX;
+                int y = cell.GlobalCellPosition.y + adjacentY;
 
                 if (TryGetCell(x, y, out InfiniteCell adjacent) && !adjacent.IsRevealed && !adjacent.IsActive)
                 {
@@ -654,15 +665,19 @@ public class InfiniteGridManager : MonoBehaviour
 
     private void UpdateVisibleSectors()
     {
-        var currentSectorPosition = GetCurrentSectorPosition();
+        var globalSectorPosition = GetCurrentSectorPosition();       //sector's global position -16 -8  --> sector position -2 -1 
         var viewDistance = Mathf.CeilToInt((mainCamera.orthographicSize) / _sectorSize) + initialSectorsVisibleInRange;
 
         for (int x = -viewDistance; x <= viewDistance; x++)
         {
             for (int y = -viewDistance; y <= viewDistance; y++)
             {
-                var sectorPosition = new Vector2Int(currentSectorPosition.x + x, currentSectorPosition.y + y);
-                CreateSector(sectorPosition);
+                var sectorPosition = new Vector2Int(globalSectorPosition.x + x, globalSectorPosition.y + y);
+                
+                if (!_sectors.ContainsKey(sectorPosition))
+                {
+                    CreateSector(sectorPosition);       //tut sector position -2 -1 i t.d.                 
+                }
             }
         }
     }
@@ -680,14 +695,15 @@ public class InfiniteGridManager : MonoBehaviour
                 newSector.TryApplyTheme(ThemeManager.Instance.CurrentThemeIndex);
             }
 
-            _sectors.Add(position, newSector);
+            _sectors.Add(position, newSector);       //tut sector position -2 -1 i t.d.( / 8)
+            //Debug.Log($"в апдейте: {newSector} position: {position}");
         }
     }
 
     private Vector2Int GetCurrentSectorPosition()
     {
         var x = mainCamera.transform.position.x / _sectorSize;
-        var y = mainCamera.transform.position.y / _sectorSize;
+        var y = mainCamera.transform.position.y / _sectorSize;        
         return new Vector2Int(Mathf.FloorToInt(x), Mathf.FloorToInt(y));
     }
 
@@ -700,7 +716,7 @@ public class InfiniteGridManager : MonoBehaviour
         }
     }
 
-    /*private void OnApplicationQuit()
+    private void OnApplicationQuit()
     {
         SaveCurrentGame();
     }
@@ -716,55 +732,75 @@ public class InfiniteGridManager : MonoBehaviour
     {
         if (_saveManager.HasSavedData())
         {
-            var savedSectors = _saveManager.LoadSavedSectors();
-            foreach (var sectorData in savedSectors)
+            if (!SaveManager.Instance.HasSavedData())
             {
-                // Создаем или ищем существующий сектор
-                Sector sector = CreateOrFindSector(sectorData.SectorPosition);
+                Debug.LogWarning("No saved game data found.");
+                return;
+            }
+            
+            List<SectorData> loadedSectors = SaveManager.Instance.LoadSavedSectors();
 
-                // Восстанавливаем свойства сектора
-                sector.IsActive = sectorData.IsActive;
-                sector.IsFirstCellActivated = sectorData.IsFirstCellActivated;
-                sector.IsExploded = sectorData.IsExploded;
-                sector.IsPrizePlaced = sectorData.IsPrizePlaced;
+            foreach (var sectorData in loadedSectors)
+            {
+                var position = new Vector2Int(sectorData.SectorPosition.x, sectorData.SectorPosition.y);
 
-                // Восстанавливаем ячейки
-                foreach (var cellData in sectorData.Cells)
+                if (_sectors.ContainsKey(position))
                 {
-                    var cell = sector.GetCell(cellData.Position);
-                    if (cell != null)
-                    {
-                        cell.CellState = cellData.CellState;
-                        cell.IsActive = cellData.IsActive;
-                        cell.IsAward = cellData.IsAward;
-                        cell.IsRevealed = cellData.IsRevealed;
-                        cell.IsFlagged = cellData.IsFlagged;
-                        cell.IsExploded = cellData.IsExploded;
-                        cell.Chorded = cellData.Chorded;
-                        cell.CellNumber = cellData.CellNumber;
-                    }
+                    Debug.Log($"Sector at {position} already exists. Skipping creation.");
+                    continue;
                 }
 
-                sector.DrawSector();
+                Sector sector = CreateSectorFromData(sectorData);
+                sector.InitializeCellsFromData(sectorData.Cells, this);
+                AddCellsToAllCells(sector);                 
             }
-        }
+
+            Debug.Log("Game loaded successfully.");
+            IsGenerateEnabled = true;            
+            IsFirstClick = true;        ////???????????????????????????????????????
+        }        
     }
 
-    private Sector CreateOrFindSector(Vector3 sectorPosition)
+    private Sector CreateSectorFromData(SectorData sectorData)
     {
-        Vector2Int sectorCoords = new Vector2Int(
-            Mathf.FloorToInt(sectorPosition.x / _sectorSize),
-            Mathf.FloorToInt(sectorPosition.y / _sectorSize)
-        );
+        var logicalPosition = new Vector2Int(sectorData.SectorPosition.x, sectorData.SectorPosition.y); // load with sector position -2 -1 etc
 
-        if (_sectors.TryGetValue(sectorCoords, out Sector existingSector))
+        if (!_sectors.TryGetValue(logicalPosition, out Sector sector))
         {
-            return existingSector;
-        }
+            var sectorWorldPosition = new Vector3(
+                logicalPosition.x * _sectorSize,
+                logicalPosition.y * _sectorSize,
+                0);
 
-        Sector newSector = Instantiate(_sectorPrefab, sectorPosition, Quaternion.identity);
-        newSector.SetManager(this);
-        _sectors[sectorCoords] = newSector;
-        return newSector;
-    }*/
+            var newSector = Instantiate(_sectorPrefab, sectorWorldPosition, Quaternion.identity, transform);
+            newSector.SetManager(this);
+
+            if (ThemeManager.Instance != null)
+            {
+                newSector.TryApplyTheme(ThemeManager.Instance.CurrentThemeIndex);
+            }
+
+            _sectors.Add(logicalPosition, newSector);
+            sector = newSector;
+            //Debug.Log($"при загрузке: {newSector} position: {logicalPosition}");
+        }
+        
+        sector.IsActive = sectorData.IsActive;
+        sector.IsFirstCellActivated = sectorData.IsFirstCellActivated;
+        sector.IsExploded = sectorData.IsExploded;
+        sector.IsPrizePlaced = sectorData.IsPrizePlaced;
+        sector.IsLOADED = true;
+
+        return sector;
+    }
+
+    private void AddCellsToAllCells(Sector sector)
+    {
+        foreach (var cell in sector.Cells)
+        {
+            Vector3Int cellWorldPosition = cell.Key + new Vector3Int((int)(sector.transform.position.x), (int)(sector.transform.position.y), 0);
+            //Debug.Log(cellWorldPosition);
+            _allCells[cellWorldPosition] = cell.Value;
+        }
+    }
 }

@@ -42,6 +42,11 @@ public class InfiniteCell : BaseCell
 
     public void CellReveal()
     {
+        if (_sector == null)
+        {
+            Debug.LogError($"_sector is null for cell at position {GlobalCellPosition}.");
+            return;
+        }
         _sector.GenerateNumbersInSector();        
     }
 

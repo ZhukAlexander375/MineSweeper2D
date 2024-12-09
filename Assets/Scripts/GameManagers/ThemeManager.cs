@@ -33,27 +33,21 @@ public class ThemeManager : MonoBehaviour
         CurrentThemeIndex = themeIndex;
         CurrentTheme = _themes[themeIndex];
 
-        SaveTheme(themeIndex);
+        SaveManager.Instance.SaveSelectedTheme(CurrentThemeIndex);
 
         SignalBus.Fire(new ThemeChangeSignal(CurrentTheme, CurrentThemeIndex));
     }
 
     private void LoadSavedTheme()
     {
-        int savedThemeIndex = PlayerPrefs.GetInt("SelectTheme", 0);
+        int savedThemeIndex = SaveManager.Instance.LoadSelectedTheme();
 
-        if (savedThemeIndex == -1)
+        if (savedThemeIndex == -1 || savedThemeIndex >= _themes.Length)
         {
             savedThemeIndex = 0;
         }
 
         ApplyTheme(savedThemeIndex);
-    }
-
-    private void SaveTheme(int themeIndex)
-    {
-        PlayerPrefs.SetInt("SelectedTheme", themeIndex);
-        PlayerPrefs.Save();
     }
 }
 

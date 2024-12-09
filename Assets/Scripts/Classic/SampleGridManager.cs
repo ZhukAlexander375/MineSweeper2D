@@ -240,35 +240,35 @@ public class SampleGridManager : MonoBehaviour
 
         if (cell.CellState == CellState.Empty)
         {
-            if (_cellGrid.TryGetCell(cell.CellPosition.x - 1, cell.CellPosition.y, out BaseCell left))
+            if (_cellGrid.TryGetCell(cell.GlobalCellPosition.x - 1, cell.GlobalCellPosition.y, out BaseCell left))
             {
                 StartCoroutine(Flood(left));
             }
-            if (_cellGrid.TryGetCell(cell.CellPosition.x + 1, cell.CellPosition.y, out BaseCell right))
+            if (_cellGrid.TryGetCell(cell.GlobalCellPosition.x + 1, cell.GlobalCellPosition.y, out BaseCell right))
             {
                 StartCoroutine(Flood(right));
             }
-            if (_cellGrid.TryGetCell(cell.CellPosition.x, cell.CellPosition.y - 1, out BaseCell down))
+            if (_cellGrid.TryGetCell(cell.GlobalCellPosition.x, cell.GlobalCellPosition.y - 1, out BaseCell down))
             {
                 StartCoroutine(Flood(down));
             }
-            if (_cellGrid.TryGetCell(cell.CellPosition.x, cell.CellPosition.y + 1, out BaseCell up))
+            if (_cellGrid.TryGetCell(cell.GlobalCellPosition.x, cell.GlobalCellPosition.y + 1, out BaseCell up))
             {
                 StartCoroutine(Flood(up));
             }
-            if (_cellGrid.TryGetCell(cell.CellPosition.x - 1, cell.CellPosition.y - 1, out BaseCell downLeft))
+            if (_cellGrid.TryGetCell(cell.GlobalCellPosition.x - 1, cell.GlobalCellPosition.y - 1, out BaseCell downLeft))
             {
                 StartCoroutine(Flood(downLeft));
             }
-            if (_cellGrid.TryGetCell(cell.CellPosition.x + 1, cell.CellPosition.y - 1, out BaseCell downRight))
+            if (_cellGrid.TryGetCell(cell.GlobalCellPosition.x + 1, cell.GlobalCellPosition.y - 1, out BaseCell downRight))
             {
                 StartCoroutine(Flood(downRight));
             }
-            if (_cellGrid.TryGetCell(cell.CellPosition.x - 1, cell.CellPosition.y + 1, out BaseCell upLeft))
+            if (_cellGrid.TryGetCell(cell.GlobalCellPosition.x - 1, cell.GlobalCellPosition.y + 1, out BaseCell upLeft))
             {
                 StartCoroutine(Flood(upLeft));
             }
-            if (_cellGrid.TryGetCell(cell.CellPosition.x + 1, cell.CellPosition.y + 1, out BaseCell upRight))
+            if (_cellGrid.TryGetCell(cell.GlobalCellPosition.x + 1, cell.GlobalCellPosition.y + 1, out BaseCell upRight))
             {
                 StartCoroutine(Flood(upRight));
             }
@@ -291,7 +291,7 @@ public class SampleGridManager : MonoBehaviour
 
     private void InstantiateParticleAtCell(GameObject particlePrefab, BaseCell cell)
     {        
-        Vector3 worldPosition = cell.CellPosition;
+        Vector3 worldPosition = cell.GlobalCellPosition;
 
         GameObject particleInstance = Instantiate(particlePrefab, worldPosition, Quaternion.identity);
 
@@ -325,8 +325,8 @@ public class SampleGridManager : MonoBehaviour
                 {
                     for (int adjacentY = -1; adjacentY <= 1; adjacentY++)
                     {
-                        int x = clickedCell.CellPosition.x + adjacentX;
-                        int y = clickedCell.CellPosition.y + adjacentY;
+                        int x = clickedCell.GlobalCellPosition.x + adjacentX;
+                        int y = clickedCell.GlobalCellPosition.y + adjacentY;
 
                         if (_cellGrid.TryGetCell(x, y, out BaseCell adjacentCell))
                         {
@@ -344,8 +344,8 @@ public class SampleGridManager : MonoBehaviour
                     {
                         if (adjacentX == 0 && adjacentY == 0) continue;
 
-                        int x = clickedCell.CellPosition.x + adjacentX;
-                        int y = clickedCell.CellPosition.y + adjacentY;
+                        int x = clickedCell.GlobalCellPosition.x + adjacentX;
+                        int y = clickedCell.GlobalCellPosition.y + adjacentY;
 
                         if (_cellGrid.TryGetCell(x, y, out BaseCell adjacentCell))
                         {

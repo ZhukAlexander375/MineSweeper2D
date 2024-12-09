@@ -3,7 +3,7 @@ using UnityEngine;
 [System.Serializable]
 public class CellData
 {
-    public Vector3Int Position;
+    public Vector3Int GlobalCellPosition;
     public CellState CellState;
     public bool IsActive;
     public bool IsAward;

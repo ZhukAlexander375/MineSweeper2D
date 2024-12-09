@@ -64,7 +64,7 @@ public class Board : MonoBehaviour
             for (int y = 0; y < height; y++)
             {
                 BaseCell cell = grid[x, y];
-                Tilemap.SetTile(cell.CellPosition, GetTile(cell));
+                Tilemap.SetTile(cell.GlobalCellPosition, GetTile(cell));
             }
         }
     }

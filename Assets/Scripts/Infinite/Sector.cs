@@ -1,19 +1,24 @@
+using JetBrains.Annotations;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Tilemaps;
+using UnityEngine.UIElements;
 
 public class Sector : MonoBehaviour
 {
     [SerializeField] private List<TileSetConfig> _tileSets;
-    [SerializeField] private SectorUI _sectorUi;    
-    
-    public Tilemap Tilemap { get; private set; }
+    [SerializeField] private SectorUI _sectorUi;
+    [SerializeField] private Tilemap _tilemap;
+    //public Tilemap _tilemap { get; private set; }
+        
     public bool IsActive;
     public bool IsFirstCellActivated {  get; set; }
     public bool IsExploded { get; set; }
     public bool IsPrizePlaced { get; set; }
-    public Dictionary<Vector3Int, InfiniteCell> Cells => _cells;   
+    public bool IsCellsInitialized { get; set; }
+    public Dictionary<Vector3Int, InfiniteCell> Cells => _cells;
+    public bool IsLOADED;
        
 
     private InfiniteGridManager _infiniteGridManager;
@@ -24,18 +29,33 @@ public class Sector : MonoBehaviour
     
     private void Start()
     {
-        Tilemap = GetComponent<Tilemap>();        
-        InitializeDict();
-        GenerateAward();
+        _tilemap = GetComponent<Tilemap>();
+        
+        if (_cells.Count == 0)
+        {
+            InitializeCells();
+            GenerateAward();
+        }
+        CheckExplodedSector();
+
         SignalBus.Subscribe<OnCellActiveSignal>(SectorActivate);
         SignalBus.Subscribe<ThemeChangeSignal>(OnThemeChanged);
-        TryApplyTheme(ThemeManager.Instance.CurrentThemeIndex);
-    }    
+        TryApplyTheme(ThemeManager.Instance.CurrentThemeIndex);       
+    }
 
-    private void InitializeDict()
+    private void CheckExplodedSector()
     {
-        Vector3Int boundsMin = Tilemap.cellBounds.min;
-        Vector3Int boundsMax = Tilemap.cellBounds.max;
+        if (IsExploded)
+        {
+            Debug.Log(1);
+            CloseSector();
+        }
+    }
+
+    private void InitializeCells()
+    {
+        Vector3Int boundsMin = _tilemap.cellBounds.min;
+        Vector3Int boundsMax = _tilemap.cellBounds.max;
 
         for (int x = boundsMin.x; x < boundsMax.x; x++)
         {
@@ -43,20 +63,20 @@ public class Sector : MonoBehaviour
             {
                 Vector3Int position = new Vector3Int(x, y, 0);
 
-                TileBase tile = Tilemap.GetTile(position);
+                TileBase tile = _tilemap.GetTile(position);
 
                 if (tile != null)
                 {
                     InfiniteCell cell = new InfiniteCell();
-                    _cells[new Vector3Int(x, y, 0)] = cell;
-                    cell.CellPosition = position + new Vector3Int((int)transform.position.x, (int)transform.position.y, 0);
-                    cell.CellState = CellState.Empty;
+                    _cells[new Vector3Int(x, y, 0)] = cell;                    
+                    cell.GlobalCellPosition = position + new Vector3Int((int)transform.position.x, (int)transform.position.y, 0);
                     
                     cell.SetOwnerSector(this);
                     cell.SetGridManager(_infiniteGridManager);
                 }
             }
-        }
+        }        
+        //LogAllCellKeys();
     }
 
     public void HandleCellClick(int cellX, int cellY)
@@ -171,7 +191,12 @@ public class Sector : MonoBehaviour
 
     public void DrawSector()
     {
-        //Debug.Log(1);
+        if (_tilemap == null)
+        {
+            Debug.LogError("Tilemap ÌÂ ÛÒÚ‡ÌÓ‚ÎÂÌ ‰Îˇ ÒÂÍÚÓ‡!");
+            return;
+        }        
+
         int width = _infiniteGridManager.SectorSize;
         int height = _infiniteGridManager.SectorSize;
 
@@ -179,10 +204,12 @@ public class Sector : MonoBehaviour
         {
             for (int y = 0; y < height; y++)
             {
-                InfiniteCell cell = _cells[new Vector3Int(x, y, 0)];
-                Tilemap.SetTile(new Vector3Int(x, y, 0), GetTile(cell));
+                InfiniteCell cell = _cells[new Vector3Int(x, y, 0)]; 
+                _tilemap.SetTile(new Vector3Int(x, y, 0), GetTile(cell));
             }
         }
+
+        _tilemap.RefreshAllTiles();
     }
 
     public void GenerateNumbersInSector()
@@ -191,9 +218,10 @@ public class Sector : MonoBehaviour
     }
 
     private Tile GetTile(InfiniteCell cell)
-    {
+    { 
         if (cell.IsRevealed)
-        { 
+        {
+            //Debug.Log($"¬ Ã≈“Œƒ≈ √≈“ “¿…À: Cell at {cell.GlobalCellPosition} - State: {cell.CellState}, Number: {cell.CellNumber}");
             return GetRevealedTile(cell);
         }
 
@@ -236,6 +264,8 @@ public class Sector : MonoBehaviour
 
     private Tile GetNumberTile(InfiniteCell cell)
     {
+        //Debug.Log($"œ–» –¿——“¿ÕŒ¬ ≈ ◊»—≈À: Cell at {cell.GlobalCellPosition} - State: {cell.CellState}, Number: {cell.CellNumber}");
+        
         switch (cell.CellNumber)
         {
             case 1: return _tileSets[_currentTileSetIndex].TileNum1;
@@ -294,7 +324,7 @@ public class Sector : MonoBehaviour
 
         _currentTileSet = _tileSets[themeIndex];
         _currentTileSetIndex = themeIndex;
-        if (Tilemap != null)
+        if (_tilemap != null)
         {
             RedrawSector();
         }
@@ -302,15 +332,15 @@ public class Sector : MonoBehaviour
 
     public void RedrawSector()
     {
-        if (Tilemap == null) return;
+        if (_tilemap == null) return;
                
         foreach (var cellPosition in _cells.Keys)
         {
             var cell = _cells[cellPosition];
-            Tilemap.SetTile(cellPosition, GetTile(cell));
+            _tilemap.SetTile(cellPosition, GetTile(cell));
         }
 
-        Tilemap.RefreshAllTiles();
+        _tilemap.RefreshAllTiles();
     }
 
     public void CloseSector()
@@ -360,20 +390,25 @@ public class Sector : MonoBehaviour
         foreach (var pos in _cells.Keys)
         {            
             Vector3Int tilePosition = new Vector3Int(pos.x, pos.y, 0);
-            Tilemap.SetTile(tilePosition, _tileSets[_currentTileSetIndex].TileFlag);
+            _tilemap.SetTile(tilePosition, _tileSets[_currentTileSetIndex].TileFlag);
             yield return new WaitForSeconds(0.5f);
         }        
     }
 
-    /*public SectorData SaveSectorData()
+    public SectorData SaveSectorData()
     {
         var sectorData = new SectorData
         {
-            SectorPosition = transform.position,
+            SectorPosition = new Vector2Int(
+                            Mathf.FloorToInt(transform.position.x / _infiniteGridManager.SectorSize),
+                            Mathf.FloorToInt(transform.position.y / _infiniteGridManager.SectorSize)), //save with sector position -2 -1 i t.d.( / 8) OK!!!!
             IsActive = IsActive,
             IsFirstCellActivated = IsFirstCellActivated,
             IsExploded = IsExploded,
-            IsPrizePlaced = IsPrizePlaced
+            IsPrizePlaced = IsPrizePlaced,
+            IsLOADED = IsLOADED,            ///DELETE    
+            IsCellsInitialized = IsCellsInitialized
+
         };
 
         foreach (var cellPair in _cells)
@@ -381,7 +416,7 @@ public class Sector : MonoBehaviour
             var cell = cellPair.Value;
             var cellData = new CellData
             {
-                Position = cellPair.Key,
+                GlobalCellPosition = cell.GlobalCellPosition,
                 CellState = cell.CellState,
                 IsActive = cell.IsActive,
                 IsAward = cell.IsAward,
@@ -389,13 +424,95 @@ public class Sector : MonoBehaviour
                 IsFlagged = cell.IsFlagged,
                 IsExploded = cell.IsExploded,
                 Chorded = cell.Chorded,
-                CellNumber = cell.CellNumber
+                CellNumber = cell.CellNumber,                
             };
 
+            //Debug.Log($"Cell position {cell.GlobalCellPosition}");
             sectorData.Cells.Add(cellData);
         }
 
         return sectorData;
-    }*/
+    }
+
+
+    public void InitializeCellsFromData(List<CellData> cells, InfiniteGridManager infiniteGridManager)
+    {
+        /*if (_cells == null)
+        {
+            _cells = new Dictionary<Vector3Int, InfiniteCell>();
+        }
+*/
+        //Vector3Int boundsMin = _tilemap.cellBounds.min;
+        //Vector3Int boundsMax = _tilemap.cellBounds.max;
+
+        foreach (var cellData in cells)
+        {
+            Vector3Int globalPosition = cellData.GlobalCellPosition;
+
+            Vector2Int sectorPosition = new Vector2Int(Mathf.FloorToInt(transform.position.x / _infiniteGridManager.SectorSize),
+                                                       Mathf.FloorToInt(transform.position.y / _infiniteGridManager.SectorSize));
+            
+            Vector3Int sectorOrigin = new Vector3Int(sectorPosition.x * _infiniteGridManager.SectorSize,
+                                                      sectorPosition.y * _infiniteGridManager.SectorSize, 0);
+            
+            Vector3Int localPosition = globalPosition - sectorOrigin;
+
+            TileBase tile = _tilemap.GetTile(localPosition);
+
+            if (tile != null)
+            {
+                if (!_cells.ContainsKey(localPosition))
+                {
+                    InfiniteCell cell = new InfiniteCell();
+                    _cells[localPosition] = cell;                    
+
+                    cell.SetOwnerSector(this);
+                    cell.SetGridManager(infiniteGridManager);
+
+                    cell.GlobalCellPosition = cellData.GlobalCellPosition;
+                    cell.CellState = cellData.CellState;
+                    cell.IsRevealed = cellData.IsRevealed;
+                    cell.IsFlagged = cellData.IsFlagged;                    
+                    cell.IsExploded = cellData.IsExploded;
+                    cell.Chorded = cellData.Chorded;
+                    cell.IsActive = cellData.IsActive;
+                    cell.IsAward = cellData.IsAward;
+                    cell.CellNumber = cellData.CellNumber;
+
+                    if (cell.IsRevealed == true)
+                    {
+                        //Debug.Log($"Õ¿ «¿√–”« ≈: Cell at {cellData.GlobalCellPosition} - State: {cellData.CellState}, Number: {cellData.CellNumber}");
+                    }
+                    
+                    //Debug.Log($"Cell position {cell.GlobalCellPosition} CellState {cell.CellState} cell.IsRevealed {cell.IsRevealed}, IsFlagged {cell.IsFlagged}, IsAward {cell.IsAward}");
+                }
+                else
+                {
+                    Debug.Log($"Cell at position {localPosition} not found in sector {name}");
+                }
+            }
+            else
+            {
+                Debug.Log($"No tile found at position {localPosition} in sector {name}");
+            }
+        }
+        
+        //LogAllCellKeys();
+        DrawSector();
+    }
+
+    public void LogAllCellKeys()
+    {
+        if (_cells == null)
+        {
+            Debug.LogError("—ÎÓ‚‡¸ _cells ÌÂ ËÌËˆË‡ÎËÁËÓ‚‡Ì!");
+            return;
+        }
+
+        foreach (var key in _cells.Keys)
+        {
+            Debug.Log($" Î˛˜: {key}");
+        }
+    }
 }
 

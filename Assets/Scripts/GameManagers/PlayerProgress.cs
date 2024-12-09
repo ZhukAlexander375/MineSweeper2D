@@ -47,7 +47,7 @@ public class PlayerProgress : MonoBehaviour
     private void UpdateCellsCount(CellRevealedSignal signal)
     {
         OpenedCells += 1;
-        Debug.Log(OpenedCells);
+        //Debug.Log(OpenedCells);
     }
 
     private void UpdateFlagsCount(FlagPlacingSignal signal)
