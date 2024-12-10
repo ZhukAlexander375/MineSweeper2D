@@ -531,8 +531,7 @@ public class Sector : MonoBehaviour
             {
                 Debug.Log($"No tile found at position {localPosition} in sector {name}");
             }
-        }
-        
+        }        
         //LogAllCellKeys();
         DrawSector();
     }
