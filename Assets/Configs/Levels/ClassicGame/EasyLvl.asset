@@ -12,6 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f6f3205de4e5c1c45b5b65196b4f6495, type: 3}
   m_Name: EasyLvl
   m_EditorClassIdentifier: 
-  Width: 8
-  Height: 8
+  Width: 9
+  Height: 9
   MineCount: 10

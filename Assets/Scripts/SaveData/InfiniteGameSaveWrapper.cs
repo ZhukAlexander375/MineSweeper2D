@@ -1,8 +1,7 @@
 using System.Collections.Generic;
 
 [System.Serializable]
-public class SaveDataWrapper
+public class InfiniteGameSaveWrapper
 {
     public List<SectorData> Sectors;
-    public int SelectedThemeIndex;
 }

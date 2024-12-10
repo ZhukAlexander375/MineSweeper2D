@@ -1,15 +1,15 @@
-using JetBrains.Annotations;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Tilemaps;
-using UnityEngine.UIElements;
+using UnityEngine.UI;
 
 public class Sector : MonoBehaviour
 {
     [SerializeField] private List<TileSetConfig> _tileSets;
     [SerializeField] private SectorUI _sectorUi;
     [SerializeField] private Tilemap _tilemap;
+    [SerializeField] private LineRenderer _borders;
     //public Tilemap _tilemap { get; private set; }
         
     public bool IsActive;
@@ -17,6 +17,7 @@ public class Sector : MonoBehaviour
     public bool IsExploded { get; set; }
     public bool IsPrizePlaced { get; set; }
     public bool IsCellsInitialized { get; set; }
+    public bool IsSectorCompleted {  get; private set; } 
     public Dictionary<Vector3Int, InfiniteCell> Cells => _cells;
     public bool IsLOADED;
        
@@ -25,35 +26,60 @@ public class Sector : MonoBehaviour
     private Dictionary<Vector3Int, InfiniteCell> _cells = new Dictionary<Vector3Int, InfiniteCell>();
     private TileSetConfig _currentTileSet;
     private int _currentTileSetIndex;
+    private int _currentRevealedCells;
+    private int _cellsCount;
     
     
     private void Start()
     {
-        _tilemap = GetComponent<Tilemap>();
-        
+        _tilemap = GetComponent<Tilemap>();        
+
         if (_cells.Count == 0)
         {
             InitializeCells();
             GenerateAward();
         }
+        //DrawBorders();
         CheckExplodedSector();
+        _sectorUi.SetSector(this);
 
         SignalBus.Subscribe<OnCellActiveSignal>(SectorActivate);
         SignalBus.Subscribe<ThemeChangeSignal>(OnThemeChanged);
         TryApplyTheme(ThemeManager.Instance.CurrentThemeIndex);       
+    }    
+
+    private void DrawBorders()      //FOR CHANGE COLOR MB
+    {        
+        if (_borders == null)
+        {
+            Debug.LogWarning("LineRenderer не найден в префабе сектора.");
+            return;
+        }
+
+        _borders.positionCount = 5;
+        _borders.SetPositions(new Vector3[]
+        {
+            new Vector3(0, 0, 0),               // Нижний левый угол
+            new Vector3(8, 0, 0),                // Нижний правый угол
+            new Vector3(8, 8, 0),                  // Верхний правый угол
+            new Vector3(0, 8, 0),                // Верхний левый угол
+            new Vector3(0, 0, 0)               // Замыкаем линию
+        });
     }
 
     private void CheckExplodedSector()
     {
         if (IsExploded)
         {
-            Debug.Log(1);
             CloseSector();
         }
     }
 
     private void InitializeCells()
     {
+        //_cellsCount = _infiniteGridManager.SectorSize * _infiniteGridManager.SectorSize;
+        //Debug.Log(_cellsCount);
+
         Vector3Int boundsMin = _tilemap.cellBounds.min;
         Vector3Int boundsMax = _tilemap.cellBounds.max;
 
@@ -205,7 +231,7 @@ public class Sector : MonoBehaviour
             for (int y = 0; y < height; y++)
             {
                 InfiniteCell cell = _cells[new Vector3Int(x, y, 0)]; 
-                _tilemap.SetTile(new Vector3Int(x, y, 0), GetTile(cell));
+                _tilemap.SetTile(new Vector3Int(x, y, 0), GetTile(cell));               
             }
         }
 
@@ -221,8 +247,8 @@ public class Sector : MonoBehaviour
     { 
         if (cell.IsRevealed)
         {
-            //Debug.Log($"В МЕТОДЕ ГЕТ ТАЙЛ: Cell at {cell.GlobalCellPosition} - State: {cell.CellState}, Number: {cell.CellNumber}");
-            return GetRevealedTile(cell);
+            //SectorCompletionCheck();
+            return GetRevealedTile(cell);            
         }
 
         else if (cell.IsFlagged)
@@ -251,6 +277,14 @@ public class Sector : MonoBehaviour
         }
     }
 
+    private void SectorCompletionCheck()
+    {
+        if (_currentRevealedCells >= _cellsCount)
+        {
+            IsSectorCompleted = true;
+        }
+    }
+
     private Tile GetRevealedTile(InfiniteCell cell)
     {
         switch (cell.CellState)
@@ -264,8 +298,6 @@ public class Sector : MonoBehaviour
 
     private Tile GetNumberTile(InfiniteCell cell)
     {
-        //Debug.Log($"ПРИ РАССТАНОВКЕ ЧИСЕЛ: Cell at {cell.GlobalCellPosition} - State: {cell.CellState}, Number: {cell.CellNumber}");
-        
         switch (cell.CellNumber)
         {
             case 1: return _tileSets[_currentTileSetIndex].TileNum1;
@@ -347,16 +379,33 @@ public class Sector : MonoBehaviour
     {
         IsExploded = true;
 
-        foreach (var cellPosition in _cells.Keys)
+        /*foreach (var cellPosition in _cells.Keys)
         {
             var cell = _cells[cellPosition];
            
             cell.IsActive = false;                        
-        }
+        }*/
 
         _sectorUi.gameObject.SetActive(true);
         _sectorUi.HideSector();
         //RedrawSector();
+    }
+
+    public void OpenSector(int prizeCount)
+    {
+        if (PlayerProgress.Instance.CheckAwardCount(prizeCount))
+        {
+            IsExploded = false;
+
+            /*foreach (var cellPosition in _cells.Keys)
+            {
+                var cell = _cells[cellPosition];
+
+                cell.IsActive = true;
+            }*/
+            SignalBus.Fire(new OnGameRewardSignal(0, -prizeCount));
+            _sectorUi.gameObject.SetActive(false);            
+        }
     }
 
     private void OnThemeChanged(ThemeChangeSignal signal)
@@ -437,14 +486,6 @@ public class Sector : MonoBehaviour
 
     public void InitializeCellsFromData(List<CellData> cells, InfiniteGridManager infiniteGridManager)
     {
-        /*if (_cells == null)
-        {
-            _cells = new Dictionary<Vector3Int, InfiniteCell>();
-        }
-*/
-        //Vector3Int boundsMin = _tilemap.cellBounds.min;
-        //Vector3Int boundsMax = _tilemap.cellBounds.max;
-
         foreach (var cellData in cells)
         {
             Vector3Int globalPosition = cellData.GlobalCellPosition;
@@ -479,11 +520,6 @@ public class Sector : MonoBehaviour
                     cell.IsAward = cellData.IsAward;
                     cell.CellNumber = cellData.CellNumber;
 
-                    if (cell.IsRevealed == true)
-                    {
-                        //Debug.Log($"НА ЗАГРУЗКЕ: Cell at {cellData.GlobalCellPosition} - State: {cellData.CellState}, Number: {cellData.CellNumber}");
-                    }
-                    
                     //Debug.Log($"Cell position {cell.GlobalCellPosition} CellState {cell.CellState} cell.IsRevealed {cell.IsRevealed}, IsFlagged {cell.IsFlagged}, IsAward {cell.IsAward}");
                 }
                 else

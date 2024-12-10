@@ -15,6 +15,12 @@ public class InfiniteCell : BaseCell
         get => _isRevealed;
         set
         {
+            if (_sector.IsLOADED)
+            {
+                _isRevealed = value;
+                return;
+            }
+
             if (!_isRevealed && value)  // Если значение изменяется с false на true
             {
                 _isRevealed = true;

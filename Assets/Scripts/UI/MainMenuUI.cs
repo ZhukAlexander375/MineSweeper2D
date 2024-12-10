@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -11,6 +12,7 @@ public class MainMenuUI : MonoBehaviour
     [SerializeField] private Button _hardcoreGameMenuButton;
     [SerializeField] private Button _episodeGameMenuButton;    
     [SerializeField] private Button _settingsButton;
+    [SerializeField] private Button _continueGameButton;
 
     [Header("Screens")]
     [SerializeField] private Canvas[] _mainMenuScreens;
@@ -38,8 +40,9 @@ public class MainMenuUI : MonoBehaviour
         _hardcoreGameMenuButton.onClick.AddListener(OpenHardcoreGame);
         _episodeGameMenuButton.onClick.AddListener(OpenEpisodeGame);        
         _settingsButton.onClick.AddListener(OpenSettingsScreen);
+        _continueGameButton.onClick.AddListener(OpenInfinityGame);
 
-        UpdateLastSessionStatistic();
+        StartCoroutine(DelayedInitialization());        
     }
 
     public void SelectMenu(int index)
@@ -77,6 +80,12 @@ public class MainMenuUI : MonoBehaviour
     private void OpenSettingsScreen()
     {
         _settingsScreen.gameObject.SetActive(true);
+    }
+
+    private IEnumerator DelayedInitialization()     ///ZENJECT!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    {
+        yield return null;
+        UpdateLastSessionStatistic();
     }
 
     private void UpdateLastSessionStatistic()

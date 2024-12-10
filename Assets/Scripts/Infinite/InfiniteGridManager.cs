@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.EventSystems;
-using UnityEngine.UIElements;
 using Random = UnityEngine.Random;
 
 
@@ -40,17 +39,28 @@ public class InfiniteGridManager : MonoBehaviour
     private const float DoubleClickThreshold = 0.3f; // Порог для двойного клика (в секундах)
 
     private SaveManager _saveManager;
+    private PlayerProgress _playerProgress;    
 
     void Start()
     {
         _saveManager = SaveManager.Instance;
+        _playerProgress = PlayerProgress.Instance;        
 
         mainCamera = Camera.main;
         _grid = GetComponent<Grid>();
 
-        if (_saveManager.HasSavedData())
+        if (GameModesManager.Instance.IsDownloadedInfiniteGame && !GameModesManager.Instance.IsNewInfiniteGame)
         {
+            GameModesManager.Instance.IsDownloadedInfiniteGame = false;
+            GameModesManager.Instance.IsNewInfiniteGame = false;
             LoadSavedGame();
+        }
+
+        else if (!GameModesManager.Instance.IsNewInfiniteGame && GameModesManager.Instance.IsDownloadedInfiniteGame)
+        {
+            GameModesManager.Instance.IsDownloadedInfiniteGame = false;
+            GameModesManager.Instance.IsNewInfiniteGame = false;
+            _saveManager.ClearSavedInfiniteGame();
         }
     }
 
@@ -63,6 +73,11 @@ public class InfiniteGridManager : MonoBehaviour
 
         // check click on ui or gamefield
         if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject())
+        {
+            return;
+        }
+
+        if (Input.touchCount > 0 && EventSystem.current.IsPointerOverGameObject(Input.GetTouch(0).fingerId))
         {
             return;
         }
@@ -101,11 +116,11 @@ public class InfiniteGridManager : MonoBehaviour
             _flagSet = true;
         }
 
-        if (Input.GetKeyDown(KeyCode.S))
+       /* if (Input.GetKeyDown(KeyCode.S))
         {
             SaveCurrentGame();
             Debug.Log("Save?");
-        }
+        }*/
     }
 
 
@@ -144,6 +159,14 @@ public class InfiniteGridManager : MonoBehaviour
                 sector.IsPrizePlaced = true;
             }
         }
+        
+        ///
+        ///
+        ///
+        GameModesManager.Instance.IsDownloadedInfiniteGame = true;
+        ///
+        ///
+        ///
 
         GenerateSectorAwards();
     }
@@ -175,7 +198,7 @@ public class InfiniteGridManager : MonoBehaviour
             }
         }
 
-        DrawSectors();
+        RedrawSectors();
     }
 
 
@@ -230,8 +253,14 @@ public class InfiniteGridManager : MonoBehaviour
                 {
                     cell.Value.CellState = CellState.Number;
                 }
+                //else 
                 else
                 {
+                    if (cell.Value.GlobalCellPosition == new Vector3Int(1,1,0))
+                    {
+                        Debug.Log($"В ГЕНЕРАЦИИ ЧИСЕЛ?!?!?   {cell.Value.GlobalCellPosition}, {cell.Value.CellState}");
+                    }
+                    
                     cell.Value.CellState = CellState.Empty;
                 }
             }
@@ -395,7 +424,7 @@ public class InfiniteGridManager : MonoBehaviour
 
         _lastClickPosition = cell.GlobalCellPosition;
 
-        DrawSectors();
+        RedrawSectors();
     }
 
     public void Flag(Sector currentSector, InfiniteCell cell)
@@ -422,7 +451,7 @@ public class InfiniteGridManager : MonoBehaviour
             VibrateOnAction();
         }
 
-        DrawSectors();
+        RedrawSectors();
     }
 
     private void InstantiateParticleAtCell(GameObject particlePrefab, InfiniteCell cell)
@@ -484,7 +513,7 @@ public class InfiniteGridManager : MonoBehaviour
             Reveal(currentSector, cell);
         }
 
-        DrawSectors();
+        RedrawSectors();
     }
 
 
@@ -536,7 +565,7 @@ public class InfiniteGridManager : MonoBehaviour
             SignalBus.Fire<CellRevealedSignal>();
         }
 
-        DrawSectors();
+        RedrawSectors();
 
         yield return null;
 
@@ -636,13 +665,13 @@ public class InfiniteGridManager : MonoBehaviour
         }
     }
 
-    private void DrawSectors()
+    private void RedrawSectors()
     {
         foreach (var sector in _sectors.Values)
         {
             if (sector.IsActive)
             {
-                sector.DrawSector();
+                sector.RedrawSector();
             }
         }
     }
@@ -719,13 +748,19 @@ public class InfiniteGridManager : MonoBehaviour
     private void OnApplicationQuit()
     {
         SaveCurrentGame();
+        SavePlayerProgress();
     }
 
     public void SaveCurrentGame()
     {
         var activeSectors = _sectors.Values.Where(s => s.IsActive).ToList();
         var sectorDataList = activeSectors.Select(sector => sector.SaveSectorData()).ToList();
-        _saveManager.SaveGame(sectorDataList);
+        _saveManager.SaveInfiniteGame(sectorDataList);
+    }
+
+    private void SavePlayerProgress()
+    {        
+        _playerProgress.SavePlayerProgress();
     }
 
     public void LoadSavedGame()
@@ -752,10 +787,12 @@ public class InfiniteGridManager : MonoBehaviour
 
                 Sector sector = CreateSectorFromData(sectorData);
                 sector.InitializeCellsFromData(sectorData.Cells, this);
-                AddCellsToAllCells(sector);                 
+                AddCellsToAllCells(sector);
+
+                sector.IsLOADED = false;
             }
 
-            Debug.Log("Game loaded successfully.");
+            //Debug.Log("Game loaded successfully.");
             IsGenerateEnabled = true;            
             IsFirstClick = true;        ////???????????????????????????????????????
         }        

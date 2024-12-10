@@ -18,13 +18,13 @@ MonoBehaviour:
   TileMine: {fileID: 11400000, guid: e29d12992d8a5fb4da52cf518a3d58cc, type: 2}
   TileExploded: {fileID: 11400000, guid: 1d385380ce7183649a73b10f32453f83, type: 2}
   TileFlag: {fileID: 11400000, guid: 17a13988e7329fd4f9c54293a3ea5c9c, type: 2}
-  TileNum1: {fileID: 11400000, guid: 8c53a751a7f472b4da92a50971c0d3b3, type: 2}
-  TileNum2: {fileID: 11400000, guid: 4aba817510e89e340ae9765cd8dd5831, type: 2}
-  TileNum3: {fileID: 11400000, guid: 629374f230ef5da458a9f42f29db47a8, type: 2}
-  TileNum4: {fileID: 11400000, guid: 4f2b20d834b33a24683fab0e99a23a6d, type: 2}
-  TileNum5: {fileID: 11400000, guid: 4001e2c6c36d4234da71723d3068676a, type: 2}
-  TileNum6: {fileID: 11400000, guid: 6fdf097f861c1424bac27c4cff0b4b42, type: 2}
-  TileNum7: {fileID: 11400000, guid: ddf57290ce5e3af40a282c037acc3962, type: 2}
-  TileNum8: {fileID: 11400000, guid: 49d00645a68ce8e4e82e8e88cf9c6052, type: 2}
+  TileNum1: {fileID: 11400000, guid: 49d00645a68ce8e4e82e8e88cf9c6052, type: 2}
+  TileNum2: {fileID: 11400000, guid: 8c53a751a7f472b4da92a50971c0d3b3, type: 2}
+  TileNum3: {fileID: 11400000, guid: 4aba817510e89e340ae9765cd8dd5831, type: 2}
+  TileNum4: {fileID: 11400000, guid: 629374f230ef5da458a9f42f29db47a8, type: 2}
+  TileNum5: {fileID: 11400000, guid: 4f2b20d834b33a24683fab0e99a23a6d, type: 2}
+  TileNum6: {fileID: 11400000, guid: 4001e2c6c36d4234da71723d3068676a, type: 2}
+  TileNum7: {fileID: 11400000, guid: 6fdf097f861c1424bac27c4cff0b4b42, type: 2}
+  TileNum8: {fileID: 11400000, guid: ddf57290ce5e3af40a282c037acc3962, type: 2}
   TileInactivePrize: {fileID: 11400000, guid: 53568cd32ed566248ac68613e37c2cbd, type: 2}
   TileActivePrize: {fileID: 11400000, guid: b249f2916f2ff52499039368f481a87d, type: 2}

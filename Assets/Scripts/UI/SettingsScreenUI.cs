@@ -24,12 +24,15 @@ public class SettingsScreenUI : MonoBehaviour
     [SerializeField] private TMP_Text _cameraZoomText;
 
     private GameSettingsManager _settingsManager;
-    
-    private void Start()
+
+
+    private void Awake()
     {
         _settingsManager = GameSettingsManager.Instance;
-        _settingsManager.LoadSettings();
 
+    }
+    private void Start()        
+    {        
         UpdateSettingsScreen();
 
         _soundButton.onClick.AddListener(() =>

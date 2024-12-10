@@ -30,6 +30,7 @@ public class SceneLoader : MonoBehaviour
     public void LoadInfiniteMinesweeperScene()
     {
         LoadScene(_infiniteMinesweeperScene);
+        //Debug.Log($"LOAD SCENE: IsDownloadedInfiniteGame: {GameModesManager.Instance.IsDownloadedInfiniteGame}, IsNewInfiniteGame: {GameModesManager.Instance.IsNewInfiniteGame}");
     }
 
     public void LoadClassicMinesweeperScene()

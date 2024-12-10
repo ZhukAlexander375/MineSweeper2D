@@ -30,13 +30,12 @@ public class GameSettingsManager : MonoBehaviour
         }
 
         Instance = this;
-        DontDestroyOnLoad(gameObject);
-
-        LoadSettings();
+        DontDestroyOnLoad(gameObject);        
     }
 
     void Start()
     {
+        LoadSettings();
         QualitySettings.vSyncCount = 0;
         Application.targetFrameRate = 300;
     }
@@ -84,21 +83,34 @@ public class GameSettingsManager : MonoBehaviour
 
     public void SaveSettings()
     {
-        PlayerPrefs.SetInt("IsSoundEnabled", IsSoundEnabled ? 1 : 0);
-        PlayerPrefs.SetInt("IsMusicEnabled", IsMusicEnabled ? 1 : 0);
-        PlayerPrefs.SetInt("IsVibrationEnabled", IsVibrationEnabled ? 1 : 0);
-        PlayerPrefs.SetFloat("CameraZoom", _cameraZoom); 
-        PlayerPrefs.SetFloat("HoldTime", _holdTime);
+        SettingsData settings = new SettingsData
+        {
+            IsSoundEnabled = IsSoundEnabled,
+            IsMusicEnabled = IsMusicEnabled,
+            IsVibrationEnabled = IsVibrationEnabled,
+            CameraZoom = _cameraZoom,
+            HoldTime = _holdTime
+        };
 
-        PlayerPrefs.Save();
+        SaveManager.Instance.SaveSettings(settings);
     }
 
     public void LoadSettings()
     {
-        IsSoundEnabled = PlayerPrefs.GetInt("IsSoundEnabled", 1) == 1;
-        IsMusicEnabled = PlayerPrefs.GetInt("IsMusicEnabled", 1) == 1;
-        IsVibrationEnabled = PlayerPrefs.GetInt("IsVibrationEnabled", 1) == 1;
-        CameraZoom = PlayerPrefs.GetFloat("CameraZoom", 0.1f);
-        HoldTime = PlayerPrefs.GetFloat("HoldTime", 0.3f);        
+        SettingsData settings = SaveManager.Instance.LoadSettings();
+        if (settings != null)
+        {
+            IsSoundEnabled = settings.IsSoundEnabled;
+            IsMusicEnabled = settings.IsMusicEnabled;
+            IsVibrationEnabled = settings.IsVibrationEnabled;
+            _cameraZoom = settings.CameraZoom;
+            _holdTime = settings.HoldTime;
+
+            //Debug.Log("Settings Loaded Successfully");
+        }
+        else
+        {
+            Debug.LogWarning("Failed to load settings, applying default values.");
+        }
     }
 }

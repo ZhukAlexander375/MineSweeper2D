@@ -18,18 +18,16 @@ public class InfiniteGameUI : MonoBehaviour
     [Header("Texts")]
     [SerializeField] private TMP_Text _awardText;
     [SerializeField] private TMP_Text _flagsTexts;
-
-    private SceneLoader _sceneLoader;
-    private PlayerProgress _playerProgress;
+        
+    private InfiniteGridManager _infiniteGridManager;
 
     private void Awake()
-    {
-        _sceneLoader = SceneLoader.Instance;
-        _playerProgress = PlayerProgress.Instance;
+    {       
+        _infiniteGridManager = FindObjectOfType<InfiniteGridManager>();
     }
 
     private void Start()
-    {        
+    {
         _pauseButton.onClick.AddListener(OpenPauseMenu);
         _continueButton.onClick.AddListener(ClosePauseMenu);
         _settingsButton.onClick.AddListener(OpenSettings);
@@ -37,17 +35,43 @@ public class InfiniteGameUI : MonoBehaviour
         _goHomeButton.onClick.AddListener(ReturnToMainMenu);
         SignalBus.Subscribe<OnGameRewardSignal>(UpdateAwardUI);
         SignalBus.Subscribe<FlagPlacingSignal>(UpdateFlagUI);
+
+        UpdateTexts();
     }
 
     private void ReturnToMainMenu()
     {
-        _sceneLoader.LoadMainMenuScene();
+        _infiniteGridManager.SaveCurrentGame();
+        PlayerProgress.Instance.SavePlayerProgress();
+
+        if (!_infiniteGridManager.IsFirstClick)
+        {
+            GameModesManager.Instance.IsDownloadedInfiniteGame = false;
+            GameModesManager.Instance.IsNewInfiniteGame = true;
+        }
+
+        else
+        {
+            GameModesManager.Instance.IsDownloadedInfiniteGame = true;
+            GameModesManager.Instance.IsNewInfiniteGame = false;
+        }
+        
+        GameModesManager.Instance.SaveGameModes();
+        //Debug.Log($"Return:    IsDownloadedInfiniteGame: {GameModesManager.Instance.IsDownloadedInfiniteGame}, IsNewInfiniteGame: {GameModesManager.Instance.IsNewInfiniteGame}");
+
+        SceneLoader.Instance.LoadMainMenuScene();
     }
 
     private void ReplayGame()
-    {
-        _sceneLoader.LoadInfiniteMinesweeperScene();
-        _playerProgress.ResetSessionStatistic();
+    {        
+        PlayerProgress.Instance.ResetSessionStatistic();        
+        GameModesManager.Instance.IsDownloadedInfiniteGame = false;
+        GameModesManager.Instance.IsNewInfiniteGame = true;
+        GameModesManager.Instance.SaveGameModes();
+
+        //Debug.Log($"Replay:    IsDownloadedInfiniteGame: {GameModesManager.Instance.IsDownloadedInfiniteGame}, IsNewInfiniteGame: {GameModesManager.Instance.IsNewInfiniteGame}");
+
+        SceneLoader.Instance.LoadInfiniteMinesweeperScene();
     }
 
     private void OpenPauseMenu()
@@ -67,11 +91,17 @@ public class InfiniteGameUI : MonoBehaviour
 
     private void UpdateAwardUI(OnGameRewardSignal signal)
     {
-        _awardText.text = PlayerProgress.Instance.Award.ToString();
+        _awardText.text = PlayerProgress.Instance.AwardCount.ToString();
     }
 
     private void UpdateFlagUI(FlagPlacingSignal signal)
     {
+        _flagsTexts.text = PlayerProgress.Instance.PlacedFlags.ToString();
+    }
+
+    private void UpdateTexts()
+    {
+        _awardText.text = PlayerProgress.Instance.AwardCount.ToString();
         _flagsTexts.text = PlayerProgress.Instance.PlacedFlags.ToString();
     }
 
