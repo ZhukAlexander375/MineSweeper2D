@@ -10,6 +10,7 @@ public class SectorUI : MonoBehaviour
     [SerializeField] private Button _loupeButton;
     [SerializeField] private Button _closeButton;
     [SerializeField] private Button _openSectorForAwardButton;
+    [SerializeField] private Button _openSectorForAdButton;
     [SerializeField] private TMP_Text _prizeCountText;
 
     [Header("HOW MUCH PRIZE??????")]
@@ -22,6 +23,7 @@ public class SectorUI : MonoBehaviour
         _loupeButton.onClick.AddListener(ShowSector);
         _closeButton.onClick.AddListener(HideSector);
         _openSectorForAwardButton.onClick.AddListener(OpenSectorForAward);
+        _openSectorForAdButton.onClick.AddListener(OpenSectorForAd);
         //gameObject.SetActive(false);
         UpdatePrizeCountText();
     }
@@ -54,6 +56,11 @@ public class SectorUI : MonoBehaviour
     private void OpenSectorForAward()
     {
         _sector.OpenSector(_prizeCount);
+    }
+
+    private void OpenSectorForAd()
+    {
+        _sector.OpenSector(0);
     }
 
     private void UpdatePrizeCountText()

@@ -10,6 +10,8 @@ using Random = UnityEngine.Random;
 public class InfiniteGridManager : MonoBehaviour
 {
     public int SectorSize => _sectorSize;
+    [Header("Camera Controller")]
+    [SerializeField] private CameraController _cameraController;
 
     [Header("Settings")]
     [SerializeField] private Sector _sectorPrefab;
@@ -23,9 +25,9 @@ public class InfiniteGridManager : MonoBehaviour
     public bool IsFirstClick;
     public bool IsGenerateEnabled;
 
-    private int _sectorSize = 8;            ///
-    private Camera mainCamera;
-    private Grid _grid;
+    private int _sectorSize = 9;            ///
+    private Camera mainCamera;    
+    //private Grid _grid;
     private int initialSectorsVisibleInRange = 2;
     private int _sectorsCount;
     private Vector3 _lastClickPosition;
@@ -47,7 +49,7 @@ public class InfiniteGridManager : MonoBehaviour
         _playerProgress = PlayerProgress.Instance;        
 
         mainCamera = Camera.main;
-        _grid = GetComponent<Grid>();
+        //_grid = GetComponent<Grid>();
 
         if (GameModesManager.Instance.IsDownloadedInfiniteGame && !GameModesManager.Instance.IsNewInfiniteGame)
         {
@@ -62,14 +64,19 @@ public class InfiniteGridManager : MonoBehaviour
             GameModesManager.Instance.IsNewInfiniteGame = false;
             _saveManager.ClearSavedInfiniteGame();
         }
+
+        CenterCameraOnSector();
+        
     }
 
     private void Update()
     {
-        //if (IsGenerateEnabled)
-        //{
-            UpdateVisibleSectors();
-        //}//        
+        UpdateVisibleSectors();
+
+        if (_cameraController.IsCameraInteracting)
+        {
+            return;
+        }
 
         // check click on ui or gamefield
         if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject())
@@ -82,6 +89,11 @@ public class InfiniteGridManager : MonoBehaviour
             return;
         }
 
+        HandleGameInput();        
+    }
+
+    private void HandleGameInput()
+    {
         if (Input.GetMouseButtonDown(0))
         {
             float currentTime = Time.time;
@@ -115,14 +127,7 @@ public class InfiniteGridManager : MonoBehaviour
             SetSectorForFlagAtClick();
             _flagSet = true;
         }
-
-       /* if (Input.GetKeyDown(KeyCode.S))
-        {
-            SaveCurrentGame();
-            Debug.Log("Save?");
-        }*/
     }
-
 
     public void GenerateFirstSectors(Sector startingSector, InfiniteCell startingCell)
     {
@@ -134,7 +139,16 @@ public class InfiniteGridManager : MonoBehaviour
         IsFirstClick = true;
 
         List<Sector> initializeSectors = GetAdjacentSectors(startingSector);
-        //initializeSectors.Add(startingSector);
+        
+        if (!initializeSectors.Contains(startingSector))
+        {
+            initializeSectors.Insert(0, startingSector);
+        }
+        else
+        {
+            initializeSectors.Remove(startingSector);
+            initializeSectors.Insert(0, startingSector);
+        }
 
         foreach (var sector in initializeSectors)
         {
@@ -146,17 +160,16 @@ public class InfiniteGridManager : MonoBehaviour
                     _allCells[globalCellPosition] = cell.Value;                    
                 }
 
-                GenerateMinesInSector(sector, startingCell);
-                GenerateNumbers(sector);
-
                 sector.IsActive = true;
+                sector.IsPrizePlaced = true;
 
                 if (sector.IsActive)
                 {
                     _sectorsCount++;
                 }
 
-                sector.IsPrizePlaced = true;
+                GenerateMinesInSector(sector, startingCell);
+                GenerateNumbers(sector);
             }
         }
         
@@ -186,15 +199,15 @@ public class InfiniteGridManager : MonoBehaviour
                     _allCells[cellWorldPosition] = cell.Value;
                 }
 
-                GenerateMinesInSector(sector, startingCell);
-                GenerateNumbers(sector);
-
                 sector.IsActive = true;
 
                 if (sector.IsActive)
                 {
                     _sectorsCount++;
                 }
+
+                GenerateMinesInSector(sector, startingCell);
+                GenerateNumbers(sector);                
             }
         }
 
@@ -205,7 +218,7 @@ public class InfiniteGridManager : MonoBehaviour
     private void GenerateMinesInSector(Sector sector, InfiniteCell startingCell)
     {
         int generatedMines = 0;
-        int minesCount = CalculateDynamicMinesCount(_sectorsCount);
+        int minesCount = CalculateProgressiveMinesCount();
 
         while (generatedMines < minesCount)
         {
@@ -223,6 +236,24 @@ public class InfiniteGridManager : MonoBehaviour
                 generatedMines++;
             }
         }
+    }
+
+    private int CalculateProgressiveMinesCount()
+    {
+        int baseMines = 7;
+        int totalMines;
+
+        if (_sectorsCount == 1)
+        {
+            totalMines = baseMines;
+        }
+        else
+        {
+            int additionalMines = (_sectorsCount - 2) / 2;
+            totalMines = baseMines + 1 + additionalMines;
+        }
+
+        return Mathf.Min(totalMines, 50);
     }
 
     private int CalculateDynamicMinesCount(int activeSectorCount)
@@ -253,14 +284,9 @@ public class InfiniteGridManager : MonoBehaviour
                 {
                     cell.Value.CellState = CellState.Number;
                 }
-                //else 
+
                 else
                 {
-                    if (cell.Value.GlobalCellPosition == new Vector3Int(1,1,0))
-                    {
-                        Debug.Log($"Â ÃÅÍÅÐÀÖÈÈ ×ÈÑÅË?!?!?   {cell.Value.GlobalCellPosition}, {cell.Value.CellState}");
-                    }
-                    
                     cell.Value.CellState = CellState.Empty;
                 }
             }
@@ -692,6 +718,17 @@ public class InfiniteGridManager : MonoBehaviour
         return null;
     }
 
+    private void CenterCameraOnSector()
+    {
+        var sectorX = 0;
+        var sectorY = 0;
+
+        var sectorCenterX = sectorX * _sectorSize + _sectorSize / 2f;
+        var sectorCenterY = sectorY * _sectorSize + _sectorSize / 2f;
+
+        mainCamera.transform.position = new Vector3(sectorCenterX, sectorCenterY, mainCamera.transform.position.z);
+    }        
+
     private void UpdateVisibleSectors()
     {
         var globalSectorPosition = GetCurrentSectorPosition();       //sector's global position -16 -8  --> sector position -2 -1 
@@ -828,6 +865,11 @@ public class InfiniteGridManager : MonoBehaviour
         sector.IsPrizePlaced = sectorData.IsPrizePlaced;
         sector.IsLOADED = true;
 
+        if (sector.IsActive)
+        {
+            _sectorsCount++;
+        }
+        //Debug.Log($"Ñåêòîðîâ: {_sectorsCount}");
         return sector;
     }
 

@@ -2,6 +2,8 @@ using UnityEngine;
 
 public class CameraController : MonoBehaviour
 {
+    public bool IsCameraInteracting { get; private set; }
+
     [Header("Settings")]
     [SerializeField] private float moveSpeed = 0.5f;
     [SerializeField] private float zoomSpeed;
@@ -10,8 +12,8 @@ public class CameraController : MonoBehaviour
 
     private Camera mainCamera;
     private Vector3 touchStartPos;
-
-    private ThemeConfig _currentAppliedTheme;
+    private ThemeConfig _currentAppliedTheme;    
+    private float _cameraMoveThreshold = 5f;
 
     private void Start()
     {
@@ -41,12 +43,24 @@ public class CameraController : MonoBehaviour
             if (touch.phase == TouchPhase.Began)
             {
                 touchStartPos = touch.position;
+                IsCameraInteracting = false;
             }
             else if (touch.phase == TouchPhase.Moved)
             {
                 var delta = (Vector3)touch.position - touchStartPos;
-                touchStartPos = touch.position;
-                MoveCamera(delta);
+
+                delta *= mainCamera.orthographicSize * 0.01f;       //для поправок движения при зуме
+
+                if (delta.magnitude > _cameraMoveThreshold)
+                {
+                    touchStartPos = touch.position;
+                    MoveCamera(delta);
+                    IsCameraInteracting = true;
+                }
+            }
+            else if (touch.phase == TouchPhase.Ended || touch.phase == TouchPhase.Canceled)
+            {
+                IsCameraInteracting = false;
             }
         }
 
@@ -62,21 +76,45 @@ public class CameraController : MonoBehaviour
                 var deltaDistance = currentDistance - previousDistance;
 
                 ZoomCamera(deltaDistance * GameSettingsManager.Instance.CameraZoom);
+                IsCameraInteracting = true;
+            }
+            else if (touch0.phase == TouchPhase.Ended || touch1.phase == TouchPhase.Ended)
+            {
+                IsCameraInteracting = false;
             }
         }
     }
 
     private void HandleMouseInput()
     {
+        if (Input.GetMouseButtonDown(0))
+        {
+            touchStartPos = Input.mousePosition;
+            IsCameraInteracting = false;
+        }
+
         if (Input.GetMouseButton(0))
         {
-            var delta = new Vector3(Input.GetAxis("Mouse X"), Input.GetAxis("Mouse Y"), 0);
-            MoveCamera(delta);
+            var delta = (Vector3)Input.mousePosition - touchStartPos;
+            delta *= mainCamera.orthographicSize * 0.01f;
+
+            if (delta.magnitude > _cameraMoveThreshold)
+            {
+                touchStartPos = Input.mousePosition;
+                MoveCamera(delta);
+                IsCameraInteracting = true;
+            }
+        }
+
+        if (Input.GetMouseButtonUp(0))
+        {
+            IsCameraInteracting = false;
         }
 
         if (Input.mouseScrollDelta.y != 0)
         {
             ZoomCamera(Input.mouseScrollDelta.y * GameSettingsManager.Instance.CameraZoom);
+            IsCameraInteracting = true;
         }
     }
 

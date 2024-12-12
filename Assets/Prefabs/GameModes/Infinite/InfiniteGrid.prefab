@@ -57,7 +57,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 504b2c5c49146d146a1e315ae2e5a79b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _sectorPrefab: {fileID: 8492993251520972708, guid: 99a682e2225c1674d9f7dd488b87dda4, type: 3}
+  _cameraController: {fileID: 0}
+  _sectorPrefab: {fileID: 8492993251520972708, guid: a9491c64937856d41819c2019e2954d0, type: 3}
   _minMinesCount: 5
   _maxMinesCount: 10
   _flagPlaceParticle: {fileID: 3503042423861992223, guid: 35e832249f1901243a3190aca1dfaff8, type: 3}
@@ -65,3 +66,4 @@ MonoBehaviour:
   _targetRewardUIElement: {fileID: 0}
   _awardSpritePrefab: {fileID: 3520625102968784899, guid: 6294eb778ab46d64fabbd9c0fd657ce8, type: 3}
   IsFirstClick: 0
+  IsGenerateEnabled: 0

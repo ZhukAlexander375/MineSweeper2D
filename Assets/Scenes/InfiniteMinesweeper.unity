@@ -404,7 +404,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 51e14c5d8bf981747ae04e7e0517e77c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  moveSpeed: 0.025
+  moveSpeed: 0.1
   zoomSpeed: 0.1
   minZoom: 5
   maxZoom: 35
@@ -525,16 +525,16 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4211235589458227462, guid: 940730ca445e36c4d93404062094054e, type: 3}
+      propertyPath: _cameraController
+      value: 
+      objectReference: {fileID: 1288953877}
+    - target: {fileID: 4211235589458227462, guid: 940730ca445e36c4d93404062094054e, type: 3}
       propertyPath: _targetRewardUIElement
       value: 
       objectReference: {fileID: 3869234871166336805}
     - target: {fileID: 4334848355939422619, guid: 940730ca445e36c4d93404062094054e, type: 3}
       propertyPath: m_Name
       value: InfiniteGrid
-      objectReference: {fileID: 0}
-    - target: {fileID: 5287510148563548809, guid: 940730ca445e36c4d93404062094054e, type: 3}
-      propertyPath: m_Enabled
-      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

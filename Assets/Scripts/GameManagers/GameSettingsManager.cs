@@ -37,7 +37,6 @@ public class GameSettingsManager : MonoBehaviour
     {
         LoadSettings();
         QualitySettings.vSyncCount = 0;
-        Application.targetFrameRate = 300;
     }
 
     public void ToggleSound()

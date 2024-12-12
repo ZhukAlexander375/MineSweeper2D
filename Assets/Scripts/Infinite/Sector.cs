@@ -60,9 +60,9 @@ public class Sector : MonoBehaviour
         _borders.SetPositions(new Vector3[]
         {
             new Vector3(0, 0, 0),               // Нижний левый угол
-            new Vector3(8, 0, 0),                // Нижний правый угол
-            new Vector3(8, 8, 0),                  // Верхний правый угол
-            new Vector3(0, 8, 0),                // Верхний левый угол
+            new Vector3(9, 0, 0),                // Нижний правый угол
+            new Vector3(9, 9, 0),                  // Верхний правый угол
+            new Vector3(0, 9, 0),                // Верхний левый угол
             new Vector3(0, 0, 0)               // Замыкаем линию
         });
     }
@@ -108,10 +108,10 @@ public class Sector : MonoBehaviour
     public void HandleCellClick(int cellX, int cellY)
     {
 
-        cellX %= 8;
-        cellY %= 8;
+        cellX %= 9;
+        cellY %= 9;
 
-        if (cellX >= 0 && cellX < 8 && cellY >= 0 && cellY < 8) ///8 - hard
+        if (cellX >= 0 && cellX < 9 && cellY >= 0 && cellY < 9) ///8 - hard
         {
             if (IsExploded)
             {
@@ -142,10 +142,10 @@ public class Sector : MonoBehaviour
     public void HandleCellFlag(int cellX, int cellY)
     {
 
-        cellX %= 8;
-        cellY %= 8;
+        cellX %= 9;
+        cellY %= 9;
 
-        if (cellX >= 0 && cellX < 8 && cellY >= 0 && cellY < 8) ///8 - hard
+        if (cellX >= 0 && cellX < 9 && cellY >= 0 && cellY < 9) ///8 - hard
         {
             if (IsExploded)
             {                
@@ -168,10 +168,10 @@ public class Sector : MonoBehaviour
 
     public void HandleChord(int cellX, int cellY)
     {
-        cellX %= 8;
-        cellY %= 8;
+        cellX %= 9;
+        cellY %= 9;
         
-        if (cellX >= 0 && cellX < 8 && cellY >= 0 && cellY < 8) // 8 - размер сектора
+        if (cellX >= 0 && cellX < 9 && cellY >= 0 && cellY < 9) // 8 - размер сектора
         {
             if (IsExploded)
             {
