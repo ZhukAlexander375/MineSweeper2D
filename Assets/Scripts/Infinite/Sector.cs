@@ -17,7 +17,13 @@ public class Sector : MonoBehaviour
     public bool IsExploded { get; set; }
     public bool IsPrizePlaced { get; set; }
     public bool IsCellsInitialized { get; set; }
-    public bool IsSectorCompleted {  get; private set; } 
+
+    /// <summary>
+    /// ADD TO SAVES
+    /// </summary>
+    public bool IsSectorCompleted {  get; private set; }
+    public int CurrentBuyoutCost { get; private set; }
+
     public Dictionary<Vector3Int, InfiniteCell> Cells => _cells;
     public bool IsLOADED;
        
@@ -27,7 +33,7 @@ public class Sector : MonoBehaviour
     private TileSetConfig _currentTileSet;
     private int _currentTileSetIndex;
     private int _currentRevealedCells;
-    private int _cellsCount;
+    private int _totalCellsCount;
     
     
     private void Start()
@@ -77,8 +83,8 @@ public class Sector : MonoBehaviour
 
     private void InitializeCells()
     {
-        //_cellsCount = _infiniteGridManager.SectorSize * _infiniteGridManager.SectorSize;
-        //Debug.Log(_cellsCount);
+        //_totalCellsCount = _infiniteGridManager.SectorSize * _infiniteGridManager.SectorSize;
+        //Debug.Log(_totalCellsCount);
 
         Vector3Int boundsMin = _tilemap.cellBounds.min;
         Vector3Int boundsMax = _tilemap.cellBounds.max;
@@ -277,12 +283,45 @@ public class Sector : MonoBehaviour
         }
     }
 
-    private void SectorCompletionCheck()
+    public void SectorCompletionCheck()
     {
-        if (_currentRevealedCells >= _cellsCount)
+        if (IsExploded) return;
+
+        bool isSectorCompleted = true;
+        
+        foreach (var cell in Cells.Values)
+        {
+            if (!cell.IsRevealed && cell.CellState != CellState.Mine)
+            {
+                isSectorCompleted = false;
+                break;
+            }
+
+            if (cell.CellState == CellState.Mine && !cell.IsRevealed && !cell.IsFlagged)
+            {
+                isSectorCompleted = false;
+                break;
+            }
+
+            if (cell.IsFlagged && cell.CellState != CellState.Mine)
+            {
+                isSectorCompleted = false;
+                break;
+            }
+        }
+        
+        if (isSectorCompleted)
         {
             IsSectorCompleted = true;
+            OnSectorCompleted();
         }
+    }
+
+    private void OnSectorCompleted()
+    {
+        _sectorUi.gameObject.SetActive(true);
+        _sectorUi.CompletedSector();
+        //Debug.Log($"Сектор завершён: {name}");        
     }
 
     private Tile GetRevealedTile(InfiniteCell cell)
@@ -375,6 +414,18 @@ public class Sector : MonoBehaviour
         _tilemap.RefreshAllTiles();
     }
 
+    public void ExplodeSector(InfiniteCell cell)
+    {
+        cell.IsRevealed = true;
+        CloseSector();
+    }
+
+    public void SetBuyoutCost(SectorBuyoutCostConfig sectorBuyoutCostConfig, int explodedMines)
+    {
+        CurrentBuyoutCost = sectorBuyoutCostConfig.SectorBuyoutCost[explodedMines - 1];
+        Debug.Log(CurrentBuyoutCost);
+    }
+
     public void CloseSector()
     {
         IsExploded = true;
@@ -391,9 +442,9 @@ public class Sector : MonoBehaviour
         //RedrawSector();
     }
 
-    public void OpenSector(int prizeCount)
+    public void OpenSector(int priseCount)
     {
-        if (PlayerProgress.Instance.CheckAwardCount(prizeCount))
+        if (PlayerProgress.Instance.CheckAwardCount(priseCount))
         {
             IsExploded = false;
 
@@ -403,8 +454,10 @@ public class Sector : MonoBehaviour
 
                 cell.IsActive = true;
             }*/
-            SignalBus.Fire(new OnGameRewardSignal(0, -prizeCount));
-            _sectorUi.gameObject.SetActive(false);            
+            SignalBus.Fire(new OnGameRewardSignal(0, -priseCount));
+            _sectorUi.gameObject.SetActive(false);
+
+            SectorCompletionCheck();
         }
     }
 

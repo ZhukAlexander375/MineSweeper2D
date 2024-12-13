@@ -21,9 +21,11 @@ public class InfiniteGridManager : MonoBehaviour
     [SerializeField] private GameObject _flagRemoveParticle;
     [SerializeField] private GameObject _targetRewardUIElement;
     [SerializeField] private GameObject _awardSpritePrefab;
+    [SerializeField] private SectorBuyoutCostConfig _sectorBuyoutCostConfig;
 
     public bool IsFirstClick;
     public bool IsGenerateEnabled;
+    public int ExplodedMines;
 
     private int _sectorSize = 9;            ///
     private Camera mainCamera;    
@@ -326,7 +328,6 @@ public class InfiniteGridManager : MonoBehaviour
         }
     }
 
-
     private List<Sector> GetAdjacentSectors(Sector currentSector)
     {
         Vector2Int sectorPosition = _sectors.FirstOrDefault(x => x.Value == currentSector).Key;
@@ -428,13 +429,21 @@ public class InfiniteGridManager : MonoBehaviour
         switch (cell.CellState)
         {
             case CellState.Mine:
-                Explode(currentSector, cell);
+                ///
+                /// tut nachat'
+                ///
+                ExplodedMines++;
+                UpdateExplodedMinesCount();
+                currentSector.ExplodeSector(cell);
+                currentSector.SetBuyoutCost(_sectorBuyoutCostConfig, ExplodedMines);
+
                 break;
 
             case CellState.Empty:
                 StartCoroutine(Flood(currentSector, cell));
 
                 //CheckWinCondition();
+                currentSector.SectorCompletionCheck();
                 break;
 
             default:
@@ -445,6 +454,7 @@ public class InfiniteGridManager : MonoBehaviour
                 cell.IsActive = true;
 
                 //CheckWinCondition();
+                currentSector.SectorCompletionCheck();
                 break;
         }
 
@@ -478,6 +488,8 @@ public class InfiniteGridManager : MonoBehaviour
         }
 
         RedrawSectors();
+
+        currentSector.SectorCompletionCheck();
     }
 
     private void InstantiateParticleAtCell(GameObject particlePrefab, InfiniteCell cell)
@@ -563,14 +575,7 @@ public class InfiniteGridManager : MonoBehaviour
         }
 
         return flagCount;
-    }
-
-    private void Explode(Sector currentSector, InfiniteCell cell)
-    {
-        cell.IsRevealed = true;
-        currentSector.CloseSector();
-        // Add logic of lose in sector/game?
-    }
+    }    
 
     private IEnumerator Flood(Sector currentSector, InfiniteCell cell)
     {
@@ -590,8 +595,10 @@ public class InfiniteGridManager : MonoBehaviour
         {
             SignalBus.Fire<CellRevealedSignal>();
         }
-
+        
         RedrawSectors();
+
+        currentSector.SectorCompletionCheck();
 
         yield return null;
 
@@ -782,10 +789,27 @@ public class InfiniteGridManager : MonoBehaviour
         }
     }
 
+    private void UpdateExplodedMinesCount()
+    {
+        PlayerProgress.Instance.UpdateExplodedMinesCount(ExplodedMines);
+    }
+
     private void OnApplicationQuit()
     {
         SaveCurrentGame();
         SavePlayerProgress();
+
+        if (!IsFirstClick)
+        {
+            GameModesManager.Instance.IsDownloadedInfiniteGame = false;
+            GameModesManager.Instance.IsNewInfiniteGame = true;
+        }
+
+        else
+        {
+            GameModesManager.Instance.IsDownloadedInfiniteGame = true;
+            GameModesManager.Instance.IsNewInfiniteGame = false;
+        }
     }
 
     public void SaveCurrentGame()
@@ -796,8 +820,8 @@ public class InfiniteGridManager : MonoBehaviour
     }
 
     private void SavePlayerProgress()
-    {        
-        _playerProgress.SavePlayerProgress();
+    {
+        _playerProgress.SavePlayerProgress();        
     }
 
     public void LoadSavedGame()

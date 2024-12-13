@@ -91,7 +91,7 @@ public class InfiniteGameUI : MonoBehaviour
 
     private void UpdateAwardUI(OnGameRewardSignal signal)
     {
-        _awardText.text = PlayerProgress.Instance.AwardCount.ToString();
+        _awardText.text = PlayerProgress.Instance.RewardCount.ToString();
     }
 
     private void UpdateFlagUI(FlagPlacingSignal signal)
@@ -101,7 +101,7 @@ public class InfiniteGameUI : MonoBehaviour
 
     private void UpdateTexts()
     {
-        _awardText.text = PlayerProgress.Instance.AwardCount.ToString();
+        _awardText.text = PlayerProgress.Instance.RewardCount.ToString();
         _flagsTexts.text = PlayerProgress.Instance.PlacedFlags.ToString();
     }
 

@@ -65,5 +65,7 @@ MonoBehaviour:
   _flagRemoveParticle: {fileID: 158378317010694987, guid: b433b4a65b1cbb14a901eeada7ef80fa, type: 3}
   _targetRewardUIElement: {fileID: 0}
   _awardSpritePrefab: {fileID: 3520625102968784899, guid: 6294eb778ab46d64fabbd9c0fd657ce8, type: 3}
+  _sectorBuyoutCostConfig: {fileID: 11400000, guid: c507bef81d452f1448104368ebc0b0a1, type: 2}
   IsFirstClick: 0
   IsGenerateEnabled: 0
+  ExplodedMines: 0

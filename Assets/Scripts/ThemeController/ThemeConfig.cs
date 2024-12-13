@@ -25,6 +25,7 @@ public class ThemeConfig : ScriptableObject
     public Color MainBackgroundColor;
     public Color TransparentBackgroundColor;
     public Color TopFieldColor;
+    public Color CloseSectorBackgroundColor;
 
     [Header("Icons Colors")]
     public Color IconsSettingsBackColor;

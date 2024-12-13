@@ -26,6 +26,7 @@ MonoBehaviour:
   MainBackgroundColor: {r: 0.09019608, g: 0, b: 0.08235294, a: 1}
   TransparentBackgroundColor: {r: 0.20392157, g: 0.07058824, b: 0.14901961, a: 1}
   TopFieldColor: {r: 0.15294118, g: 0.14117648, b: 0.13333334, a: 1}
+  CloseSectorBackgroundColor: {r: 0.09019608, g: 0, b: 0.08235294, a: 1}
   IconsSettingsBackColor: {r: 1, g: 1, b: 1, a: 1}
   IconsOnActiveButtonColor: {r: 1, g: 1, b: 1, a: 1}
   IconsOnInactiveButtonColor: {r: 0.7254902, g: 0.1254902, b: 0.24705884, a: 1}

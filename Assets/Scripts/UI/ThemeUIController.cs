@@ -7,6 +7,7 @@ public class ThemeUIController : MonoBehaviour
     [Header("Backgrounds Colors")]
     [SerializeField] private Image _mainBackground;
     [SerializeField] private Image[] _topFieldImage;
+    [SerializeField] private Image _closeSectorBackground;
     [SerializeField] private Image _transparentBackground;
     [SerializeField] private Image[] _enabledSettingsImage;
     [SerializeField] private Image[] _disabledSettingsImage;
@@ -227,6 +228,11 @@ public class ThemeUIController : MonoBehaviour
             {
                 image.color = theme.TopFieldColor;
             }
+        }
+
+        if (_closeSectorBackground != null)
+        {
+            _closeSectorBackground.color = theme.CloseSectorBackgroundColor;
         }
 
         if (_mainBackground != null)

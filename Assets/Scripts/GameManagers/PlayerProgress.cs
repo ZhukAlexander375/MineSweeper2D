@@ -3,9 +3,14 @@ using UnityEngine;
 public class PlayerProgress : MonoBehaviour
 {
     public static PlayerProgress Instance { get; private set; }
-    public int AwardCount { get; private set; }
+    public int RewardCount { get; private set; }
     public int PlacedFlags { get; private set; }
     public int OpenedCells { get; private set; }
+
+    /// <summary>
+    /// SAVE!!!!
+    /// </summary>
+    public int ExplodedMines {  get; private set; }
 
 
     private void Awake()
@@ -28,17 +33,24 @@ public class PlayerProgress : MonoBehaviour
         LoadProgress();
     }
 
+    public void UpdateExplodedMinesCount(int count)
+    {
+        ExplodedMines = count;
+        Debug.Log(ExplodedMines);
+    }
+
     public void ResetSessionStatistic()
     {
         OpenedCells = 0;
         PlacedFlags = 0;
+        ExplodedMines = 0;
     }
 
     public void SavePlayerProgress()
     {
         PlayerProgressData playerProgress = new PlayerProgressData
         {
-            AwardCount = AwardCount,
+            AwardCount = RewardCount,
             PlacedFlags = PlacedFlags,
             OpenedCells = OpenedCells,
         };
@@ -48,7 +60,7 @@ public class PlayerProgress : MonoBehaviour
 
     public bool CheckAwardCount(int value)
     {
-        return AwardCount >= value;
+        return RewardCount >= value;
     }
 
     private void ChangePlayersAward(OnGameRewardSignal signal)
@@ -56,7 +68,7 @@ public class PlayerProgress : MonoBehaviour
         switch (signal.RewardId)
         {
             case 0:
-                AwardCount += signal.Count;
+                RewardCount += signal.Count;
                 break;
         }
         //Debug.Log(StarAward);
@@ -86,7 +98,7 @@ public class PlayerProgress : MonoBehaviour
 
         if (playerProgress != null)
         {
-            AwardCount = playerProgress.AwardCount;
+            RewardCount = playerProgress.AwardCount;
             PlacedFlags = playerProgress.PlacedFlags;
             OpenedCells = playerProgress.OpenedCells;
         }
