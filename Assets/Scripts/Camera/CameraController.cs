@@ -2,7 +2,9 @@ using UnityEngine;
 
 public class CameraController : MonoBehaviour
 {
-    public bool IsCameraInteracting { get; private set; }
+    public bool IsCameraInteracting => IsMoving || IsZooming;
+    public bool IsMoving { get; private set; }
+    public bool IsZooming { get; private set; }
 
     [Header("Settings")]
     [SerializeField] private float moveSpeed = 0.5f;
@@ -12,8 +14,11 @@ public class CameraController : MonoBehaviour
 
     private Camera mainCamera;
     private Vector3 touchStartPos;
-    private ThemeConfig _currentAppliedTheme;    
+    private ThemeConfig _currentAppliedTheme;
+    private Vector3 previousPosition;
     private float _cameraMoveThreshold = 5f;
+    private float zoomStartTime;
+    private float zoomEndTime;
 
     private void Start()
     {
@@ -42,30 +47,30 @@ public class CameraController : MonoBehaviour
 
             if (touch.phase == TouchPhase.Began)
             {
+                IsMoving = false;
                 touchStartPos = touch.position;
-                IsCameraInteracting = false;
             }
             else if (touch.phase == TouchPhase.Moved)
             {
                 var delta = (Vector3)touch.position - touchStartPos;
-
-                delta *= mainCamera.orthographicSize * 0.01f;       //для поправок движения при зуме
-
                 if (delta.magnitude > _cameraMoveThreshold)
                 {
-                    touchStartPos = touch.position;
-                    MoveCamera(delta);
-                    IsCameraInteracting = true;
+                    IsMoving = true;
                 }
+                touchStartPos = touch.position;
+                MoveCamera(delta);
             }
-            else if (touch.phase == TouchPhase.Ended || touch.phase == TouchPhase.Canceled)
+
+            else if (touch.phase == TouchPhase.Ended)
             {
-                IsCameraInteracting = false;
+                IsMoving = false;
             }
         }
 
         if (Input.touchCount == 2)
         {
+            IsZooming = true;
+
             var touch0 = Input.GetTouch(0);
             var touch1 = Input.GetTouch(1);
 
@@ -76,12 +81,11 @@ public class CameraController : MonoBehaviour
                 var deltaDistance = currentDistance - previousDistance;
 
                 ZoomCamera(deltaDistance * GameSettingsManager.Instance.CameraZoom);
-                IsCameraInteracting = true;
             }
-            else if (touch0.phase == TouchPhase.Ended || touch1.phase == TouchPhase.Ended)
-            {
-                IsCameraInteracting = false;
-            }
+        }
+        else
+        {
+            IsZooming = false;
         }
     }
 
@@ -89,38 +93,42 @@ public class CameraController : MonoBehaviour
     {
         if (Input.GetMouseButtonDown(0))
         {
-            touchStartPos = Input.mousePosition;
-            IsCameraInteracting = false;
+            previousPosition = Input.mousePosition;
         }
 
         if (Input.GetMouseButton(0))
         {
-            var delta = (Vector3)Input.mousePosition - touchStartPos;
-            delta *= mainCamera.orthographicSize * 0.01f;
-
+            var delta = Input.mousePosition - previousPosition;
             if (delta.magnitude > _cameraMoveThreshold)
             {
-                touchStartPos = Input.mousePosition;
-                MoveCamera(delta);
-                IsCameraInteracting = true;
+                IsMoving = true;
             }
+            previousPosition = Input.mousePosition;
+            MoveCamera(delta);
         }
 
         if (Input.GetMouseButtonUp(0))
         {
-            IsCameraInteracting = false;
+            IsMoving = false;
         }
 
         if (Input.mouseScrollDelta.y != 0)
         {
+            IsZooming = true;
+            zoomStartTime = Time.time;
             ZoomCamera(Input.mouseScrollDelta.y * GameSettingsManager.Instance.CameraZoom);
-            IsCameraInteracting = true;
+            zoomEndTime = Time.time;
+        }
+        else
+        {
+            IsZooming = zoomEndTime + 0.1f > Time.time;
         }
     }
 
     private void MoveCamera(Vector3 delta)
     {
-        var move = new Vector3(-delta.x * moveSpeed, -delta.y * moveSpeed, 0);
+        float zoomFactor = mainCamera.orthographicSize / maxZoom;
+        var move = new Vector3(-delta.x * moveSpeed * zoomFactor, -delta.y * moveSpeed * zoomFactor, 0);
         transform.position += move;
     }
 

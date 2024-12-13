@@ -22,6 +22,7 @@ public class InfiniteGridManager : MonoBehaviour
     [SerializeField] private GameObject _targetRewardUIElement;
     [SerializeField] private GameObject _awardSpritePrefab;
     [SerializeField] private SectorBuyoutCostConfig _sectorBuyoutCostConfig;
+    [SerializeField] private SectorRewardConfig sectorRewardConfig;
 
     public bool IsFirstClick;
     public bool IsGenerateEnabled;
@@ -43,7 +44,13 @@ public class InfiniteGridManager : MonoBehaviour
     private const float DoubleClickThreshold = 0.3f; // Порог для двойного клика (в секундах)
 
     private SaveManager _saveManager;
-    private PlayerProgress _playerProgress;    
+    private PlayerProgress _playerProgress;
+
+    /// <summary>
+    /// TO DO NORMAL CLASSES FOR MODES
+    /// </summary>    
+    private int currentRewardCount;
+    
 
     void Start()
     {
@@ -423,7 +430,7 @@ public class InfiniteGridManager : MonoBehaviour
 
         if (cell.IsAward)
         {
-            AwardBonus(cell);
+            RewardBonus(cell);
         }
 
         switch (cell.CellState)
@@ -474,7 +481,7 @@ public class InfiniteGridManager : MonoBehaviour
 
         if (isPlacingFlag && cell.IsAward)
         {
-            AwardBonus(cell);
+            RewardBonus(cell);
         }
 
         InstantiateParticleAtCell(isPlacingFlag ? _flagPlaceParticle : _flagRemoveParticle, cell);
@@ -585,7 +592,7 @@ public class InfiniteGridManager : MonoBehaviour
 
         if (cell.IsAward)
         {
-            AwardBonus(cell);
+            RewardBonus(cell);
         }
 
         cell.IsRevealed = true;
@@ -639,14 +646,30 @@ public class InfiniteGridManager : MonoBehaviour
         }
     }
 
-    private void AwardBonus(InfiniteCell cell)
+    private void RewardBonus(InfiniteCell cell)
     {
         if (!cell.IsAward) return;
+        currentRewardCount++;
+        int currentReward = CalculateCurrentReward(currentRewardCount);
 
-        SignalBus.Fire(new OnGameRewardSignal(0, 1));
+        SignalBus.Fire(new OnGameRewardSignal(0, currentReward));
+        Debug.Log($"Номер награды: {currentRewardCount}, награда: {currentReward}");
         cell.IsAward = false;
 
         MoveAwardSprite(cell, _targetRewardUIElement);
+    }
+
+    private int CalculateCurrentReward(int collectedRewards)
+    {
+        int rewardLevelIndex = Mathf.Min(collectedRewards - 1, sectorRewardConfig.RewardLevels.Count - 1);
+        RewardLevel currentRewardLevel = sectorRewardConfig.RewardLevels[rewardLevelIndex];
+        
+        float randomMultiplier = Random.Range(1f - currentRewardLevel.RandomizationCoefficient, 1f + currentRewardLevel.RandomizationCoefficient);
+        int reward = Mathf.RoundToInt(currentRewardLevel.CurrencyAmount * randomMultiplier);
+        
+        reward = Mathf.Clamp(reward, currentRewardLevel.MinReward, currentRewardLevel.MaxReward);
+
+        return reward;
     }
 
     private void MoveAwardSprite(InfiniteCell cell, GameObject targetRewardUIElement)

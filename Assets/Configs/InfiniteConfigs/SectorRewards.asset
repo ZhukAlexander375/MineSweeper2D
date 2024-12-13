@@ -1,0 +1,265 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8fc9c5438f85d0c44b38f6be54d0aacf, type: 3}
+  m_Name: SectorRewards
+  m_EditorClassIdentifier: 
+  RewardLevels:
+  - DiamondNumber: 1
+    CurrencyAmount: 17
+    RandomizationCoefficient: 25
+    MaxReward: 20
+    MinReward: 15
+  - DiamondNumber: 2
+    CurrencyAmount: 17
+    RandomizationCoefficient: 26
+    MaxReward: 20
+    MinReward: 15
+  - DiamondNumber: 3
+    CurrencyAmount: 21
+    RandomizationCoefficient: 27
+    MaxReward: 24
+    MinReward: 19
+  - DiamondNumber: 4
+    CurrencyAmount: 26
+    RandomizationCoefficient: 28
+    MaxReward: 28
+    MinReward: 23
+  - DiamondNumber: 5
+    CurrencyAmount: 26
+    RandomizationCoefficient: 29
+    MaxReward: 28
+    MinReward: 23
+  - DiamondNumber: 6
+    CurrencyAmount: 30
+    RandomizationCoefficient: 30
+    MaxReward: 33
+    MinReward: 27
+  - DiamondNumber: 7
+    CurrencyAmount: 32
+    RandomizationCoefficient: 31
+    MaxReward: 35
+    MinReward: 29
+  - DiamondNumber: 8
+    CurrencyAmount: 35
+    RandomizationCoefficient: 32
+    MaxReward: 38
+    MinReward: 31
+  - DiamondNumber: 9
+    CurrencyAmount: 37
+    RandomizationCoefficient: 33
+    MaxReward: 41
+    MinReward: 34
+  - DiamondNumber: 10
+    CurrencyAmount: 40
+    RandomizationCoefficient: 34
+    MaxReward: 43
+    MinReward: 37
+  - DiamondNumber: 11
+    CurrencyAmount: 43
+    RandomizationCoefficient: 35
+    MaxReward: 46
+    MinReward: 39
+  - DiamondNumber: 12
+    CurrencyAmount: 45
+    RandomizationCoefficient: 36
+    MaxReward: 49
+    MinReward: 42
+  - DiamondNumber: 13
+    CurrencyAmount: 48
+    RandomizationCoefficient: 37
+    MaxReward: 52
+    MinReward: 44
+  - DiamondNumber: 14
+    CurrencyAmount: 51
+    RandomizationCoefficient: 38
+    MaxReward: 55
+    MinReward: 47
+  - DiamondNumber: 15
+    CurrencyAmount: 53
+    RandomizationCoefficient: 39
+    MaxReward: 57
+    MinReward: 49
+  - DiamondNumber: 16
+    CurrencyAmount: 56
+    RandomizationCoefficient: 40
+    MaxReward: 60
+    MinReward: 52
+  - DiamondNumber: 17
+    CurrencyAmount: 59
+    RandomizationCoefficient: 41
+    MaxReward: 63
+    MinReward: 55
+  - DiamondNumber: 18
+    CurrencyAmount: 61
+    RandomizationCoefficient: 42
+    MaxReward: 66
+    MinReward: 57
+  - DiamondNumber: 19
+    CurrencyAmount: 64
+    RandomizationCoefficient: 43
+    MaxReward: 68
+    MinReward: 60
+  - DiamondNumber: 20
+    CurrencyAmount: 67
+    RandomizationCoefficient: 44
+    MaxReward: 71
+    MinReward: 62
+  - DiamondNumber: 21
+    CurrencyAmount: 69
+    RandomizationCoefficient: 45
+    MaxReward: 74
+    MinReward: 65
+  - DiamondNumber: 22
+    CurrencyAmount: 72
+    RandomizationCoefficient: 46
+    MaxReward: 77
+    MinReward: 67
+  - DiamondNumber: 23
+    CurrencyAmount: 75
+    RandomizationCoefficient: 47
+    MaxReward: 79
+    MinReward: 70
+  - DiamondNumber: 24
+    CurrencyAmount: 77
+    RandomizationCoefficient: 48
+    MaxReward: 82
+    MinReward: 73
+  - DiamondNumber: 25
+    CurrencyAmount: 80
+    RandomizationCoefficient: 49
+    MaxReward: 85
+    MinReward: 75
+  - DiamondNumber: 26
+    CurrencyAmount: 83
+    RandomizationCoefficient: 50
+    MaxReward: 88
+    MinReward: 78
+  - DiamondNumber: 27
+    CurrencyAmount: 85
+    RandomizationCoefficient: 51
+    MaxReward: 91
+    MinReward: 80
+  - DiamondNumber: 28
+    CurrencyAmount: 88
+    RandomizationCoefficient: 52
+    MaxReward: 93
+    MinReward: 83
+  - DiamondNumber: 29
+    CurrencyAmount: 91
+    RandomizationCoefficient: 53
+    MaxReward: 96
+    MinReward: 85
+  - DiamondNumber: 30
+    CurrencyAmount: 93
+    RandomizationCoefficient: 54
+    MaxReward: 99
+    MinReward: 88
+  - DiamondNumber: 31
+    CurrencyAmount: 96
+    RandomizationCoefficient: 55
+    MaxReward: 102
+    MinReward: 91
+  - DiamondNumber: 32
+    CurrencyAmount: 99
+    RandomizationCoefficient: 56
+    MaxReward: 104
+    MinReward: 93
+  - DiamondNumber: 33
+    CurrencyAmount: 101
+    RandomizationCoefficient: 57
+    MaxReward: 107
+    MinReward: 96
+  - DiamondNumber: 34
+    CurrencyAmount: 104
+    RandomizationCoefficient: 58
+    MaxReward: 110
+    MinReward: 98
+  - DiamondNumber: 35
+    CurrencyAmount: 107
+    RandomizationCoefficient: 59
+    MaxReward: 113
+    MinReward: 101
+  - DiamondNumber: 36
+    CurrencyAmount: 109
+    RandomizationCoefficient: 60
+    MaxReward: 115
+    MinReward: 103
+  - DiamondNumber: 37
+    CurrencyAmount: 112
+    RandomizationCoefficient: 61
+    MaxReward: 118
+    MinReward: 106
+  - DiamondNumber: 38
+    CurrencyAmount: 115
+    RandomizationCoefficient: 62
+    MaxReward: 121
+    MinReward: 109
+  - DiamondNumber: 39
+    CurrencyAmount: 118
+    RandomizationCoefficient: 63
+    MaxReward: 124
+    MinReward: 111
+  - DiamondNumber: 40
+    CurrencyAmount: 120
+    RandomizationCoefficient: 64
+    MaxReward: 127
+    MinReward: 114
+  - DiamondNumber: 41
+    CurrencyAmount: 123
+    RandomizationCoefficient: 65
+    MaxReward: 129
+    MinReward: 116
+  - DiamondNumber: 42
+    CurrencyAmount: 126
+    RandomizationCoefficient: 66
+    MaxReward: 132
+    MinReward: 119
+  - DiamondNumber: 43
+    CurrencyAmount: 128
+    RandomizationCoefficient: 67
+    MaxReward: 135
+    MinReward: 121
+  - DiamondNumber: 44
+    CurrencyAmount: 131
+    RandomizationCoefficient: 68
+    MaxReward: 138
+    MinReward: 124
+  - DiamondNumber: 45
+    CurrencyAmount: 134
+    RandomizationCoefficient: 69
+    MaxReward: 140
+    MinReward: 127
+  - DiamondNumber: 46
+    CurrencyAmount: 136
+    RandomizationCoefficient: 70
+    MaxReward: 143
+    MinReward: 129
+  - DiamondNumber: 47
+    CurrencyAmount: 139
+    RandomizationCoefficient: 71
+    MaxReward: 146
+    MinReward: 132
+  - DiamondNumber: 48
+    CurrencyAmount: 142
+    RandomizationCoefficient: 72
+    MaxReward: 149
+    MinReward: 134
+  - DiamondNumber: 49
+    CurrencyAmount: 144
+    RandomizationCoefficient: 73
+    MaxReward: 152
+    MinReward: 137
+  - DiamondNumber: 50
+    CurrencyAmount: 147
+    RandomizationCoefficient: 74
+    MaxReward: 154
+    MinReward: 139

@@ -36,7 +36,7 @@ public class PlayerProgress : MonoBehaviour
     public void UpdateExplodedMinesCount(int count)
     {
         ExplodedMines = count;
-        Debug.Log(ExplodedMines);
+        //Debug.Log(ExplodedMines);
     }
 
     public void ResetSessionStatistic()
