@@ -50,7 +50,9 @@ public class InfiniteGridManager : MonoBehaviour
     /// TO DO NORMAL CLASSES FOR MODES
     /// </summary>    
     private int currentRewardCount;
-    
+
+    private HashSet<Sector> _sectorsToRedraw = new HashSet<Sector>();
+    private int _activeFloodCoroutines = 0;
 
     void Start()
     {
@@ -447,7 +449,7 @@ public class InfiniteGridManager : MonoBehaviour
                 break;
 
             case CellState.Empty:
-                StartCoroutine(Flood(currentSector, cell));
+                StartCoroutine(Flood(currentSector, cell, _sectorsToRedraw));
 
                 //CheckWinCondition();
                 currentSector.SectorCompletionCheck();
@@ -582,13 +584,13 @@ public class InfiniteGridManager : MonoBehaviour
         }
 
         return flagCount;
-    }    
+    }
 
-    private IEnumerator Flood(Sector currentSector, InfiniteCell cell)
+    private IEnumerator Flood(Sector currentSector, InfiniteCell cell, HashSet<Sector> affectedSectors)
     {
-        //if (IsGameOver) yield break;
-        if (cell.IsRevealed) yield break;
-        if (cell.CellState == CellState.Mine) yield break;
+        if (cell.IsRevealed || cell.CellState == CellState.Mine) yield break;
+
+        _activeFloodCoroutines++;
 
         if (cell.IsAward)
         {
@@ -596,14 +598,13 @@ public class InfiniteGridManager : MonoBehaviour
         }
 
         cell.IsRevealed = true;
-        //cell.IsActive = true;        
 
         if (cell.IsRevealed)
         {
             SignalBus.Fire<CellRevealedSignal>();
         }
-        
-        RedrawSectors();
+
+        affectedSectors.Add(currentSector);
 
         currentSector.SectorCompletionCheck();
 
@@ -611,37 +612,33 @@ public class InfiniteGridManager : MonoBehaviour
 
         if (cell.CellState == CellState.Empty)
         {
-            if (TryGetCell(cell.GlobalCellPosition.x - 1, cell.GlobalCellPosition.y, out InfiniteCell left))
+            foreach (var neighbor in GetNeighbors(cell))
             {
-                StartCoroutine(Flood(currentSector, left));
+                StartCoroutine(Flood(currentSector, neighbor, affectedSectors));
             }
-            if (TryGetCell(cell.GlobalCellPosition.x + 1, cell.GlobalCellPosition.y, out InfiniteCell right))
+        }
+
+        _activeFloodCoroutines--;
+
+        if (_activeFloodCoroutines == 0)
+        {
+            RedrawSectors();
+        }
+    }
+
+    private IEnumerable<InfiniteCell> GetNeighbors(InfiniteCell cell)
+    {
+        var directions = new[]
+        {
+            (x: -1, y: 0), (x: 1, y: 0), (x: 0, y: -1), (x: 0, y: 1),
+            (x: -1, y: -1), (x: 1, y: -1), (x: -1, y: 1), (x: 1, y: 1)
+        };
+
+        foreach (var (dx, dy) in directions)
+        {
+            if (TryGetCell(cell.GlobalCellPosition.x + dx, cell.GlobalCellPosition.y + dy, out var neighbor))
             {
-                StartCoroutine(Flood(currentSector, right));
-            }
-            if (TryGetCell(cell.GlobalCellPosition.x, cell.GlobalCellPosition.y - 1, out InfiniteCell down))
-            {
-                StartCoroutine(Flood(currentSector, down));
-            }
-            if (TryGetCell(cell.GlobalCellPosition.x, cell.GlobalCellPosition.y + 1, out InfiniteCell up))
-            {
-                StartCoroutine(Flood(currentSector, up));
-            }
-            if (TryGetCell(cell.GlobalCellPosition.x - 1, cell.GlobalCellPosition.y - 1, out InfiniteCell downLeft))
-            {
-                StartCoroutine(Flood(currentSector, downLeft));
-            }
-            if (TryGetCell(cell.GlobalCellPosition.x + 1, cell.GlobalCellPosition.y - 1, out InfiniteCell downRight))
-            {
-                StartCoroutine(Flood(currentSector, downRight));
-            }
-            if (TryGetCell(cell.GlobalCellPosition.x - 1, cell.GlobalCellPosition.y + 1, out InfiniteCell upLeft))
-            {
-                StartCoroutine(Flood(currentSector, upLeft));
-            }
-            if (TryGetCell(cell.GlobalCellPosition.x + 1, cell.GlobalCellPosition.y + 1, out InfiniteCell upRight))
-            {
-                StartCoroutine(Flood(currentSector, upRight));
+                yield return neighbor;
             }
         }
     }
