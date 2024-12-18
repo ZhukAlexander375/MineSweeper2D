@@ -12,4 +12,6 @@ public class SectorData
     public List<CellData> Cells = new List<CellData>();
     public bool IsLOADED;
     public bool IsCellsInitialized;
+    public bool IsSectorCompleted;
+    public int CurrentBuyoutCost;
 }

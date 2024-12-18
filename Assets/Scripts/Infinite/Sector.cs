@@ -17,12 +17,8 @@ public class Sector : MonoBehaviour
     public bool IsExploded { get; set; }
     public bool IsPrizePlaced { get; set; }
     public bool IsCellsInitialized { get; set; }
-
-    /// <summary>
-    /// ADD TO SAVES
-    /// </summary>
-    public bool IsSectorCompleted {  get; private set; }
-    public int CurrentBuyoutCost { get; private set; }
+    public bool IsSectorCompleted {  get; set; }
+    public int CurrentBuyoutCost { get; set; }
 
     public Dictionary<Vector3Int, InfiniteCell> Cells => _cells;
     public bool IsLOADED;
@@ -46,8 +42,10 @@ public class Sector : MonoBehaviour
             GenerateAward();
         }
         //DrawBorders();
-        CheckExplodedSector();
+        
         _sectorUi.SetSector(this);
+        CheckExplodedSector();
+        SectorCompletionCheck();
 
         SignalBus.Subscribe<OnCellActiveSignal>(SectorActivate);
         SignalBus.Subscribe<ThemeChangeSignal>(OnThemeChanged);
@@ -287,6 +285,12 @@ public class Sector : MonoBehaviour
     {
         if (IsExploded) return;
 
+        if (IsSectorCompleted)
+        {
+            OnSectorCompleted();
+            return;
+        }
+
         bool isSectorCompleted = true;
         
         foreach (var cell in Cells.Values)
@@ -423,23 +427,14 @@ public class Sector : MonoBehaviour
     public void SetBuyoutCost(SectorBuyoutCostConfig sectorBuyoutCostConfig, int explodedMines)
     {
         CurrentBuyoutCost = sectorBuyoutCostConfig.SectorBuyoutCost[explodedMines - 1];
-        //Debug.Log(CurrentBuyoutCost);
+        Debug.Log(CurrentBuyoutCost);
     }
 
     public void CloseSector()
     {
         IsExploded = true;
-
-        /*foreach (var cellPosition in _cells.Keys)
-        {
-            var cell = _cells[cellPosition];
-           
-            cell.IsActive = false;                        
-        }*/
-
         _sectorUi.gameObject.SetActive(true);
         _sectorUi.HideSector();
-        //RedrawSector();
     }
 
     public void OpenSector(int priseCount)
@@ -447,13 +442,6 @@ public class Sector : MonoBehaviour
         if (PlayerProgress.Instance.CheckAwardCount(priseCount))
         {
             IsExploded = false;
-
-            /*foreach (var cellPosition in _cells.Keys)
-            {
-                var cell = _cells[cellPosition];
-
-                cell.IsActive = true;
-            }*/
             SignalBus.Fire(new OnGameRewardSignal(0, -priseCount));
             _sectorUi.gameObject.SetActive(false);
 
@@ -509,8 +497,9 @@ public class Sector : MonoBehaviour
             IsExploded = IsExploded,
             IsPrizePlaced = IsPrizePlaced,
             IsLOADED = IsLOADED,            ///DELETE    
-            IsCellsInitialized = IsCellsInitialized
-
+            IsCellsInitialized = IsCellsInitialized,
+            IsSectorCompleted = IsSectorCompleted,
+            CurrentBuyoutCost = CurrentBuyoutCost,            
         };
 
         foreach (var cellPair in _cells)

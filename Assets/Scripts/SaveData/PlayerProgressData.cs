@@ -3,7 +3,8 @@
 
 public class PlayerProgressData
 {
-    public int AwardCount;
-    public int PlacedFlags;
-    public int OpenedCells;
+    public int RewardCount;
+    //public int TotalPlacedFlags;
+    //public int TotalOpenedCells;
+    //public int TotalCompletedSectors;
 }

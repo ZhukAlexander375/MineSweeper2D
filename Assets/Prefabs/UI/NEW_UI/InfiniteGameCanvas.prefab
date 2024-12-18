@@ -650,6 +650,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _mainBackground: {fileID: 0}
   _topFieldImage: []
+  _closeSectorBackground: {fileID: 0}
   _transparentBackground: {fileID: 0}
   _enabledSettingsImage: []
   _disabledSettingsImage: []
@@ -1959,6 +1960,7 @@ MonoBehaviour:
   _mainBackground: {fileID: 0}
   _topFieldImage:
   - {fileID: 6161469039641075205}
+  _closeSectorBackground: {fileID: 0}
   _transparentBackground: {fileID: 0}
   _enabledSettingsImage: []
   _disabledSettingsImage: []
@@ -3032,6 +3034,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _mainBackground: {fileID: 2160336431483901624}
   _topFieldImage: []
+  _closeSectorBackground: {fileID: 0}
   _transparentBackground: {fileID: 1842614544421778356}
   _enabledSettingsImage:
   - {fileID: 4258772589365671473}
@@ -8234,6 +8237,7 @@ MonoBehaviour:
   _settingsScreen: {fileID: 8600752031128319577}
   _awardText: {fileID: 8007103160598441932}
   _flagsTexts: {fileID: 4903282926287325221}
+  _gameModeText: {fileID: 2780262104790208291}
 --- !u!1 &8518529487044906495
 GameObject:
   m_ObjectHideFlags: 0

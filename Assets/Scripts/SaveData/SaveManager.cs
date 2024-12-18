@@ -1,18 +1,21 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using UnityEditor;
 using UnityEngine;
 
 public class SaveManager : MonoBehaviour
 {
     public static SaveManager Instance { get; private set; }
-
-    private const string SaveInfinateGameFileName = "InfiniteGameSave.json";
+        
     private const string SaveThemeFileName = "Theme.json";
     private const string SaveSettingsFileName = "GameSettings.json";
     private const string SavePlayerProgressFileName = "PlayerProgress.json";
-    private const string SaveGameModesFileName = "GameModes.json";
+
+    private const string SaveGameMetaDataFileName = "GameMetaData.json";        // Какой режим последний и состояние режимов (нью/загрузка)
+
+    private const string SaveSimpleInfiniteGameFileName = "SimpleInfiniteGameSave.json";
+    private const string SaveHardcoreGameFileName = "HardcoreInfiniteGameSave.json";
+    private const string SaveTimeTrialGameFileName = "TimeTrialInfiniteGameSave.json";
 
     private void Awake()
     {
@@ -26,47 +29,152 @@ public class SaveManager : MonoBehaviour
         DontDestroyOnLoad(gameObject);
     }
 
-    public bool HasSavedData()
+    public bool HasSavedData(GameMode mode)
     {
-        var filePath = Path.Combine(Application.persistentDataPath, SaveInfinateGameFileName);
+        string filePath = GetSaveFilePath(mode);
         return File.Exists(filePath);
     }
 
-    public void SaveInfiniteGame(List<SectorData> sectors)
+    private string GetSaveFilePath(GameMode mode)
     {
-        InfiniteGameSaveWrapper saveData = new InfiniteGameSaveWrapper { Sectors = sectors };
-        string json = JsonUtility.ToJson(saveData, true);
-        var filePath = Path.Combine(Application.persistentDataPath, SaveInfinateGameFileName);
-        File.WriteAllText(filePath, json);
-        Debug.Log($"Game saved successfully to {filePath}");
+        string fileName = mode switch
+        {
+            GameMode.SimpleInfinite => SaveSimpleInfiniteGameFileName,
+            GameMode.Hardcore => SaveHardcoreGameFileName,
+            GameMode.TimeTrial => SaveTimeTrialGameFileName,
+            _ => throw new ArgumentOutOfRangeException()
+        };
+
+        return Path.Combine(Application.persistentDataPath, fileName);
     }
 
-    public List<SectorData> LoadSavedSectors()
+    public void SaveSimpleInfiniteGame(List<SectorData> sectors, SimpleInfiniteModeData modeData)
     {
-        var filePath = Path.Combine(Application.persistentDataPath, SaveInfinateGameFileName);
+        SimpleInfiniteGameSaveWrapper saveData = new SimpleInfiniteGameSaveWrapper 
+        {
+            Sectors = sectors,
+            SimpleInfiniteModeData = modeData
+        };
+
+        string json = JsonUtility.ToJson(saveData, true);
+        var filePath = Path.Combine(Application.persistentDataPath, SaveSimpleInfiniteGameFileName);
+        File.WriteAllText(filePath, json);
+        Debug.Log($"Simple Infinite Game saved successfully to {filePath}");
+    }
+
+    public void SaveHardcoreGame(List<SectorData> sectors, HardcoreModeData modeData)
+    {
+        HardcoreGameSaveWrapper saveData = new HardcoreGameSaveWrapper 
+        { 
+            Sectors = sectors,
+            HardcoreModeData = modeData
+        };
+        string json = JsonUtility.ToJson(saveData, true);
+        var filePath = Path.Combine(Application.persistentDataPath, SaveHardcoreGameFileName);
+        File.WriteAllText(filePath, json);
+        Debug.Log($"Hardcore Game saved successfully to {filePath}");
+    }
+
+    public void SaveTimeTrialGame(List<SectorData> sectors, TimeTrialModeData modeData)
+    {
+        TimeTrialGameSaveWrapper saveData = new TimeTrialGameSaveWrapper 
+        {
+            Sectors = sectors,
+            TimeTrialModeData = modeData
+        };
+        string json = JsonUtility.ToJson(saveData, true);
+        var filePath = Path.Combine(Application.persistentDataPath, SaveTimeTrialGameFileName);
+        File.WriteAllText(filePath, json);
+        Debug.Log($"Time Trial Game saved successfully to {filePath}");
+    }
+
+    public (List<SectorData>,SimpleInfiniteModeData) LoadSimpleInfiniteGame()
+    {
+        var filePath = Path.Combine(Application.persistentDataPath, SaveSimpleInfiniteGameFileName);
         if (!File.Exists(filePath))
         {
-            Debug.LogWarning("Save file not found.");
-            return new List<SectorData>();
+            Debug.LogWarning($"No save file found for Simple Infinite Game at {filePath}");
+            return (null, null);
         }
 
         string json = File.ReadAllText(filePath);
-        InfiniteGameSaveWrapper saveData = JsonUtility.FromJson<InfiniteGameSaveWrapper>(json);
-        return saveData.Sectors;
+        SimpleInfiniteGameSaveWrapper saveData = JsonUtility.FromJson<SimpleInfiniteGameSaveWrapper>(json);
+
+        Debug.Log($"Simple Infinite Game loaded successfully from {filePath}");
+        return (saveData.Sectors, saveData.SimpleInfiniteModeData);
     }
 
-    public void ClearSavedInfiniteGame()
+    public (List<SectorData>, HardcoreModeData) LoadHardcoreGame()
     {
-        var filePath = Path.Combine(Application.persistentDataPath, SaveInfinateGameFileName);
+        var filePath = Path.Combine(Application.persistentDataPath, SaveHardcoreGameFileName);
+        if (!File.Exists(filePath))
+        {
+            Debug.LogWarning($"Save file for Hardcore game not found at {filePath}");
+            return (null, null);
+        }
+
+        string json = File.ReadAllText(filePath);
+        HardcoreGameSaveWrapper saveData = JsonUtility.FromJson<HardcoreGameSaveWrapper>(json);
+        return (saveData.Sectors, saveData.HardcoreModeData);
+    }
+
+
+    public (List<SectorData>, TimeTrialModeData) LoadTimeTrialGame()
+    {
+        var filePath = Path.Combine(Application.persistentDataPath, SaveTimeTrialGameFileName);
+        if (!File.Exists(filePath))
+        {
+            Debug.LogWarning($"Save file for TimeTrial game not found at {filePath}");
+            return (null, null);
+        }
+
+        string json = File.ReadAllText(filePath);
+        TimeTrialGameSaveWrapper saveData = JsonUtility.FromJson<TimeTrialGameSaveWrapper>(json);
+        return (saveData.Sectors, saveData.TimeTrialModeData);
+    }
+
+    public void ClearSavedSimpleInfiniteGame()
+    {
+        var filePath = Path.Combine(Application.persistentDataPath, SaveSimpleInfiniteGameFileName);
 
         if (File.Exists(filePath))
         {
             File.Delete(filePath);
-            Debug.Log($"Save file at {filePath} has been deleted.");
+            //Debug.Log($"Save file at {filePath} has been deleted.");
         }
         else
         {
-            Debug.LogWarning("No save file found to delete.");
+            //Debug.LogWarning("No save file found to delete for SimpleInfinite.");
+        }
+    }
+
+    public void ClearSavedHardcoreGame()
+    {
+        var filePath = Path.Combine(Application.persistentDataPath, SaveHardcoreGameFileName);
+
+        if (File.Exists(filePath))
+        {
+            File.Delete(filePath);
+            //Debug.Log($"Save file at {filePath} has been deleted.");
+        }
+        else
+        {
+            //Debug.LogWarning("No save file found to delete for Hardcore.");
+        }
+    }
+
+    public void ClearSavedTimeTrialGame()
+    {
+        var filePath = Path.Combine(Application.persistentDataPath, SaveTimeTrialGameFileName);
+
+        if (File.Exists(filePath))
+        {
+            File.Delete(filePath);
+            //Debug.Log($"Save file at {filePath} has been deleted.");
+        }
+        else
+        {
+            //Debug.LogWarning("No save file found to delete for TimeTrial.");
         }
     }
 
@@ -84,7 +192,7 @@ public class SaveManager : MonoBehaviour
         var filePath = Path.Combine(Application.persistentDataPath, SaveThemeFileName);
         if (!File.Exists(filePath))
         {
-            Debug.LogWarning("Theme save file not found.");
+            //Debug.LogWarning("Theme save file not found.");
             return 0;
         }
 
@@ -108,7 +216,7 @@ public class SaveManager : MonoBehaviour
         var filePath = Path.Combine(Application.persistentDataPath, SaveSettingsFileName);
         if (!File.Exists(filePath))
         {
-            Debug.LogWarning("Settings save file not found.");
+            //Debug.LogWarning("Settings save file not found.");
             return new SettingsData();
         }
 
@@ -132,7 +240,7 @@ public class SaveManager : MonoBehaviour
         var filePath = Path.Combine(Application.persistentDataPath, SavePlayerProgressFileName);
         if (!File.Exists(filePath))
         {
-            Debug.LogWarning("Player progress save file not found.");
+            //Debug.LogWarning("Player progress save file not found.");
             return new PlayerProgressData();
         }
 
@@ -141,26 +249,30 @@ public class SaveManager : MonoBehaviour
         return wrapper.PlayerData;
     }
 
-    public void SaveGameModes(GameModesData gameModeData)
+    public void SaveGameMetaData(GameMode gameMode, bool isNewGame)
     {
-        GameModesWrapper gameModesWrapper = new GameModesWrapper();
-        gameModesWrapper.GameModesData = gameModeData;
+        GameMetaData metaData = new GameMetaData
+        {
+            CurrentGameMode = gameMode,
+            IsNewGame = isNewGame
+        };
 
-        string json = JsonUtility.ToJson(gameModesWrapper, true);
-        var filePath = Path.Combine(Application.persistentDataPath, SaveGameModesFileName);
+        string json = JsonUtility.ToJson(metaData, true);
+        string filePath = Path.Combine(Application.persistentDataPath, SaveGameMetaDataFileName);
         File.WriteAllText(filePath, json);
+        //Debug.Log($"Game MetaData saved for {gameMode}");
     }
 
-    public GameModesData LoadGameModes()
+    public GameMetaData LoadGameMetaData()
     {
-        var filePath = Path.Combine(Application.persistentDataPath, SaveGameModesFileName);
+        string filePath = Path.Combine(Application.persistentDataPath, SaveGameMetaDataFileName);
         if (!File.Exists(filePath))
         {
-            Debug.LogWarning("Game modes save file not found.");
-            return new GameModesData();
+            //Debug.LogWarning("Game MetaData not found, starting fresh.");
+            return new GameMetaData();
         }
+
         string json = File.ReadAllText(filePath);
-        GameModesWrapper wrapper = JsonUtility.FromJson<GameModesWrapper>(json);
-        return wrapper.GameModesData;
+        return JsonUtility.FromJson<GameMetaData>(json);
     }
 }

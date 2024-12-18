@@ -18,6 +18,7 @@ public class InfiniteGameUI : MonoBehaviour
     [Header("Texts")]
     [SerializeField] private TMP_Text _awardText;
     [SerializeField] private TMP_Text _flagsTexts;
+    [SerializeField] private TMP_Text _gameModeText;
         
     private InfiniteGridManager _infiniteGridManager;
 
@@ -35,6 +36,7 @@ public class InfiniteGameUI : MonoBehaviour
         _goHomeButton.onClick.AddListener(ReturnToMainMenu);
         SignalBus.Subscribe<OnGameRewardSignal>(UpdateAwardUI);
         SignalBus.Subscribe<FlagPlacingSignal>(UpdateFlagUI);
+        SignalBus.Subscribe<LoadCompletedSignal>(UpdateTexts);
 
         UpdateTexts();
     }
@@ -44,33 +46,33 @@ public class InfiniteGameUI : MonoBehaviour
         _infiniteGridManager.SaveCurrentGame();
         PlayerProgress.Instance.SavePlayerProgress();
 
-        if (!_infiniteGridManager.IsFirstClick)
+        /*if (!_infiniteGridManager.IsFirstClick)
         {
-            GameModesManager.Instance.IsDownloadedInfiniteGame = false;
-            GameModesManager.Instance.IsNewInfiniteGame = true;
+            GameManager.Instance.IsDownloadedInfiniteGame = false;
+            GameManager.Instance.IsNewInfiniteGame = true;
         }
 
         else
         {
-            GameModesManager.Instance.IsDownloadedInfiniteGame = true;
-            GameModesManager.Instance.IsNewInfiniteGame = false;
+            GameManager.Instance.IsDownloadedInfiniteGame = true;
+            GameManager.Instance.IsNewInfiniteGame = false;
         }
         
-        GameModesManager.Instance.SaveGameModes();
+        GameManager.Instance.SaveGameModes();*/
         //Debug.Log($"Return:    IsDownloadedInfiniteGame: {GameModesManager.Instance.IsDownloadedInfiniteGame}, IsNewInfiniteGame: {GameModesManager.Instance.IsNewInfiniteGame}");
 
         SceneLoader.Instance.LoadMainMenuScene();
     }
 
     private void ReplayGame()
-    {        
-        PlayerProgress.Instance.ResetSessionStatistic();        
-        GameModesManager.Instance.IsDownloadedInfiniteGame = false;
-        GameModesManager.Instance.IsNewInfiniteGame = true;
-        GameModesManager.Instance.SaveGameModes();
+    {
+        /*PlayerProgress.Instance.ResetSessionStatistic();        
+        GameManager.Instance.IsDownloadedInfiniteGame = false;
+        GameManager.Instance.IsNewInfiniteGame = true;
+        GameManager.Instance.SaveGameModes();*/
 
         //Debug.Log($"Replay:    IsDownloadedInfiniteGame: {GameModesManager.Instance.IsDownloadedInfiniteGame}, IsNewInfiniteGame: {GameModesManager.Instance.IsNewInfiniteGame}");
-
+        GameManager.Instance.ClearCurrentGame();
         SceneLoader.Instance.LoadInfiniteMinesweeperScene();
     }
 
@@ -91,23 +93,45 @@ public class InfiniteGameUI : MonoBehaviour
 
     private void UpdateAwardUI(OnGameRewardSignal signal)
     {
-        _awardText.text = PlayerProgress.Instance.RewardCount.ToString();
+        _awardText.text = PlayerProgress.Instance.TotalReward.ToString();
     }
 
     private void UpdateFlagUI(FlagPlacingSignal signal)
     {
-        _flagsTexts.text = PlayerProgress.Instance.PlacedFlags.ToString();
+        _flagsTexts.text = GameManager.Instance.CurrentGameModeData.GetPlacedFlags().ToString();
+        /*switch (GameManager.Instance.CurrentGameModeData)
+        {
+            case SimpleInfiniteModeData simpleModeData:
+                _flagsTexts.text = simpleModeData.PlacedFlags.ToString();                
+                break;
+            case HardcoreModeData hardcoreModeData:
+                _flagsTexts.text = hardcoreModeData.PlacedFlags.ToString();
+                break;
+            case TimeTrialModeData timeTrialModeData:
+                _flagsTexts.text =timeTrialModeData.PlacedFlags.ToString();
+                break;
+            default:
+                _flagsTexts.text = "0";
+                break;
+        }*/
+    }
+
+    private void UpdateTexts(LoadCompletedSignal signal)
+    {
+        UpdateTexts();
     }
 
     private void UpdateTexts()
     {
-        _awardText.text = PlayerProgress.Instance.RewardCount.ToString();
-        _flagsTexts.text = PlayerProgress.Instance.PlacedFlags.ToString();
+        _gameModeText.text = GameManager.Instance.CurrentGameModeData.Mode.ToString();
+        _awardText.text = PlayerProgress.Instance.TotalReward.ToString();
+        _flagsTexts.text = GameManager.Instance.CurrentGameModeData.GetPlacedFlags().ToString();
     }
 
     private void OnDestroy()
     {
         SignalBus.Unsubscribe<OnGameRewardSignal>(UpdateAwardUI);
         SignalBus.Unsubscribe<FlagPlacingSignal>(UpdateFlagUI);
+        SignalBus.Unsubscribe<LoadCompletedSignal>(UpdateTexts);
     }
 }

@@ -1,7 +1,8 @@
 using System.Collections.Generic;
 
 [System.Serializable]
-public class InfiniteGameSaveWrapper
+public class HardcoreGameSaveWrapper
 {
     public List<SectorData> Sectors;
+    public HardcoreModeData HardcoreModeData;
 }

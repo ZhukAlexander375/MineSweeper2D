@@ -41,7 +41,7 @@ public class SectorUI : MonoBehaviour
         Color currentColor = _background.color;
         currentColor.a = 0.5f;
         _background.color = currentColor;
-        UpdatePrizeCountText();
+        //UpdatePrizeCountText();
 
         _containerForHideObjects.SetActive(false);
         _closeButton.gameObject.SetActive(true);
@@ -81,9 +81,9 @@ public class SectorUI : MonoBehaviour
     private void ReplayLevel() 
     {
         PlayerProgress.Instance.ResetSessionStatistic();
-        GameModesManager.Instance.IsDownloadedInfiniteGame = false;
-        GameModesManager.Instance.IsNewInfiniteGame = true;
-        GameModesManager.Instance.SaveGameModes();
+        //GameManager.Instance.IsDownloadedInfiniteGame = false;
+        //GameManager.Instance.IsNewInfiniteGame = true;
+        GameManager.Instance.SaveGameModes();
         SceneLoader.Instance.LoadInfiniteMinesweeperScene();
     }
 

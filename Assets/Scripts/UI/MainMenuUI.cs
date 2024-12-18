@@ -10,6 +10,7 @@ public class MainMenuUI : MonoBehaviour
     [SerializeField] private Button _infinityGameButton;
     [SerializeField] private Button _classicGameMenuButton;
     [SerializeField] private Button _hardcoreGameMenuButton;
+    [SerializeField] private Button _timeTrialGameButton;
     [SerializeField] private Button _episodeGameMenuButton;    
     [SerializeField] private Button _settingsButton;
     [SerializeField] private Button _continueGameButton;
@@ -21,23 +22,19 @@ public class MainMenuUI : MonoBehaviour
     [SerializeField] private TMP_Text _timeSpentText;
     [SerializeField] private TMP_Text _cellsOpenText;
     [SerializeField] private TMP_Text _flagsPlacedText;
-
-    private SceneLoader _sceneLoader;
-    private PlayerProgress _playerProgress;
-
+        
+    
     private void Awake()
     {
         //_sceneLoader = SceneLoader.Instance;
     }
 
     private void Start()
-    {
-        _sceneLoader = SceneLoader.Instance;
-        _playerProgress = PlayerProgress.Instance;
-
-        _infinityGameButton.onClick.AddListener(OpenInfinityGame);
+    {           
         _classicGameMenuButton.onClick.AddListener(OpenClassicGame);
+        _infinityGameButton.onClick.AddListener(OpenInfinityGame);
         _hardcoreGameMenuButton.onClick.AddListener(OpenHardcoreGame);
+        _timeTrialGameButton.onClick.AddListener(OpenTimeTrialGame);
         _episodeGameMenuButton.onClick.AddListener(OpenEpisodeGame);        
         _settingsButton.onClick.AddListener(OpenSettingsScreen);
         _continueGameButton.onClick.AddListener(OpenInfinityGame);
@@ -57,19 +54,31 @@ public class MainMenuUI : MonoBehaviour
             _mainMenuScreens[i].gameObject.SetActive(i == index);
         }
     }
+
     private void OpenInfinityGame() 
-    {        
-        _sceneLoader.LoadInfiniteMinesweeperScene();
+    {
+        GameManager.Instance.SetCurrentGameMode(GameMode.SimpleInfinite);
+        SceneLoader.Instance.LoadInfiniteMinesweeperScene();
+        //Debug.Log($"{GameManager.Instance.CurrentGameMode}");
     }
 
     private void OpenClassicGame()
     {
-        _sceneLoader.LoadClassicMinesweeperScene();
+        SceneLoader.Instance.LoadClassicMinesweeperScene();
     }
 
     private void OpenHardcoreGame()
     {
+        GameManager.Instance.SetCurrentGameMode(GameMode.Hardcore);
+        SceneLoader.Instance.LoadInfiniteMinesweeperScene();
+        //Debug.Log($"{GameManager.Instance.CurrentGameMode}");
+    }
 
+    private void OpenTimeTrialGame()
+    {
+        GameManager.Instance.SetCurrentGameMode(GameMode.TimeTrial);
+        SceneLoader.Instance.LoadInfiniteMinesweeperScene();
+        //Debug.Log($"{GameManager.Instance.CurrentGameMode}");
     }
 
     private void OpenEpisodeGame()
@@ -90,9 +99,15 @@ public class MainMenuUI : MonoBehaviour
 
     private void UpdateLastSessionStatistic()
     {
-        //_timeSpentText.text = _playerProgress.;
-        _cellsOpenText.text = "Cells Open: " + _playerProgress.OpenedCells.ToString();
-        _flagsPlacedText.text = "Checkboxes placed: " + _playerProgress.PlacedFlags.ToString();
+        if (GameManager.Instance != null && GameManager.Instance.CurrentGameModeData != null)
+        {
+            _flagsPlacedText.text = "Flags Placed: " + GameManager.Instance.CurrentGameModeData.GetPlacedFlags().ToString();
+            _cellsOpenText.text = "Cells Open: " + GameManager.Instance.CurrentGameModeData.GetOpenedCells().ToString();
+        }
+        else
+        {
+            _flagsPlacedText.text = "Flags Placed: 0";
+            _cellsOpenText.text = "Cells Open: 0";
+        }
     }
-
 }

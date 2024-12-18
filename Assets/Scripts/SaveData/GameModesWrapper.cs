@@ -1,7 +1,8 @@
 
 [System.Serializable]
 
-public class GameModesWrapper
+public class GameModeSaveWrapper
 {
-    public GameModesData GameModesData;
+    public GameMode GameMode;
+    public string GameModeData;
 }
