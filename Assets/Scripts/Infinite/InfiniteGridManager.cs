@@ -101,7 +101,7 @@ public class InfiniteGridManager : MonoBehaviour
 
     private void StartNewGame()
     {
-        GameManager.Instance.ClearCurrentGame();
+        GameManager.Instance.ClearCurrentGame(_currentGameModeData.Mode);
         _currentGameModeData.InitializeNewGame();
         SignalBus.Fire<LoadCompletedSignal>();
     }

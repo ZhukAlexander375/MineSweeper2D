@@ -19,7 +19,7 @@ MonoBehaviour:
   ButtonsMainColor: {r: 0.8470589, g: 0.15686275, b: 0.28235295, a: 1}
   ButtonsMainShadowColor: {r: 0.63529414, g: 0.11764707, b: 0.21176472, a: 1}
   ButtonsInactiveColor: {r: 0.28235295, g: 0.03529412, b: 0.098039225, a: 1}
-  ButtonsInactiveShadowColor: {r: 0, g: 0, b: 0, a: 0}
+  ButtonsInactiveShadowColor: {r: 0.21176472, g: 0.027450982, b: 0.07450981, a: 1}
   DropdownColor: {r: 0.8470589, g: 0.15686275, b: 0.28235295, a: 1}
   DropdownShadowColor: {r: 0.63529414, g: 0.11764707, b: 0.21176472, a: 1}
   CameraBackground: {r: 0.09019608, g: 0, b: 0.08235294, a: 1}

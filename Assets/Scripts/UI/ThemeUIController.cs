@@ -19,8 +19,8 @@ public class ThemeUIController : MonoBehaviour
     [Header("Buttons Colors")]
     [SerializeField] private Button[] _buttonsMain;
     [SerializeField] private Shadow[] _buttonsShadowMain;
-    [SerializeField] private Button[] _buttonsMinor;    
-    [SerializeField] private Shadow[] _buttonsShadowMinor;
+    [SerializeField] private Button[] _buttonsInactiveMainColor;    
+    [SerializeField] private Shadow[] _buttonsInactiveShadowMainColor;
 
     [Header("Dropdown Colors")]
     [SerializeField] private Image _dropdown;
@@ -190,17 +190,17 @@ public class ThemeUIController : MonoBehaviour
             }
         }
 
-        if (_buttonsMinor.Length > 0)
+        if (_buttonsInactiveMainColor.Length > 0)
         {
-            foreach (var button in _buttonsMinor)
+            foreach (var button in _buttonsInactiveMainColor)
             {
                 button.image.color = theme.ButtonsInactiveColor;
             }
         }
 
-        if (_buttonsShadowMinor.Length > 0)
+        if (_buttonsInactiveShadowMainColor.Length > 0)
         {
-            foreach (var shadow in _buttonsShadowMinor)
+            foreach (var shadow in _buttonsInactiveShadowMainColor)
             {
                 shadow.effectColor = theme.ButtonsInactiveShadowColor;
             }

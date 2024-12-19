@@ -7,10 +7,14 @@ using UnityEngine.UI;
 public class MainMenuUI : MonoBehaviour
 {
     [Header("Buttons")]
-    [SerializeField] private Button _infinityGameButton;
+    [SerializeField] private Button _infinityNewGameButton;
+    [SerializeField] private Button _infinityContinuedGameButton;    
+    [SerializeField] private Button _hardcoreNewGameMenuButton;
+    [SerializeField] private Button _hardcoreContinuedGameMenuButton;
+    [SerializeField] private Button _timeTrialNewGameButton;
+    [SerializeField] private Button _timeTrialContinuedGameButton;
+
     [SerializeField] private Button _classicGameMenuButton;
-    [SerializeField] private Button _hardcoreGameMenuButton;
-    [SerializeField] private Button _timeTrialGameButton;
     [SerializeField] private Button _episodeGameMenuButton;    
     [SerializeField] private Button _settingsButton;
     [SerializeField] private Button _continueGameButton;
@@ -22,7 +26,7 @@ public class MainMenuUI : MonoBehaviour
     [SerializeField] private TMP_Text _timeSpentText;
     [SerializeField] private TMP_Text _cellsOpenText;
     [SerializeField] private TMP_Text _flagsPlacedText;
-        
+
     
     private void Awake()
     {
@@ -30,14 +34,18 @@ public class MainMenuUI : MonoBehaviour
     }
 
     private void Start()
-    {           
+    {
+        _infinityNewGameButton.onClick.AddListener(NewInfinityGame);
+        _infinityContinuedGameButton.onClick.AddListener(ContinuedInfinityGame);
+        _hardcoreNewGameMenuButton.onClick.AddListener(NewHardcoreGame);
+        _hardcoreContinuedGameMenuButton.onClick.AddListener(ContinuedHardcoreGame);
+        _timeTrialNewGameButton.onClick.AddListener(NewTimeTrialGame);
+        _timeTrialContinuedGameButton.onClick.AddListener(ContinuedTimeTrialGame);
+
         _classicGameMenuButton.onClick.AddListener(OpenClassicGame);
-        _infinityGameButton.onClick.AddListener(OpenInfinityGame);
-        _hardcoreGameMenuButton.onClick.AddListener(OpenHardcoreGame);
-        _timeTrialGameButton.onClick.AddListener(OpenTimeTrialGame);
         _episodeGameMenuButton.onClick.AddListener(OpenEpisodeGame);        
         _settingsButton.onClick.AddListener(OpenSettingsScreen);
-        _continueGameButton.onClick.AddListener(OpenInfinityGame);
+        _continueGameButton.onClick.AddListener(NewInfinityGame);
 
         StartCoroutine(DelayedInitialization());        
     }
@@ -55,11 +63,46 @@ public class MainMenuUI : MonoBehaviour
         }
     }
 
-    private void OpenInfinityGame() 
+    private void NewInfinityGame() 
+    {
+        GameManager.Instance.SetCurrentGameMode(GameMode.SimpleInfinite);
+        GameManager.Instance.ClearCurrentGame(GameMode.SimpleInfinite);
+        SceneLoader.Instance.LoadInfiniteMinesweeperScene();
+        //Debug.Log($"{GameManager.Instance.CurrentGameMode}");
+    }
+
+    private void ContinuedInfinityGame()
     {
         GameManager.Instance.SetCurrentGameMode(GameMode.SimpleInfinite);
         SceneLoader.Instance.LoadInfiniteMinesweeperScene();
+    }
+
+    private void NewHardcoreGame()
+    {
+        GameManager.Instance.SetCurrentGameMode(GameMode.Hardcore);
+        GameManager.Instance.ClearCurrentGame(GameMode.Hardcore);
+        SceneLoader.Instance.LoadInfiniteMinesweeperScene();
         //Debug.Log($"{GameManager.Instance.CurrentGameMode}");
+    }
+
+    private void ContinuedHardcoreGame()
+    {
+        GameManager.Instance.SetCurrentGameMode(GameMode.Hardcore);        
+        SceneLoader.Instance.LoadInfiniteMinesweeperScene();
+    }
+
+    private void NewTimeTrialGame()
+    {
+        GameManager.Instance.SetCurrentGameMode(GameMode.TimeTrial);
+        GameManager.Instance.ClearCurrentGame(GameMode.TimeTrial);
+        SceneLoader.Instance.LoadInfiniteMinesweeperScene();
+        //Debug.Log($"{GameManager.Instance.CurrentGameMode}");
+    }
+
+    private void ContinuedTimeTrialGame()
+    {
+        GameManager.Instance.SetCurrentGameMode(GameMode.TimeTrial);
+        SceneLoader.Instance.LoadInfiniteMinesweeperScene();
     }
 
     private void OpenClassicGame()
@@ -67,19 +110,9 @@ public class MainMenuUI : MonoBehaviour
         SceneLoader.Instance.LoadClassicMinesweeperScene();
     }
 
-    private void OpenHardcoreGame()
-    {
-        GameManager.Instance.SetCurrentGameMode(GameMode.Hardcore);
-        SceneLoader.Instance.LoadInfiniteMinesweeperScene();
-        //Debug.Log($"{GameManager.Instance.CurrentGameMode}");
-    }
+    
 
-    private void OpenTimeTrialGame()
-    {
-        GameManager.Instance.SetCurrentGameMode(GameMode.TimeTrial);
-        SceneLoader.Instance.LoadInfiniteMinesweeperScene();
-        //Debug.Log($"{GameManager.Instance.CurrentGameMode}");
-    }
+    
 
     private void OpenEpisodeGame()
     {

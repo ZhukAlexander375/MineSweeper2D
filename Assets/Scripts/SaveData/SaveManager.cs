@@ -88,7 +88,123 @@ public class SaveManager : MonoBehaviour
         Debug.Log($"Time Trial Game saved successfully to {filePath}");
     }
 
-    public (List<SectorData>,SimpleInfiniteModeData) LoadSimpleInfiniteGame()
+    /// <summary>
+    /// FOR LOAD ONLY MODES STATISTICS 
+    /// </summary>
+    
+    public SimpleInfiniteModeData LoadSimpleInfiniteModeStats()
+    {
+        var filePath = Path.Combine(Application.persistentDataPath, SaveSimpleInfiniteGameFileName);
+
+        if (!File.Exists(filePath))
+        {
+            Debug.LogWarning($"No save file found for Simple Infinite Game at {filePath}");
+            return null;
+        }
+
+        string json = File.ReadAllText(filePath);
+        SimpleInfiniteGameSaveWrapper saveData = JsonUtility.FromJson<SimpleInfiniteGameSaveWrapper>(json);
+
+        Debug.Log($"Simple Infinite Game stats loaded successfully from {filePath}");
+        return saveData.SimpleInfiniteModeData;
+    }
+
+    public HardcoreModeData LoadHardcoreModeStats()
+    {
+        var filePath = Path.Combine(Application.persistentDataPath, SaveHardcoreGameFileName);
+
+        if (!File.Exists(filePath))
+        {
+            Debug.LogWarning($"No save file found for Hardcore Game at {filePath}");
+            return null;
+        }
+
+        string json = File.ReadAllText(filePath);
+        HardcoreGameSaveWrapper saveData = JsonUtility.FromJson<HardcoreGameSaveWrapper>(json);
+
+        Debug.Log($"Simple Infinite Game stats loaded successfully from {filePath}");
+        return saveData.HardcoreModeData;
+    }
+
+    public TimeTrialModeData LoadTimeTrialModeStats()
+    {
+        var filePath = Path.Combine(Application.persistentDataPath, SaveTimeTrialGameFileName);
+
+        if (!File.Exists(filePath))
+        {
+            Debug.LogWarning($"No save file found for Hardcore Game at {filePath}");
+            return null;
+        }
+
+        string json = File.ReadAllText(filePath);
+        TimeTrialGameSaveWrapper saveData = JsonUtility.FromJson<TimeTrialGameSaveWrapper>(json);
+
+        Debug.Log($"Simple Infinite Game stats loaded successfully from {filePath}");
+        return saveData.TimeTrialModeData;
+    }
+
+
+
+    /// <summary>
+    /// FOR LOAD ONLY MODES GRIDS 
+    /// </summary>
+
+    public List<SectorData> LoadSimpleInfiniteGameGrid()
+    {
+        var filePath = Path.Combine(Application.persistentDataPath, SaveSimpleInfiniteGameFileName);
+
+        if (!File.Exists(filePath))
+        {
+            Debug.LogWarning($"No save file found for Simple Infinite Game at {filePath}");
+            return null;
+        }
+
+        string json = File.ReadAllText(filePath);
+        SimpleInfiniteGameSaveWrapper saveData = JsonUtility.FromJson<SimpleInfiniteGameSaveWrapper>(json);
+
+        Debug.Log($"Simple Infinite Game sectors loaded successfully from {filePath}");
+        return saveData.Sectors;
+    }
+
+    public List<SectorData> LoadHardcoreGameGrid()
+    {
+        var filePath = Path.Combine(Application.persistentDataPath, SaveHardcoreGameFileName);
+
+        if (!File.Exists(filePath))
+        {
+            Debug.LogWarning($"No save file found for Simple Infinite Game at {filePath}");
+            return null;
+        }
+
+        string json = File.ReadAllText(filePath);
+        HardcoreGameSaveWrapper saveData = JsonUtility.FromJson<HardcoreGameSaveWrapper>(json);
+
+        Debug.Log($"Simple Infinite Game sectors loaded successfully from {filePath}");
+        return saveData.Sectors;
+    }
+
+    public List<SectorData> LoadTimeTrialGameGrid()
+    {
+        var filePath = Path.Combine(Application.persistentDataPath, SaveTimeTrialGameFileName);
+
+        if (!File.Exists(filePath))
+        {
+            Debug.LogWarning($"No save file found for Simple Infinite Game at {filePath}");
+            return null;
+        }
+
+        string json = File.ReadAllText(filePath);
+        TimeTrialGameSaveWrapper saveData = JsonUtility.FromJson<TimeTrialGameSaveWrapper>(json);
+
+        Debug.Log($"Simple Infinite Game sectors loaded successfully from {filePath}");
+        return saveData.Sectors;
+    }
+
+    /// <summary>
+    /// FOR LOAD ALL MODES SAVES 
+    /// </summary>
+    /// 
+    public (List<SectorData>, SimpleInfiniteModeData) LoadSimpleInfiniteGame()
     {
         var filePath = Path.Combine(Application.persistentDataPath, SaveSimpleInfiniteGameFileName);
         if (!File.Exists(filePath))

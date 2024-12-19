@@ -72,7 +72,7 @@ public class InfiniteGameUI : MonoBehaviour
         GameManager.Instance.SaveGameModes();*/
 
         //Debug.Log($"Replay:    IsDownloadedInfiniteGame: {GameModesManager.Instance.IsDownloadedInfiniteGame}, IsNewInfiniteGame: {GameModesManager.Instance.IsNewInfiniteGame}");
-        GameManager.Instance.ClearCurrentGame();
+        GameManager.Instance.ClearCurrentGame(GameManager.Instance.CurrentGameMode);
         SceneLoader.Instance.LoadInfiniteMinesweeperScene();
     }
 
@@ -123,9 +123,19 @@ public class InfiniteGameUI : MonoBehaviour
 
     private void UpdateTexts()
     {
-        _gameModeText.text = GameManager.Instance.CurrentGameModeData.Mode.ToString();
+        //_gameModeText.text = GameManager.Instance.CurrentGameModeData.Mode.ToString();
         _awardText.text = PlayerProgress.Instance.TotalReward.ToString();
         _flagsTexts.text = GameManager.Instance.CurrentGameModeData.GetPlacedFlags().ToString();
+
+        switch (GameManager.Instance.CurrentGameModeData.Mode)
+        {
+            case GameMode.SimpleInfinite:
+                _gameModeText.text = "Infinity";
+                break;
+            case GameMode.Hardcore:
+                _gameModeText.text = "Hardcore";
+                break;
+        }
     }
 
     private void OnDestroy()

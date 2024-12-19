@@ -80,9 +80,9 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    public void ClearCurrentGame()
+    public void ClearCurrentGame(GameMode mode)
     {
-        switch (CurrentGameMode)
+        switch (mode)
         {
             case GameMode.SimpleInfinite:
                 SaveManager.Instance.ClearSavedSimpleInfiniteGame();
