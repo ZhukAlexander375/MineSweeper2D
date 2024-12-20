@@ -29,6 +29,22 @@ public class SaveManager : MonoBehaviour
         DontDestroyOnLoad(gameObject);
     }
 
+    private void Start()
+    {
+        LoadModesStats();
+    }
+
+    private void LoadModesStats()
+    {        
+        var simpleStats = LoadSimpleInfiniteModeStats();
+        var hardcoreStats = LoadHardcoreModeStats();
+        var timeTrialStats = LoadTimeTrialModeStats();
+
+        GameManager.Instance.SetGameModeData(GameMode.SimpleInfinite, simpleStats);
+        GameManager.Instance.SetGameModeData(GameMode.Hardcore, hardcoreStats);
+        GameManager.Instance.SetGameModeData(GameMode.TimeTrial, timeTrialStats);
+    }
+
     public bool HasSavedData(GameMode mode)
     {
         string filePath = GetSaveFilePath(mode);
@@ -50,16 +66,15 @@ public class SaveManager : MonoBehaviour
 
     public void SaveSimpleInfiniteGame(List<SectorData> sectors, SimpleInfiniteModeData modeData)
     {
-        SimpleInfiniteGameSaveWrapper saveData = new SimpleInfiniteGameSaveWrapper 
+        SimpleInfiniteGameSaveWrapper saveData = new SimpleInfiniteGameSaveWrapper
         {
             Sectors = sectors,
             SimpleInfiniteModeData = modeData
         };
-
         string json = JsonUtility.ToJson(saveData, true);
         var filePath = Path.Combine(Application.persistentDataPath, SaveSimpleInfiniteGameFileName);
         File.WriteAllText(filePath, json);
-        Debug.Log($"Simple Infinite Game saved successfully to {filePath}");
+        Debug.Log("сохранено в файл");
     }
 
     public void SaveHardcoreGame(List<SectorData> sectors, HardcoreModeData modeData)
@@ -98,17 +113,21 @@ public class SaveManager : MonoBehaviour
 
         if (!File.Exists(filePath))
         {
-            Debug.LogWarning($"No save file found for Simple Infinite Game at {filePath}");
-            return null;
+            Debug.LogWarning($"первый пуск, нет файла, тогда создается новый ");
+            var newStats = new SimpleInfiniteModeData();
+            newStats.InitializeNewGame();
+            SaveSimpleInfiniteGame(new List<SectorData>(), newStats);
+            return newStats;
         }
 
         string json = File.ReadAllText(filePath);
         SimpleInfiniteGameSaveWrapper saveData = JsonUtility.FromJson<SimpleInfiniteGameSaveWrapper>(json);
 
-        Debug.Log($"Simple Infinite Game stats loaded successfully from {filePath}");
+        Debug.Log($"загружено из {filePath}");
         return saveData.SimpleInfiniteModeData;
     }
 
+    [ContextMenu("Load Hardcore data")]
     public HardcoreModeData LoadHardcoreModeStats()
     {
         var filePath = Path.Combine(Application.persistentDataPath, SaveHardcoreGameFileName);
@@ -116,13 +135,17 @@ public class SaveManager : MonoBehaviour
         if (!File.Exists(filePath))
         {
             Debug.LogWarning($"No save file found for Hardcore Game at {filePath}");
-            return null;
+            var newStats = new HardcoreModeData();
+            newStats.InitializeNewGame();
+            SaveHardcoreGame(new List<SectorData>(), newStats);
+            
+            return newStats;
         }
 
         string json = File.ReadAllText(filePath);
         HardcoreGameSaveWrapper saveData = JsonUtility.FromJson<HardcoreGameSaveWrapper>(json);
-
-        Debug.Log($"Simple Infinite Game stats loaded successfully from {filePath}");
+        
+        Debug.Log($"Hardcore Game stats loaded successfully from {saveData.HardcoreModeData.OpenedCells}");
         return saveData.HardcoreModeData;
     }
 
@@ -133,7 +156,10 @@ public class SaveManager : MonoBehaviour
         if (!File.Exists(filePath))
         {
             Debug.LogWarning($"No save file found for Hardcore Game at {filePath}");
-            return null;
+            var newStats = new TimeTrialModeData();
+            newStats.InitializeNewGame();
+            SaveTimeTrialGame(new List<SectorData>(), newStats);
+            return newStats;
         }
 
         string json = File.ReadAllText(filePath);

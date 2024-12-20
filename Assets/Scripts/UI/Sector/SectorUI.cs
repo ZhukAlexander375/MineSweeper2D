@@ -61,7 +61,7 @@ public class SectorUI : MonoBehaviour
     public void CompletedSector()
     {
         Color currentColor = Color.white;
-        currentColor.a = 0.33f;
+        currentColor.a = 0.25f;
         _background.color = currentColor;
 
         _closeButton.gameObject.SetActive(false);

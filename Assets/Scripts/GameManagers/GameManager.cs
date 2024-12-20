@@ -1,5 +1,6 @@
 
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class GameManager : MonoBehaviour
@@ -10,7 +11,9 @@ public class GameManager : MonoBehaviour
     public IGameModeData CurrentGameModeData { get; private set; }
     public GameMode LastPlayedMode { get; private set; }
 
+    private Dictionary<GameMode, IGameModeData> _gameModeData = new();
 
+   
     private void Awake()
     {
         if (Instance != null && Instance != this)
@@ -26,6 +29,29 @@ public class GameManager : MonoBehaviour
     private void Start()
     {
         //LoadGameState();
+    }
+
+    public void SetGameModeData(GameMode mode, IGameModeData data)
+    {
+        if (_gameModeData.ContainsKey(mode))
+        {
+            _gameModeData[mode] = data;
+        }
+        else
+        {
+            _gameModeData.Add(mode, data);
+        }
+    }
+
+    public IGameModeData GetGameModeData(GameMode mode)
+    {
+        if (_gameModeData.TryGetValue(mode, out var data))
+        {
+            return data;
+        }
+
+        return null;
+        
     }
 
     public void SetCurrentGameMode(GameMode mode, bool isNewGame = true)

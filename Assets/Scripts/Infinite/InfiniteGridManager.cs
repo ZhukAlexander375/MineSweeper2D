@@ -675,7 +675,7 @@ public class InfiniteGridManager : MonoBehaviour
         int currentReward = CalculateCurrentReward(_currentGameModeData.GetRewardLevel());
 
         SignalBus.Fire(new OnGameRewardSignal(0, currentReward));
-        Debug.Log($"Номер награды: {_currentRewardLevel}, награда: {currentReward}");
+        //Debug.Log($"Номер награды: {_currentRewardLevel}, награда: {currentReward}");
         cell.IsAward = false;
 
         MoveAwardSprite(cell, _targetRewardUIElement);
@@ -920,27 +920,23 @@ public class InfiniteGridManager : MonoBehaviour
             return;
         }
 
-        List<SectorData> loadedSectors;
-        IGameModeData loadedGameModeData;
+        List<SectorData> loadedSectors;        
 
         switch (GameManager.Instance.CurrentGameMode)
         {
             case GameMode.SimpleInfinite:
-                var (simpleSectors, simpleModeData) = _saveManager.LoadSimpleInfiniteGame();
+                var simpleSectors = _saveManager.LoadSimpleInfiniteGameGrid();
                 loadedSectors = simpleSectors;
-                loadedGameModeData = simpleModeData;
                 break;
 
             case GameMode.Hardcore:
-                var (hardcoreSectors, hardcoreModeData) = _saveManager.LoadHardcoreGame();
+                var hardcoreSectors = _saveManager.LoadHardcoreGameGrid();
                 loadedSectors = hardcoreSectors;
-                loadedGameModeData = hardcoreModeData;
                 break;
 
             case GameMode.TimeTrial:
-                var (timeTrialSectors, timeTrialModeData) = _saveManager.LoadTimeTrialGame();
+                var timeTrialSectors = _saveManager.LoadTimeTrialGameGrid();
                 loadedSectors = timeTrialSectors;
-                loadedGameModeData = timeTrialModeData;
                 break;
 
             default:
@@ -968,11 +964,11 @@ public class InfiniteGridManager : MonoBehaviour
             } 
         }
 
-        if (loadedGameModeData != null)
+        /*if (loadedGameModeData != null)
         {
             _currentGameModeData = loadedGameModeData;
             GameManager.Instance.ApplyGameModeData(loadedGameModeData);
-        }
+        }*/
 
         IsGenerateEnabled = true;            
         IsFirstClick = true;        ////???????????????????????????????????????
