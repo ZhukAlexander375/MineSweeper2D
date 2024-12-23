@@ -1,4 +1,3 @@
-using System.Collections;
 using TMPro;
 using UnityEngine;
 
@@ -8,7 +7,6 @@ public class InfinityModesStatisticsUI : MonoBehaviour
     [SerializeField] private TMP_Text _openedCellsSimpleInfiniteText;
     [SerializeField] private TMP_Text _openedSectorsSimpleInfiniteText;
     [SerializeField] private TMP_Text _minesSimpleInfiniteText;
-
 
     [Header("Hardcore")]
     [SerializeField] private TMP_Text _openedCellsHardcoreText;
@@ -20,63 +18,31 @@ public class InfinityModesStatisticsUI : MonoBehaviour
     [SerializeField] private TMP_Text _openedSectorsTimeTrialText;
     [SerializeField] private TMP_Text _minesTimeTrialText;
 
-    private void Start()
+
+    private void OnEnable()
     {
-        StartCoroutine(DelayedInitialization());
-        
+        SignalBus.Subscribe<LoadCompletedSignal>(UpdateStatisticsUI);
+        UpdateStatisticsUI(new LoadCompletedSignal());
     }
 
-    private IEnumerator DelayedInitialization()     ///ZENJECT!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    public void UpdateStatisticsUI(LoadCompletedSignal signal)
     {
-        yield return null;
-        UpdateStatisticsUI();
+        _openedCellsSimpleInfiniteText.text = "Opened cells: " + SimpleInfiniteStatisticController.Instance.OpenedCells.ToString();
+        _openedSectorsSimpleInfiniteText.text = "Open sectors: " + SimpleInfiniteStatisticController.Instance.CompletedSectors.ToString();
+        _minesSimpleInfiniteText.text = "Mines: " + SimpleInfiniteStatisticController.Instance.ExplodedMines.ToString();
+
+        _openedCellsHardcoreText.text = "Opened cells: " + HardcoreStatisticController.Instance.OpenedCells.ToString();
+        _openedSectorsHardcoreText.text = "Open sectors: " + HardcoreStatisticController.Instance.CompletedSectors.ToString();
+        _minesHardcoreText.text = "Mines: " + HardcoreStatisticController.Instance.ExplodedMines.ToString();
+
+        _openedCellsTimeTrialText.text = "Opened cells: " + TimeTrialStatisticController.Instance.OpenedCells.ToString();
+        _openedSectorsTimeTrialText.text = "Open sectors: " + TimeTrialStatisticController.Instance.CompletedSectors.ToString();
+        _minesTimeTrialText.text = "Mines: " + TimeTrialStatisticController.Instance.ExplodedMines.ToString();
     }
 
-    private void UpdateStatisticsUI()
+    private void OnDisable()
     {
-        var simpleStats = GameManager.Instance.GetGameModeData(GameMode.SimpleInfinite) as SimpleInfiniteModeData;
-        Debug.Log($"UI при загрузке загрузке, simpleStats: {simpleStats}");
-        if (simpleStats != null)
-        {
-            Debug.Log("есть ли");
-            GenerateStatsTexts(simpleStats);
-        }
-
-        var hardcoreStats = GameManager.Instance.GetGameModeData(GameMode.Hardcore) as HardcoreModeData;
-        if (hardcoreStats != null)
-        {
-            GenerateStatsTexts(hardcoreStats);
-        }
-
-        var timeStats = GameManager.Instance.GetGameModeData(GameMode.TimeTrial) as TimeTrialModeData;
-        if (hardcoreStats != null)
-        {
-            GenerateStatsTexts(timeStats);
-        }
+       SignalBus.Unsubscribe<LoadCompletedSignal>(UpdateStatisticsUI);
     }
-
-    private void GenerateStatsTexts(IGameModeData stats)
-    {
-        if (stats is SimpleInfiniteModeData simpleStats)
-        {
-            _openedCellsSimpleInfiniteText.text = "Opened cells: " + simpleStats.GetOpenedCells().ToString();
-            _openedSectorsSimpleInfiniteText.text = "Open sectors: " + simpleStats.GetCompletedSectors().ToString();
-            _minesSimpleInfiniteText.text = "Mines: " + simpleStats.GetExplodedMines().ToString();
-        }
-
-        else if (stats is HardcoreModeData hardcoreStats)
-        {
-            _openedCellsHardcoreText.text = "Opened cells: " + hardcoreStats.GetOpenedCells().ToString();
-            _openedSectorsHardcoreText.text = "Open sectors: " + hardcoreStats.GetCompletedSectors().ToString();
-            _minesHardcoreText.text = "Mines: " + hardcoreStats.GetExplodedMines().ToString(); 
-        }
-
-        else if (stats is TimeTrialModeData timeTrialStats)
-        {
-            _openedCellsTimeTrialText.text = "Opened cells: " + timeTrialStats.GetOpenedCells().ToString();
-            _openedSectorsTimeTrialText.text = "Open sectors: " + timeTrialStats.GetCompletedSectors().ToString();
-            _minesTimeTrialText.text = "Mines: " + timeTrialStats.GetExplodedMines().ToString();
-        }
-    }    
 }
 

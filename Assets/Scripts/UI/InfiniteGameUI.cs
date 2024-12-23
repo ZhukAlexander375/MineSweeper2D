@@ -33,10 +33,7 @@ public class InfiniteGameUI : MonoBehaviour
         _continueButton.onClick.AddListener(ClosePauseMenu);
         _settingsButton.onClick.AddListener(OpenSettings);
         _replayLevelButton.onClick.AddListener(ReplayGame);
-        _goHomeButton.onClick.AddListener(ReturnToMainMenu);
-        SignalBus.Subscribe<OnGameRewardSignal>(UpdateAwardUI);
-        SignalBus.Subscribe<FlagPlacingSignal>(UpdateFlagUI);
-        SignalBus.Subscribe<LoadCompletedSignal>(UpdateTexts);
+        _goHomeButton.onClick.AddListener(ReturnToMainMenu);        
 
         UpdateTexts();
     }
@@ -98,22 +95,14 @@ public class InfiniteGameUI : MonoBehaviour
 
     private void UpdateFlagUI(FlagPlacingSignal signal)
     {
-        _flagsTexts.text = GameManager.Instance.CurrentGameModeData.GetPlacedFlags().ToString();
-        /*switch (GameManager.Instance.CurrentGameModeData)
+        if (GameManager.Instance.CurrentStatisticController != null)
         {
-            case SimpleInfiniteModeData simpleModeData:
-                _flagsTexts.text = simpleModeData.PlacedFlags.ToString();                
-                break;
-            case HardcoreModeData hardcoreModeData:
-                _flagsTexts.text = hardcoreModeData.PlacedFlags.ToString();
-                break;
-            case TimeTrialModeData timeTrialModeData:
-                _flagsTexts.text =timeTrialModeData.PlacedFlags.ToString();
-                break;
-            default:
-                _flagsTexts.text = "0";
-                break;
-        }*/
+            _flagsTexts.text = GameManager.Instance.CurrentStatisticController.PlacedFlags.ToString();
+        }
+        else
+        {
+            _flagsTexts.text = "0";
+        }
     }
 
     private void UpdateTexts(LoadCompletedSignal signal)
@@ -123,11 +112,10 @@ public class InfiniteGameUI : MonoBehaviour
 
     private void UpdateTexts()
     {
-        //_gameModeText.text = GameManager.Instance.CurrentGameModeData.Mode.ToString();
         _awardText.text = PlayerProgress.Instance.TotalReward.ToString();
-        _flagsTexts.text = GameManager.Instance.CurrentGameModeData.GetPlacedFlags().ToString();
+        _flagsTexts.text = GameManager.Instance.CurrentStatisticController.PlacedFlags.ToString();
 
-        switch (GameManager.Instance.CurrentGameModeData.Mode)
+        switch (GameManager.Instance.CurrentGameMode)
         {
             case GameMode.SimpleInfinite:
                 _gameModeText.text = "Infinity";
@@ -135,10 +123,20 @@ public class InfiniteGameUI : MonoBehaviour
             case GameMode.Hardcore:
                 _gameModeText.text = "Hardcore";
                 break;
+            case GameMode.TimeTrial:
+                _gameModeText.text = "Time";
+                break;
         }
     }
 
-    private void OnDestroy()
+    private void OnEnable()
+    {
+        SignalBus.Subscribe<OnGameRewardSignal>(UpdateAwardUI);
+        SignalBus.Subscribe<FlagPlacingSignal>(UpdateFlagUI);
+        SignalBus.Subscribe<LoadCompletedSignal>(UpdateTexts);
+    }
+
+    private void OnDisable()
     {
         SignalBus.Unsubscribe<OnGameRewardSignal>(UpdateAwardUI);
         SignalBus.Unsubscribe<FlagPlacingSignal>(UpdateFlagUI);

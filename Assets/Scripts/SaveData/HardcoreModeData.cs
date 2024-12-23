@@ -1,111 +1,27 @@
 
 [System.Serializable]
 
-public class HardcoreModeData : IGameModeData
+public class HardcoreModeData
 {
-    public GameMode Mode => GameMode.Hardcore;
-    public bool IsGameStarted { get; set; }
+    public bool IsGameStarted;
     public int OpenedCells;
     public int PlacedFlags;
-    public int CompletedSectors;    
+    public int CompletedSectors;
     public int ExplodedMines;
     public int RewardLevel;
     public int SectorBuyoutCostLevel;
 
-    public void InitializeNewGame()
+    public HardcoreModeData(HardcoreStatisticController controller = null)
     {
-        OpenedCells = 0;
-        PlacedFlags = 0;
-        CompletedSectors = 0;
-        ExplodedMines = 0;
-        RewardLevel = 0;
-        SectorBuyoutCostLevel = 0;
-    }
-
-    public void InitializeFromSave(IGameModeData savedData)
-    {
-        if (savedData is not HardcoreModeData hardcoreData)
+        if (controller != null)
         {
-            return;
-        }
-
-        IsGameStarted = hardcoreData.IsGameStarted;
-        OpenedCells = hardcoreData.OpenedCells;
-        PlacedFlags = hardcoreData.PlacedFlags;
-        CompletedSectors = hardcoreData.CompletedSectors;
-        ExplodedMines = hardcoreData.ExplodedMines;
-        RewardLevel = hardcoreData.RewardLevel;
-        SectorBuyoutCostLevel = hardcoreData.SectorBuyoutCostLevel;
-    }
-
-    public void IncrementOpenedCells()
-    {
-        OpenedCells ++;
-    }
-
-    public void IncrementCompletedSectors()
-    {
-        CompletedSectors ++;
-    }
-
-    public void IncrementPlacedFlags(bool isPlacingFlag)
-    {
-        if (isPlacingFlag)
-        {
-            PlacedFlags++;
-        }
-        else if (!isPlacingFlag)
-        {
-            PlacedFlags--;
-
-            if (PlacedFlags < 0)
-            {
-                PlacedFlags = 0;
-            }
+            IsGameStarted = controller.IsGameStarted;
+            OpenedCells = controller.OpenedCells;
+            PlacedFlags = controller.PlacedFlags;
+            CompletedSectors = controller.CompletedSectors;
+            ExplodedMines = controller.ExplodedMines;
+            RewardLevel = controller.RewardLevel;
+            SectorBuyoutCostLevel = controller.SectorBuyoutCostLevel;
         }
     }
-
-    public void IncrementExplodedMines()
-    {
-        ExplodedMines ++;
-    }
-    public void IncrementRewardLevel()
-    {
-        RewardLevel++;
-    }
-
-    public void IncrementSectorBuyoutIndex()
-    {
-        SectorBuyoutCostLevel++;
-    }
-
-    public int GetOpenedCells()
-    {
-        return OpenedCells;
-    }
-
-    public int GetPlacedFlags()
-    {
-        return PlacedFlags;
-    }
-
-    public int GetCompletedSectors()
-    {
-        return CompletedSectors;
-    }
-
-    public int GetExplodedMines()
-    {
-        return ExplodedMines;
-    }
-
-    public int GetRewardLevel()
-    {
-        return RewardLevel;
-    }
-
-    public int GetSectorBuyoutLevel()
-    {
-        return SectorBuyoutCostLevel;
-    }
-}
+}       

@@ -1,4 +1,3 @@
-
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -7,13 +6,19 @@ public class GameManager : MonoBehaviour
 {
     public static GameManager Instance { get; private set; }
 
+    [SerializeField] private SimpleInfiniteStatisticController _simpleInfiniteStatisticController;
+    [SerializeField] private HardcoreStatisticController _hardcoreStatisticController;
+    [SerializeField] private TimeTrialStatisticController _timeTrialStatisticController;
+    public SimpleInfiniteStatisticController SimpleInfiniteStats => _simpleInfiniteStatisticController;
+    public HardcoreStatisticController HardcoreStats => _hardcoreStatisticController;
+    public TimeTrialStatisticController TimeTrialStats => _timeTrialStatisticController;
+    
     public GameMode CurrentGameMode { get; private set; }
-    public IGameModeData CurrentGameModeData { get; private set; }
+    public IStatisticController CurrentStatisticController { get; private set; }
     public GameMode LastPlayedMode { get; private set; }
 
-    private Dictionary<GameMode, IGameModeData> _gameModeData = new();
-
    
+
     private void Awake()
     {
         if (Instance != null && Instance != this)
@@ -23,88 +28,78 @@ public class GameManager : MonoBehaviour
         }
 
         Instance = this;
-        DontDestroyOnLoad(gameObject);               
+        DontDestroyOnLoad(gameObject);
     }
 
     private void Start()
     {
-        //LoadGameState();
+        LoadGameState(); 
     }
 
-    public void SetGameModeData(GameMode mode, IGameModeData data)
+    private void LoadGameState()
     {
-        if (_gameModeData.ContainsKey(mode))
-        {
-            _gameModeData[mode] = data;
-        }
-        else
-        {
-            _gameModeData.Add(mode, data);
-        }
-    }
+        _simpleInfiniteStatisticController.InitializeFromData(SaveManager.Instance.LoadSimpleInfiniteModeStats());
+        _hardcoreStatisticController.InitializeFromData(SaveManager.Instance.LoadHardcoreModeStats());
+        _timeTrialStatisticController.InitializeFromData(SaveManager.Instance.LoadTimeTrialModeStats());
+        SignalBus.Fire<LoadCompletedSignal>();
+    }  
 
-    public IGameModeData GetGameModeData(GameMode mode)
-    {
-        if (_gameModeData.TryGetValue(mode, out var data))
-        {
-            return data;
-        }
-
-        return null;
-        
-    }
-
+    
+    // MB START NEW GAME????
     public void SetCurrentGameMode(GameMode mode, bool isNewGame = true)
     {
         switch (mode)
         {
             case GameMode.SimpleInfinite:
                 CurrentGameMode = GameMode.SimpleInfinite;
-                CurrentGameModeData = new SimpleInfiniteModeData();
+                CurrentStatisticController = SimpleInfiniteStats;
+                SimpleInfiniteStats.IsGameStarted = isNewGame;
                 break;
 
             case GameMode.Hardcore:
                 CurrentGameMode = GameMode.Hardcore;
-                CurrentGameModeData = new HardcoreModeData();
+                CurrentStatisticController = HardcoreStats;
+                HardcoreStats.IsGameStarted = isNewGame;
                 break;
 
             case GameMode.TimeTrial:
                 CurrentGameMode = GameMode.TimeTrial;
-                CurrentGameModeData = new TimeTrialModeData();
+                CurrentStatisticController = TimeTrialStats;
+                TimeTrialStats.IsGameStarted = isNewGame;
                 break;
         }
 
-        CurrentGameModeData.IsGameStarted = isNewGame;
         LastPlayedMode = mode;
+    }
+
+    /*public void SetCurrentGameMode(GameMode mode)
+    {
+        CurrentGameMode = mode;        
+    }*/
+
+    public void ResetCurrentModeStatistic()
+    {
+        switch (CurrentGameMode)
+        {
+            case GameMode.SimpleInfinite:
+                _simpleInfiniteStatisticController.ResetStatistic();
+                break;
+            case GameMode.Hardcore:
+                _hardcoreStatisticController.ResetStatistic();
+                break;
+            case GameMode.TimeTrial:
+                _timeTrialStatisticController.ResetStatistic();
+                break;
+            default:
+                Debug.LogWarning("Unknown game mode.");
+                break;
+        }
     }
 
     public void SaveGameModes()
     {
-        if (CurrentGameModeData != null)
-        {
-            SaveManager.Instance.SaveGameMetaData(CurrentGameMode, CurrentGameModeData.IsGameStarted);
-        }
-    }
-
-    public void ApplyGameModeData(IGameModeData gameModeData)
-    {
-        CurrentGameModeData = gameModeData;
-
-        switch (gameModeData)
-        {
-            case SimpleInfiniteModeData simpleData:
-                simpleData.InitializeFromSave(simpleData);
-                break;
-
-            case HardcoreModeData hardcoreData:
-                hardcoreData.InitializeFromSave(hardcoreData);
-                break;
-
-            case TimeTrialModeData timeTrialData:
-                timeTrialData.InitializeFromSave(timeTrialData);
-                break;
-        }
-    }
+        SaveManager.Instance.SaveGameMetaData(CurrentGameMode, true);        
+    }   
 
     public void ClearCurrentGame(GameMode mode)
     {
@@ -126,7 +121,7 @@ public class GameManager : MonoBehaviour
                 Debug.LogError("Unknown game mode. Cannot save.");
                 break;
         }
-    }
+    }   
 
     public void ContinueGame()
     {

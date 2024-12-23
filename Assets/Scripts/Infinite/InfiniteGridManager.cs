@@ -45,7 +45,8 @@ public class InfiniteGridManager : MonoBehaviour
 
     private SaveManager _saveManager;
     private PlayerProgress _playerProgress;
-    private IGameModeData _currentGameModeData;
+    private GameManager _gameManager;
+    private IStatisticController _statisticController;
     private int _currentRewardLevel;
     private int _currentSectorBuyoutLevel;
 
@@ -55,25 +56,15 @@ public class InfiniteGridManager : MonoBehaviour
     {
         _saveManager = SaveManager.Instance;
         _playerProgress = PlayerProgress.Instance;
-        _currentGameModeData = GameManager.Instance.CurrentGameModeData;
+        _gameManager = GameManager.Instance;
+        _statisticController = GameManager.Instance.CurrentStatisticController;
 
-        mainCamera = Camera.main;        
+        mainCamera = Camera.main;
 
-        if (_currentGameModeData.IsGameStarted)
-        {
-            LoadSavedGame();
-            SignalBus.Fire<LoadCompletedSignal>();
-        }
-
-        else 
-        {
-            StartNewGame();            
-        }
-
+        CheckGameStart();        
         SetCurrentRewardLevel();
         SetCurrentSectorBuyoutLevel();
-        CenterCameraOnSector();
-        
+        CenterCameraOnSector();        
     }
 
     private void Update()
@@ -99,22 +90,68 @@ public class InfiniteGridManager : MonoBehaviour
         HandleGameInput();        
     }
 
+    private void CheckGameStart()
+    {
+        switch (GameManager.Instance.CurrentGameMode)
+        {
+            case GameMode.SimpleInfinite:
+                if (_gameManager.SimpleInfiniteStats.IsGameStarted)
+                {
+                    LoadSavedGame();
+                    SignalBus.Fire<LoadCompletedSignal>();
+                }
+                else
+                {
+                    StartNewGame();
+                }
+                break;
+
+            case GameMode.Hardcore:
+                if (_gameManager.HardcoreStats.IsGameStarted)
+                {
+                    LoadSavedGame();
+                    SignalBus.Fire<LoadCompletedSignal>();
+                }
+                else
+                {
+                    StartNewGame();
+                }
+                break;
+
+            case GameMode.TimeTrial:
+                if (_gameManager.TimeTrialStats.IsGameStarted)
+                {
+                    LoadSavedGame();
+                    SignalBus.Fire<LoadCompletedSignal>();
+                }
+                else
+                {
+                    StartNewGame();
+                }
+                break;
+
+            default:
+                Debug.LogWarning("Unknown game mode. No saved data.");
+                return;
+        }
+    }
+
     private void StartNewGame()
     {
-        GameManager.Instance.ClearCurrentGame(_currentGameModeData.Mode);
-        _currentGameModeData.InitializeNewGame();
+        _gameManager.ResetCurrentModeStatistic();
+        //_currentGameModeData.InitializeNewGame();
         SignalBus.Fire<LoadCompletedSignal>();
     }
 
     private void SetCurrentRewardLevel() //MB и через свич
     {
-        _currentRewardLevel = _currentGameModeData.GetRewardLevel();
-        //Debug.Log($"Reward Level in {_currentGameModeData} Mode: {_currentRewardLevel}");        
+        _currentRewardLevel = _statisticController.RewardLevel;
+        //Debug.Log($"Reward Level in  Mode: {_currentRewardLevel}");        
     }
 
     private void SetCurrentSectorBuyoutLevel()
     {
-        _currentSectorBuyoutLevel = _currentGameModeData.GetSectorBuyoutLevel();
+        _currentSectorBuyoutLevel = _statisticController.SectorBuyoutCostLevel;
         //Debug.Log($"_currentSectorBuyoutLevel in Simple Infinite Mode: {_currentSectorBuyoutLevel}");        
     }
 
@@ -669,12 +706,12 @@ public class InfiniteGridManager : MonoBehaviour
     {
         if (!cell.IsAward) return;
 
-        _currentGameModeData.IncrementRewardLevel();
+        _statisticController.IncrementRewardLevel();
         SetCurrentRewardLevel();
         
-        int currentReward = CalculateCurrentReward(_currentGameModeData.GetRewardLevel());
+        //int currentReward = CalculateCurrentReward(_currentGameModeData.GetRewardLevel());
 
-        SignalBus.Fire(new OnGameRewardSignal(0, currentReward));
+        //SignalBus.Fire(new OnGameRewardSignal(0, currentReward));
         //Debug.Log($"Номер награды: {_currentRewardLevel}, награда: {currentReward}");
         cell.IsAward = false;
 
@@ -836,22 +873,24 @@ public class InfiniteGridManager : MonoBehaviour
 
     private void UpdateOpenedCells()
     {
-        _currentGameModeData.IncrementOpenedCells();
+        _statisticController.IncrementOpenedCells();
     }
 
     private void UpdateFlagsCount(bool isPlacingFlag)
     {
-        _currentGameModeData.IncrementPlacedFlags(isPlacingFlag);
+        _statisticController.IncrementPlacedFlags(isPlacingFlag);
     }
 
     private void UpdateExplodedMinesCount()
     {
-        _currentGameModeData.IncrementExplodedMines();        
+        _statisticController.IncrementExplodedMines();
+        
     }
 
     private void UpdateSectorBuyoutLevel()
     {
-        _currentGameModeData.IncrementSectorBuyoutIndex();
+        _statisticController.IncrementSectorBuyoutIndex();
+        Debug.Log(_statisticController.SectorBuyoutCostLevel);
         SetCurrentSectorBuyoutLevel();
     }
 
@@ -861,7 +900,7 @@ public class InfiniteGridManager : MonoBehaviour
 
         if (currentSector.IsSectorCompleted)
         {
-            _currentGameModeData.IncrementCompletedSectors();
+            _statisticController.IncrementCompletedSectors();
         }
     }
 
@@ -885,27 +924,25 @@ public class InfiniteGridManager : MonoBehaviour
         var activeSectors = _sectors.Values.Where(s => s.IsActive).ToList();
         var sectorDataList = activeSectors.Select(sector => sector.SaveSectorData()).ToList();
 
-        var currentModeData = GameManager.Instance.CurrentGameModeData;
-
         switch (GameManager.Instance.CurrentGameMode)
         {
             case GameMode.SimpleInfinite:
-                _saveManager.SaveSimpleInfiniteGame(sectorDataList, currentModeData as SimpleInfiniteModeData);
+                _saveManager.SaveSimpleInfiniteGame(sectorDataList, GameManager.Instance.SimpleInfiniteStats);
                 break;
 
             case GameMode.Hardcore:
-                _saveManager.SaveHardcoreGame(sectorDataList, currentModeData as HardcoreModeData);
+                _saveManager.SaveHardcoreGame(sectorDataList, GameManager.Instance.HardcoreStats);
                 break;
 
             case GameMode.TimeTrial:
-                _saveManager.SaveTimeTrialGame(sectorDataList, currentModeData as TimeTrialModeData);
+                _saveManager.SaveTimeTrialGame(sectorDataList, GameManager.Instance.TimeTrialStats);
                 break;
 
             default:
                 Debug.LogError("Unknown game mode. Cannot save.");
                 break;
-        }
     }
+}
 
     private void SavePlayerProgress()
     {

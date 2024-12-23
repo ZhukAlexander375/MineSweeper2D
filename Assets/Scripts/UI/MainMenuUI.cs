@@ -132,10 +132,10 @@ public class MainMenuUI : MonoBehaviour
 
     private void UpdateLastSessionStatistic()
     {
-        if (GameManager.Instance != null && GameManager.Instance.CurrentGameModeData != null)
+        if (GameManager.Instance != null)
         {
-            _flagsPlacedText.text = "Flags Placed: " + GameManager.Instance.CurrentGameModeData.GetPlacedFlags().ToString();
-            _cellsOpenText.text = "Cells Open: " + GameManager.Instance.CurrentGameModeData.GetOpenedCells().ToString();
+            //_flagsPlacedText.text = "Flags Placed: " + GameManager.Instance.CurrentGameModeData.GetPlacedFlags().ToString();
+            //_cellsOpenText.text = "Cells Open: " + GameManager.Instance.CurrentGameModeData.GetOpenedCells().ToString();
         }
         else
         {
