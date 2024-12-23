@@ -49,11 +49,7 @@ public class InfiniteGridManager : MonoBehaviour
     private IStatisticController _statisticController;
     private int _currentRewardLevel;
     private int _currentSectorBuyoutLevel;
-
-    /// <summary>
-    /// TO DO NORMAL CLASSES FOR MODES
-    /// </summary>    
-    private int currentRewardCount;
+       
 
     private HashSet<Sector> _sectorsToRedraw = new HashSet<Sector>();
     private int _activeFloodCoroutines = 0;
