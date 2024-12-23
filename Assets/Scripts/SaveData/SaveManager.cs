@@ -74,13 +74,14 @@ public class SaveManager : MonoBehaviour
                 CompletedSectors = simpleInfiniteStats.CompletedSectors,
                 ExplodedMines = simpleInfiniteStats.ExplodedMines,
                 RewardLevel = simpleInfiniteStats.RewardLevel,
-                SectorBuyoutCostLevel = simpleInfiniteStats.SectorBuyoutCostLevel
-            }
+                SectorBuyoutCostLevel = simpleInfiniteStats.SectorBuyoutCostLevel,
+                TotalPlayTime = simpleInfiniteStats.TotalPlayTime
+    }
         };
         string json = JsonUtility.ToJson(saveData, true);
         var filePath = Path.Combine(Application.persistentDataPath, SaveSimpleInfiniteGameFileName);
         File.WriteAllText(filePath, json);
-        Debug.Log("сохранено в файл");
+        //Debug.Log("сохранено в файл");
     }
 
     public void SaveHardcoreGame(List<SectorData> sectors, HardcoreStatisticController hardcoreStats)
@@ -96,7 +97,8 @@ public class SaveManager : MonoBehaviour
                 CompletedSectors = hardcoreStats.CompletedSectors,
                 ExplodedMines = hardcoreStats.ExplodedMines,
                 RewardLevel = hardcoreStats.RewardLevel,
-                SectorBuyoutCostLevel = hardcoreStats.SectorBuyoutCostLevel
+                SectorBuyoutCostLevel = hardcoreStats.SectorBuyoutCostLevel,
+                TotalPlayTime = hardcoreStats.TotalPlayTime
             }
         };
         string json = JsonUtility.ToJson(saveData, true);
@@ -118,7 +120,8 @@ public class SaveManager : MonoBehaviour
                 CompletedSectors = timeTrialStats.CompletedSectors,
                 ExplodedMines = timeTrialStats.ExplodedMines,
                 RewardLevel = timeTrialStats.RewardLevel,
-                SectorBuyoutCostLevel = timeTrialStats.SectorBuyoutCostLevel
+                SectorBuyoutCostLevel = timeTrialStats.SectorBuyoutCostLevel,
+                TotalPlayTime = timeTrialStats.TotalPlayTime
             }
         };
         string json = JsonUtility.ToJson(saveData, true);

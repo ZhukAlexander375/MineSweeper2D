@@ -9,7 +9,7 @@ EditorBuildSettings:
     path: Assets/Scenes/Minesweeper.unity
     guid: 2cda990e2423bbf4892e6590ba056729
   - enabled: 1
-    path: Assets/Scenes/InfiniteMineSweeper.unity
+    path: Assets/Scenes/InfiniteMinesweeper.unity
     guid: 0e6dfd3fabc23834191fd9d10ae9a06b
   - enabled: 1
     path: Assets/Scenes/ClassicMinesweeper.unity

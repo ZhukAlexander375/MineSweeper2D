@@ -8,6 +8,7 @@ public class InfiniteGameUI : MonoBehaviour
     [SerializeField] private Button _pauseButton;
     [SerializeField] private Button _continueButton;
     [SerializeField] private Button _settingsButton;
+    [SerializeField] private Button _closeSettingsButton;
     [SerializeField] private Button _replayLevelButton;
     [SerializeField] private Button _goHomeButton;
 
@@ -32,6 +33,7 @@ public class InfiniteGameUI : MonoBehaviour
         _pauseButton.onClick.AddListener(OpenPauseMenu);
         _continueButton.onClick.AddListener(ClosePauseMenu);
         _settingsButton.onClick.AddListener(OpenSettings);
+        _closeSettingsButton.onClick.AddListener(CloseSettings);
         _replayLevelButton.onClick.AddListener(ReplayGame);
         _goHomeButton.onClick.AddListener(ReturnToMainMenu);        
 
@@ -40,9 +42,10 @@ public class InfiniteGameUI : MonoBehaviour
 
     private void ReturnToMainMenu()
     {
+        GameManager.Instance.CurrentStatisticController.StopTimer();
         _infiniteGridManager.SaveCurrentGame();
         PlayerProgress.Instance.SavePlayerProgress();
-
+        
         /*if (!_infiniteGridManager.IsFirstClick)
         {
             GameManager.Instance.IsDownloadedInfiniteGame = false;
@@ -69,6 +72,7 @@ public class InfiniteGameUI : MonoBehaviour
         GameManager.Instance.SaveGameModes();*/
 
         //Debug.Log($"Replay:    IsDownloadedInfiniteGame: {GameModesManager.Instance.IsDownloadedInfiniteGame}, IsNewInfiniteGame: {GameModesManager.Instance.IsNewInfiniteGame}");
+        GameManager.Instance.CurrentStatisticController.ResetStatistic();
         GameManager.Instance.ClearCurrentGame(GameManager.Instance.CurrentGameMode);
         SceneLoader.Instance.LoadInfiniteMinesweeperScene();
     }
@@ -76,16 +80,25 @@ public class InfiniteGameUI : MonoBehaviour
     private void OpenPauseMenu()
     {
         _pauseMenuScreen.gameObject.SetActive(true);
+        GameManager.Instance.CurrentStatisticController.StopTimer();
     }
 
     private void ClosePauseMenu()
     {
         _pauseMenuScreen.gameObject.SetActive(false);
+        GameManager.Instance.CurrentStatisticController.StartTimer();
     }
 
     private void OpenSettings()
     {
         _settingsScreen.gameObject.SetActive(true);
+        GameManager.Instance.CurrentStatisticController.StopTimer();
+    }
+
+    private void CloseSettings()
+    {
+        _settingsScreen.gameObject.SetActive(false);
+        GameManager.Instance.CurrentStatisticController.StartTimer();
     }
 
     private void UpdateAwardUI(OnGameRewardSignal signal)

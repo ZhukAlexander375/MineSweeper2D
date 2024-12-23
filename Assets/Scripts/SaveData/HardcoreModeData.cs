@@ -10,6 +10,7 @@ public class HardcoreModeData
     public int ExplodedMines;
     public int RewardLevel;
     public int SectorBuyoutCostLevel;
+    public float TotalPlayTime;
 
     public HardcoreModeData(HardcoreStatisticController controller = null)
     {
@@ -22,6 +23,7 @@ public class HardcoreModeData
             ExplodedMines = controller.ExplodedMines;
             RewardLevel = controller.RewardLevel;
             SectorBuyoutCostLevel = controller.SectorBuyoutCostLevel;
+            TotalPlayTime = controller.TotalPlayTime;
         }
     }
 }       

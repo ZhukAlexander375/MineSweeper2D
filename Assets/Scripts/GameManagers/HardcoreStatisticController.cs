@@ -11,6 +11,10 @@ public class HardcoreStatisticController : MonoBehaviour, IStatisticController
     public int ExplodedMines { get; set; }
     public int RewardLevel { get; set; }
     public int SectorBuyoutCostLevel { get; set; }
+    public float TotalPlayTime { get; set; }
+
+    private float _sessionStartTime;
+    private bool _isTimerRunning;
 
     private void Awake()
     {
@@ -33,6 +37,7 @@ public class HardcoreStatisticController : MonoBehaviour, IStatisticController
         ExplodedMines = data.ExplodedMines;
         RewardLevel = data.RewardLevel;
         SectorBuyoutCostLevel = data.SectorBuyoutCostLevel;
+        TotalPlayTime = data.TotalPlayTime;
     }
 
     public void ResetStatistic()
@@ -44,6 +49,37 @@ public class HardcoreStatisticController : MonoBehaviour, IStatisticController
         ExplodedMines = 0;
         RewardLevel = 0;
         SectorBuyoutCostLevel = 0;
+
+        TotalPlayTime = 0;
+        _isTimerRunning = false;
+        _sessionStartTime = 0;
+    }
+
+    public void StartTimer()
+    {
+        if (!_isTimerRunning)
+        {
+            _sessionStartTime = Time.time;
+            _isTimerRunning = true;
+        }
+        else
+        {
+            Debug.Log("запустить таймер");
+        }
+    }
+
+    public void StopTimer()
+    {
+        if (_isTimerRunning)
+        {
+            float sessionDuration = Time.time - _sessionStartTime;
+            TotalPlayTime += sessionDuration;
+            _isTimerRunning = false;
+        }
+        else
+        {
+            Debug.Log("остановить таймер");
+        }
     }
 
     public void IncrementOpenedCells()

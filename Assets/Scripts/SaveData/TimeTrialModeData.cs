@@ -9,6 +9,7 @@ public class TimeTrialModeData
     public int ExplodedMines;
     public int RewardLevel;
     public int SectorBuyoutCostLevel;
+    public float TotalPlayTime;
 
     public TimeTrialModeData(TimeTrialStatisticController controller = null)
     {
@@ -21,6 +22,7 @@ public class TimeTrialModeData
             ExplodedMines = controller.ExplodedMines;
             RewardLevel = controller.RewardLevel;
             SectorBuyoutCostLevel = controller.SectorBuyoutCostLevel;
+            TotalPlayTime = controller.TotalPlayTime;
         }
     }
 }

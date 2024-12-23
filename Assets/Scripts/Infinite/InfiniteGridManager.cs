@@ -143,6 +143,7 @@ public class InfiniteGridManager : MonoBehaviour
         _gameManager.ResetCurrentModeStatistic();
         //_currentGameModeData.InitializeNewGame();
         SignalBus.Fire<LoadCompletedSignal>();
+        _gameManager.CurrentStatisticController.StartTimer();
     }
 
     private void SetCurrentRewardLevel() //MB и через свич
@@ -706,9 +707,9 @@ public class InfiniteGridManager : MonoBehaviour
         _statisticController.IncrementRewardLevel();
         SetCurrentRewardLevel();
         
-        //int currentReward = CalculateCurrentReward(_currentGameModeData.GetRewardLevel());
+        int currentReward = CalculateCurrentReward(_statisticController.RewardLevel);
 
-        //SignalBus.Fire(new OnGameRewardSignal(0, currentReward));
+        SignalBus.Fire(new OnGameRewardSignal(0, currentReward));
         //Debug.Log($"Номер награды: {_currentRewardLevel}, награда: {currentReward}");
         cell.IsAward = false;
 
@@ -887,7 +888,7 @@ public class InfiniteGridManager : MonoBehaviour
     private void UpdateSectorBuyoutLevel()
     {
         _statisticController.IncrementSectorBuyoutIndex();
-        Debug.Log(_statisticController.SectorBuyoutCostLevel);
+        //Debug.Log(_statisticController.SectorBuyoutCostLevel);
         SetCurrentSectorBuyoutLevel();
     }
 
@@ -903,6 +904,7 @@ public class InfiniteGridManager : MonoBehaviour
 
     private void OnApplicationQuit()
     {
+        _gameManager.CurrentStatisticController.StopTimer();
         SaveCurrentGame();
         SavePlayerProgress();
 
@@ -938,8 +940,8 @@ public class InfiniteGridManager : MonoBehaviour
             default:
                 Debug.LogError("Unknown game mode. Cannot save.");
                 break;
+        }
     }
-}
 
     private void SavePlayerProgress()
     {
@@ -1003,6 +1005,7 @@ public class InfiniteGridManager : MonoBehaviour
             _currentGameModeData = loadedGameModeData;
             GameManager.Instance.ApplyGameModeData(loadedGameModeData);
         }*/
+        _gameManager.CurrentStatisticController.StartTimer();
 
         IsGenerateEnabled = true;            
         IsFirstClick = true;        ////???????????????????????????????????????

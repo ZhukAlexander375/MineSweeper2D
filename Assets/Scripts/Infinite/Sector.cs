@@ -426,8 +426,11 @@ public class Sector : MonoBehaviour
 
     public void SetBuyoutCost(SectorBuyoutCostConfig sectorBuyoutCostConfig, int explodedMines)
     {
-        CurrentBuyoutCost = sectorBuyoutCostConfig.SectorBuyoutCost[explodedMines - 1];
-        Debug.Log(CurrentBuyoutCost);
+        int index = Mathf.Clamp(explodedMines - 1, 0, sectorBuyoutCostConfig.SectorBuyoutCost.Length - 1);
+        CurrentBuyoutCost = sectorBuyoutCostConfig.SectorBuyoutCost[index];
+
+        //CurrentBuyoutCost = sectorBuyoutCostConfig.SectorBuyoutCost[explodedMines - 1];
+        //Debug.Log(CurrentBuyoutCost);
     }
 
     public void CloseSector()

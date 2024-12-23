@@ -8,7 +8,7 @@ public interface IStatisticController
     public int ExplodedMines { get; set; }
     public int RewardLevel { get; set; }
     public int SectorBuyoutCostLevel { get; set; }
-
+    float TotalPlayTime { get; set; }
     void IncrementOpenedCells();
     void IncrementPlacedFlags(bool isPlacingFlag);
     void IncrementCompletedSectors();    
@@ -16,4 +16,6 @@ public interface IStatisticController
     void IncrementRewardLevel();
     void IncrementSectorBuyoutIndex();
     void ResetStatistic();
+    void StartTimer();
+    void StopTimer();
 }
