@@ -77,13 +77,13 @@ public class SectorUI : MonoBehaviour
     {
         _sector.OpenSector(0);
     }
-
+    
     private void ReplayLevel() 
     {
         PlayerProgress.Instance.ResetSessionStatistic();
         //GameManager.Instance.IsDownloadedInfiniteGame = false;
         //GameManager.Instance.IsNewInfiniteGame = true;
-        GameManager.Instance.SaveGameModes();
+       // GameManager.Instance.SaveGameModes();
         SceneLoader.Instance.LoadInfiniteMinesweeperScene();
     }
 

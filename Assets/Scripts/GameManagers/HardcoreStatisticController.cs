@@ -12,6 +12,7 @@ public class HardcoreStatisticController : MonoBehaviour, IStatisticController
     public int RewardLevel { get; set; }
     public int SectorBuyoutCostLevel { get; set; }
     public float TotalPlayTime { get; set; }
+    public bool IsGameOver { get; set; }
 
     private float _sessionStartTime;
     private bool _isTimerRunning;
@@ -38,6 +39,7 @@ public class HardcoreStatisticController : MonoBehaviour, IStatisticController
         RewardLevel = data.RewardLevel;
         SectorBuyoutCostLevel = data.SectorBuyoutCostLevel;
         TotalPlayTime = data.TotalPlayTime;
+        IsGameOver = data.IsGameOver;
     }
 
     public void ResetStatistic()
@@ -53,18 +55,19 @@ public class HardcoreStatisticController : MonoBehaviour, IStatisticController
         TotalPlayTime = 0;
         _isTimerRunning = false;
         _sessionStartTime = 0;
+        IsGameOver = false;
     }
 
     public void StartTimer()
     {
-        if (!_isTimerRunning)
+        if (!_isTimerRunning && !IsGameOver)
         {
             _sessionStartTime = Time.time;
             _isTimerRunning = true;
         }
         else
         {
-            Debug.Log("запустить таймер");
+            //Debug.Log("запустить таймер");
         }
     }
 
@@ -78,7 +81,7 @@ public class HardcoreStatisticController : MonoBehaviour, IStatisticController
         }
         else
         {
-            Debug.Log("остановить таймер");
+            //Debug.Log("остановить таймер");
         }
     }
 

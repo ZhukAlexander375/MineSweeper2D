@@ -1931,6 +1931,8 @@ MonoBehaviour:
   _disabledSettingsImage: []
   _menuFrameBackgrounds: []
   _menuFrameShadows: []
+  _menuFrameSecondBackgrounds: []
+  _menuFrameSecondShadows: []
   _buttonsMain:
   - {fileID: 598938027107830058}
   - {fileID: 2196018032469555057}
@@ -1943,8 +1945,8 @@ MonoBehaviour:
   - {fileID: 6984184896445062770}
   - {fileID: 5955628186895294631}
   - {fileID: 3466667950106892928}
-  _buttonsMinor: []
-  _buttonsShadowMinor: []
+  _buttonsInactiveMainColor: []
+  _buttonsInactiveShadowMainColor: []
   _dropdown: {fileID: 0}
   _dropdownShadow: {fileID: 0}
   _iconsSettingsBack: []
@@ -3274,7 +3276,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Buy a life or watch an AD
+  m_text: "\_Play other Sectors or Unlock"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 009bde618be60874c90a56818dfe3c1a, type: 2}
   m_sharedMaterial: {fileID: 3097585960466602845, guid: 009bde618be60874c90a56818dfe3c1a, type: 2}

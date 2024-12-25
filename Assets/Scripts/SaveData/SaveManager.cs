@@ -11,11 +11,11 @@ public class SaveManager : MonoBehaviour
     private const string SaveSettingsFileName = "GameSettings.json";
     private const string SavePlayerProgressFileName = "PlayerProgress.json";
 
-    private const string SaveGameMetaDataFileName = "GameMetaData.json";        //  акой режим последний и состо€ние режимов (нью/загрузка)
-
     private const string SaveSimpleInfiniteGameFileName = "SimpleInfiniteGameSave.json";
     private const string SaveHardcoreGameFileName = "HardcoreInfiniteGameSave.json";
     private const string SaveTimeTrialGameFileName = "TimeTrialInfiniteGameSave.json";
+
+    private const string SaveTimerFileName = "TimerSave.json";
 
     private void Awake()
     {
@@ -28,18 +28,6 @@ public class SaveManager : MonoBehaviour
         Instance = this;
         DontDestroyOnLoad(gameObject);
 
-        //LoadModesStats();
-    }
-
-    private void LoadModesStats()
-    {        
-        //var simpleStats = LoadSimpleInfiniteModeStats();
-        //var hardcoreStats = LoadHardcoreModeStats();
-        //var timeTrialStats = LoadTimeTrialModeStats();
-
-        //GameManager.Instance.SetGameModeData(GameMode.SimpleInfinite, simpleStats);
-        //GameManager.Instance.SetGameModeData(GameMode.Hardcore, hardcoreStats);
-        //GameManager.Instance.SetGameModeData(GameMode.TimeTrial, timeTrialStats);
     }
 
     public bool HasSavedData(GameMode mode)
@@ -75,13 +63,13 @@ public class SaveManager : MonoBehaviour
                 ExplodedMines = simpleInfiniteStats.ExplodedMines,
                 RewardLevel = simpleInfiniteStats.RewardLevel,
                 SectorBuyoutCostLevel = simpleInfiniteStats.SectorBuyoutCostLevel,
-                TotalPlayTime = simpleInfiniteStats.TotalPlayTime
+                TotalPlayTime = simpleInfiniteStats.TotalPlayTime,
+                IsGameOver = simpleInfiniteStats.IsGameOver
     }
         };
         string json = JsonUtility.ToJson(saveData, true);
         var filePath = Path.Combine(Application.persistentDataPath, SaveSimpleInfiniteGameFileName);
         File.WriteAllText(filePath, json);
-        //Debug.Log("сохранено в файл");
     }
 
     public void SaveHardcoreGame(List<SectorData> sectors, HardcoreStatisticController hardcoreStats)
@@ -98,13 +86,13 @@ public class SaveManager : MonoBehaviour
                 ExplodedMines = hardcoreStats.ExplodedMines,
                 RewardLevel = hardcoreStats.RewardLevel,
                 SectorBuyoutCostLevel = hardcoreStats.SectorBuyoutCostLevel,
-                TotalPlayTime = hardcoreStats.TotalPlayTime
+                TotalPlayTime = hardcoreStats.TotalPlayTime,
+                IsGameOver = hardcoreStats.IsGameOver
             }
         };
         string json = JsonUtility.ToJson(saveData, true);
         var filePath = Path.Combine(Application.persistentDataPath, SaveHardcoreGameFileName);
         File.WriteAllText(filePath, json);
-        Debug.Log($"Hardcore Game saved successfully to {filePath}");
     }
 
     public void SaveTimeTrialGame(List<SectorData> sectors, TimeTrialStatisticController timeTrialStats)
@@ -121,13 +109,13 @@ public class SaveManager : MonoBehaviour
                 ExplodedMines = timeTrialStats.ExplodedMines,
                 RewardLevel = timeTrialStats.RewardLevel,
                 SectorBuyoutCostLevel = timeTrialStats.SectorBuyoutCostLevel,
-                TotalPlayTime = timeTrialStats.TotalPlayTime
+                TotalPlayTime = timeTrialStats.TotalPlayTime,
+                IsGameOver = timeTrialStats.IsGameOver,
             }
         };
         string json = JsonUtility.ToJson(saveData, true);
         var filePath = Path.Combine(Application.persistentDataPath, SaveTimeTrialGameFileName);
         File.WriteAllText(filePath, json);
-        Debug.Log($"Time Trial Game saved successfully to {filePath}");
     }
 
     /// <summary>
@@ -146,7 +134,7 @@ public class SaveManager : MonoBehaviour
         string json = File.ReadAllText(filePath);
         SimpleInfiniteGameSaveWrapper saveData = JsonUtility.FromJson<SimpleInfiniteGameSaveWrapper>(json);
 
-        Debug.Log($"загружено из {filePath}");
+        //Debug.Log($"загружено из {filePath}");
         return saveData.SimpleInfiniteModeData;
     }
 
@@ -162,7 +150,7 @@ public class SaveManager : MonoBehaviour
         string json = File.ReadAllText(filePath);
         HardcoreGameSaveWrapper saveData = JsonUtility.FromJson<HardcoreGameSaveWrapper>(json);
         
-        Debug.Log($"Hardcore Game stats loaded successfully from {saveData.HardcoreModeData.OpenedCells}");
+        //Debug.Log($"Hardcore Game stats loaded successfully from {saveData.HardcoreModeData.OpenedCells}");
         return saveData.HardcoreModeData;
     }
 
@@ -177,12 +165,10 @@ public class SaveManager : MonoBehaviour
 
         string json = File.ReadAllText(filePath);
         TimeTrialGameSaveWrapper saveData = JsonUtility.FromJson<TimeTrialGameSaveWrapper>(json);
-
-        Debug.Log($"Simple Infinite Game stats loaded successfully from {filePath}");
+        
+        //Debug.Log($"Simple Infinite Game stats loaded successfully from {filePath}");
         return saveData.TimeTrialModeData;
     }
-
-
 
     /// <summary>
     /// FOR LOAD ONLY MODES GRIDS 
@@ -194,14 +180,12 @@ public class SaveManager : MonoBehaviour
 
         if (!File.Exists(filePath))
         {
-            Debug.LogWarning($"No save file found for Simple Infinite Game at {filePath}");
             return null;
         }
 
         string json = File.ReadAllText(filePath);
         SimpleInfiniteGameSaveWrapper saveData = JsonUtility.FromJson<SimpleInfiniteGameSaveWrapper>(json);
-
-        Debug.Log($"Simple Infinite Game sectors loaded successfully from {filePath}");
+        
         return saveData.Sectors;
     }
 
@@ -211,14 +195,12 @@ public class SaveManager : MonoBehaviour
 
         if (!File.Exists(filePath))
         {
-            Debug.LogWarning($"No save file found for Simple Infinite Game at {filePath}");
             return null;
         }
 
         string json = File.ReadAllText(filePath);
         HardcoreGameSaveWrapper saveData = JsonUtility.FromJson<HardcoreGameSaveWrapper>(json);
-
-        Debug.Log($"Simple Infinite Game sectors loaded successfully from {filePath}");
+        
         return saveData.Sectors;
     }
 
@@ -235,7 +217,7 @@ public class SaveManager : MonoBehaviour
         string json = File.ReadAllText(filePath);
         TimeTrialGameSaveWrapper saveData = JsonUtility.FromJson<TimeTrialGameSaveWrapper>(json);
 
-        Debug.Log($"Simple Infinite Game sectors loaded successfully from {filePath}");
+        //Debug.Log($"Simple Infinite Game sectors loaded successfully from {filePath}");
         return saveData.Sectors;
     }
 
@@ -255,7 +237,7 @@ public class SaveManager : MonoBehaviour
         string json = File.ReadAllText(filePath);
         SimpleInfiniteGameSaveWrapper saveData = JsonUtility.FromJson<SimpleInfiniteGameSaveWrapper>(json);
 
-        Debug.Log($"Simple Infinite Game loaded successfully from {filePath}");
+        //Debug.Log($"Simple Infinite Game loaded successfully from {filePath}");
         return (saveData.Sectors, saveData.SimpleInfiniteModeData);
     }
 
@@ -403,31 +385,27 @@ public class SaveManager : MonoBehaviour
         PlayerProgressWrapper wrapper = JsonUtility.FromJson<PlayerProgressWrapper>(json);
         return wrapper.PlayerData;
     }
-
-    public void SaveGameMetaData(GameMode gameMode, bool isNewGame)
+    
+    public void SaveTimer(TimerManagerData timerData)
     {
-        GameMetaData metaData = new GameMetaData
-        {
-            CurrentGameMode = gameMode,
-            IsNewGame = isNewGame
-        };
+        TimerManagerWrapper wrapper = new TimerManagerWrapper();
+        wrapper.TimerManagerData = timerData;
 
-        string json = JsonUtility.ToJson(metaData, true);
-        string filePath = Path.Combine(Application.persistentDataPath, SaveGameMetaDataFileName);
+        string json = JsonUtility.ToJson(wrapper, true);
+        var filePath = Path.Combine(Application.persistentDataPath, SaveTimerFileName);
         File.WriteAllText(filePath, json);
-        //Debug.Log($"Game MetaData saved for {gameMode}");
     }
 
-    public GameMetaData LoadGameMetaData()
+    public TimerManagerData LoadTimerManager()
     {
-        string filePath = Path.Combine(Application.persistentDataPath, SaveGameMetaDataFileName);
+        var filePath = Path.Combine(Application.persistentDataPath, SaveTimerFileName);
         if (!File.Exists(filePath))
         {
-            //Debug.LogWarning("Game MetaData not found, starting fresh.");
-            return new GameMetaData();
+            return new TimerManagerData();
         }
 
         string json = File.ReadAllText(filePath);
-        return JsonUtility.FromJson<GameMetaData>(json);
+        TimerManagerWrapper wrapper = JsonUtility.FromJson<TimerManagerWrapper>(json);
+        return wrapper.TimerManagerData;
     }
 }

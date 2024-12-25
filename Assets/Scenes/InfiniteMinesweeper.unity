@@ -179,7 +179,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 2c294f0efa745c447b8a843f47f14168, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 2efea5936a97a0d4baaa76548260e483, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -215,7 +215,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &1198977920
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -541,17 +541,6 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 940730ca445e36c4d93404062094054e, type: 3}
---- !u!114 &1616443687 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 4211235589458227462, guid: 940730ca445e36c4d93404062094054e, type: 3}
-  m_PrefabInstance: {fileID: 1616443686}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 504b2c5c49146d146a1e315ae2e5a79b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1001 &2280231688101725174
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -560,10 +549,6 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 4101520452474269163, guid: 21674685f4d1d5141a78e5eee6c98f75, type: 3}
-      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
-      value: 
-      objectReference: {fileID: 1616443687}
     - target: {fileID: 7745077155729366793, guid: 21674685f4d1d5141a78e5eee6c98f75, type: 3}
       propertyPath: m_Pivot.x
       value: 0
@@ -644,10 +629,6 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 7775743190375435120, guid: 21674685f4d1d5141a78e5eee6c98f75, type: 3}
-      propertyPath: _closeSettingsButton
-      value: 
-      objectReference: {fileID: 2280231688101725175}
     - target: {fileID: 8373877726171085701, guid: 21674685f4d1d5141a78e5eee6c98f75, type: 3}
       propertyPath: m_Name
       value: InfiniteGameCanvas
@@ -657,17 +638,6 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 21674685f4d1d5141a78e5eee6c98f75, type: 3}
---- !u!114 &2280231688101725175 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 3258269585543883726, guid: 21674685f4d1d5141a78e5eee6c98f75, type: 3}
-  m_PrefabInstance: {fileID: 2280231688101725174}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &3869234871166336805 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 3032974504718040275, guid: 21674685f4d1d5141a78e5eee6c98f75, type: 3}

@@ -275,6 +275,7 @@ GameObject:
   - component: {fileID: 8052079666082157398}
   - component: {fileID: 4164824966338996237}
   - component: {fileID: 300326031290935455}
+  - component: {fileID: 5600048071484189587}
   m_Layer: 5
   m_Name: MenuFrame_BG
   m_TagString: Untagged
@@ -322,7 +323,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.27843133, g: 0.43137258, b: 0.92549026, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -339,6 +340,21 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!114 &5600048071484189587
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 124950761912054435}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cfabb0440166ab443bba8876756fdfa9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_EffectColor: {r: 1, g: 1, b: 1, a: 1}
+  m_EffectDistance: {x: 1, y: -10}
+  m_UseGraphicAlpha: 1
 --- !u!1 &245588276706208756
 GameObject:
   m_ObjectHideFlags: 0
@@ -2500,6 +2516,7 @@ MonoBehaviour:
   - {fileID: 8090492882454510644}
   - {fileID: 4746607846601435129}
   _settingsScreen: {fileID: 137965568112657031}
+  _lastModeText: {fileID: 1472976993508330262}
   _timeSpentText: {fileID: 7481985252143819053}
   _cellsOpenText: {fileID: 5601918126926248376}
   _flagsPlacedText: {fileID: 4521334594936965394}
@@ -3086,7 +3103,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &2428177046566270755
 RectTransform:
   m_ObjectHideFlags: 0
@@ -3205,7 +3222,15 @@ MonoBehaviour:
   - {fileID: 2845440712406368594}
   - {fileID: 5573503601490069959}
   - {fileID: 27111754536595516}
-  _menuFrameShadows: []
+  _menuFrameShadows:
+  - {fileID: 5600048071484189587}
+  - {fileID: 6647721692292198365}
+  - {fileID: 363763217562683961}
+  _menuFrameSecondBackgrounds:
+  - {fileID: 8960427041724769615}
+  - {fileID: 8423197518306018591}
+  - {fileID: 8823052659832198299}
+  _menuFrameSecondShadows: []
   _buttonsMain:
   - {fileID: 4110289287394795432}
   - {fileID: 1188392635347411774}
@@ -3252,15 +3277,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e7e75b8c5c54393408a122a9e2adcbba, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _openedCellsSimpleInfiniteText: {fileID: 5760847995705108198}
   _openedSectorsSimpleInfiniteText: {fileID: 2647804411682822969}
   _minesSimpleInfiniteText: {fileID: 7341460919936023301}
-  _openedCellsHardcoreText: {fileID: 5449888696788584250}
+  _playTimeSimpleInfiniteText: {fileID: 5760847995705108198}
   _openedSectorsHardcoreText: {fileID: 3840140825194824911}
   _minesHardcoreText: {fileID: 1495162817414599234}
-  _openedCellsTimeTrialText: {fileID: 6921516637486245035}
+  _playTimeHardcoreText: {fileID: 5449888696788584250}
   _openedSectorsTimeTrialText: {fileID: 2200870539437514154}
   _minesTimeTrialText: {fileID: 6494043645642316154}
+  _playTimeTimeTrialText: {fileID: 6921516637486245035}
 --- !u!1 &1385730113833843229
 GameObject:
   m_ObjectHideFlags: 0
@@ -3746,7 +3771,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.1137255, g: 0.18039216, b: 0.36078432, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -5745,6 +5770,8 @@ MonoBehaviour:
   _disabledSettingsImage: []
   _menuFrameBackgrounds: []
   _menuFrameShadows: []
+  _menuFrameSecondBackgrounds: []
+  _menuFrameSecondShadows: []
   _buttonsMain: []
   _buttonsShadowMain: []
   _buttonsInactiveMainColor: []
@@ -8218,6 +8245,8 @@ MonoBehaviour:
   _disabledSettingsImage: []
   _menuFrameBackgrounds: []
   _menuFrameShadows: []
+  _menuFrameSecondBackgrounds: []
+  _menuFrameSecondShadows: []
   _buttonsMain:
   - {fileID: 7300996899004490064}
   - {fileID: 5071181868363915361}
@@ -8449,8 +8478,8 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4288176686
-  m_fontColor: {r: 0.18039216, g: 0.38431376, b: 0.59607846, a: 1}
+    rgba: 4294967295
+  m_fontColor: {r: 1, g: 1, b: 1, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -9612,6 +9641,8 @@ MonoBehaviour:
   - {fileID: 2480572437722694216}
   _menuFrameShadows:
   - {fileID: 6768122683288847566}
+  _menuFrameSecondBackgrounds: []
+  _menuFrameSecondShadows: []
   _buttonsMain:
   - {fileID: 4792559467312074942}
   _buttonsShadowMain:
@@ -15508,6 +15539,7 @@ GameObject:
   - component: {fileID: 4373715463280679117}
   - component: {fileID: 9094312655033671014}
   - component: {fileID: 2845440712406368594}
+  - component: {fileID: 6647721692292198365}
   m_Layer: 5
   m_Name: MenuFrame_BG
   m_TagString: Untagged
@@ -15555,7 +15587,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.2784314, g: 0.43137258, b: 0.92549026, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -15572,6 +15604,21 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!114 &6647721692292198365
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5447537150197132457}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cfabb0440166ab443bba8876756fdfa9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_EffectColor: {r: 1, g: 1, b: 1, a: 1}
+  m_EffectDistance: {x: 1, y: -10}
+  m_UseGraphicAlpha: 1
 --- !u!1 &5463928231544082463
 GameObject:
   m_ObjectHideFlags: 0
@@ -16375,8 +16422,8 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4288176686
-  m_fontColor: {r: 0.18039216, g: 0.38431376, b: 0.59607846, a: 1}
+    rgba: 4294967295
+  m_fontColor: {r: 1, g: 1, b: 1, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -17452,8 +17499,8 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4288176686
-  m_fontColor: {r: 0.18039216, g: 0.38431376, b: 0.59607846, a: 1}
+    rgba: 4294967295
+  m_fontColor: {r: 1, g: 1, b: 1, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -18444,7 +18491,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.1137255, g: 0.18039216, b: 0.36078432, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -20116,6 +20163,8 @@ MonoBehaviour:
   - {fileID: 2069325276350895625}
   _menuFrameShadows:
   - {fileID: 5218949885279338729}
+  _menuFrameSecondBackgrounds: []
+  _menuFrameSecondShadows: []
   _buttonsMain: []
   _buttonsShadowMain: []
   _buttonsInactiveMainColor: []
@@ -23097,7 +23146,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.1137255, g: 0.18039216, b: 0.36078432, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -23125,6 +23174,7 @@ GameObject:
   - component: {fileID: 3541283473781587909}
   - component: {fileID: 1900497451231493772}
   - component: {fileID: 5573503601490069959}
+  - component: {fileID: 363763217562683961}
   m_Layer: 5
   m_Name: MenuFrame_BG
   m_TagString: Untagged
@@ -23172,7 +23222,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.2784314, g: 0.43137258, b: 0.92549026, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -23189,6 +23239,21 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!114 &363763217562683961
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8236228371808989562}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cfabb0440166ab443bba8876756fdfa9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_EffectColor: {r: 1, g: 1, b: 1, a: 1}
+  m_EffectDistance: {x: 1, y: -10}
+  m_UseGraphicAlpha: 1
 --- !u!1 &8272657539050976779
 GameObject:
   m_ObjectHideFlags: 0
@@ -23763,6 +23828,8 @@ MonoBehaviour:
   - {fileID: 3299698841679244750}
   _menuFrameShadows:
   - {fileID: 157523566731630830}
+  _menuFrameSecondBackgrounds: []
+  _menuFrameSecondShadows: []
   _buttonsMain: []
   _buttonsShadowMain: []
   _buttonsInactiveMainColor: []
@@ -25286,7 +25353,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &8993691294795108449
 RectTransform:
   m_ObjectHideFlags: 0
@@ -25368,6 +25435,8 @@ MonoBehaviour:
   _disabledSettingsImage: []
   _menuFrameBackgrounds: []
   _menuFrameShadows: []
+  _menuFrameSecondBackgrounds: []
+  _menuFrameSecondShadows: []
   _buttonsMain:
   - {fileID: 2364627027379969949}
   _buttonsShadowMain:

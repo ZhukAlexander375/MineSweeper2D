@@ -9,6 +9,7 @@ public interface IStatisticController
     public int RewardLevel { get; set; }
     public int SectorBuyoutCostLevel { get; set; }
     float TotalPlayTime { get; set; }
+    bool IsGameOver { get; set; }
     void IncrementOpenedCells();
     void IncrementPlacedFlags(bool isPlacingFlag);
     void IncrementCompletedSectors();    

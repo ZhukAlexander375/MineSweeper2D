@@ -9,17 +9,22 @@ public class InfiniteGameUI : MonoBehaviour
     [SerializeField] private Button _continueButton;
     [SerializeField] private Button _settingsButton;
     [SerializeField] private Button _closeSettingsButton;
-    [SerializeField] private Button _replayLevelButton;
+    [SerializeField] private Button _replayLevelButton;    
     [SerializeField] private Button _goHomeButton;
 
     [Header("Screens")]
     [SerializeField] private Canvas _pauseMenuScreen;
     [SerializeField] private Canvas _settingsScreen;
+    [SerializeField] private Canvas _loseScreen;
 
     [Header("Texts")]
     [SerializeField] private TMP_Text _awardText;
     [SerializeField] private TMP_Text _flagsTexts;
     [SerializeField] private TMP_Text _gameModeText;
+    [SerializeField] private TMP_Text _timerText;
+
+    [Header("Objects")]
+    [SerializeField] private GameObject _timerObject;
         
     private InfiniteGridManager _infiniteGridManager;
 
@@ -34,46 +39,62 @@ public class InfiniteGameUI : MonoBehaviour
         _continueButton.onClick.AddListener(ClosePauseMenu);
         _settingsButton.onClick.AddListener(OpenSettings);
         _closeSettingsButton.onClick.AddListener(CloseSettings);
-        _replayLevelButton.onClick.AddListener(ReplayGame);
-        _goHomeButton.onClick.AddListener(ReturnToMainMenu);        
+        _replayLevelButton.onClick.AddListener(ReplayGame);        
+        _goHomeButton.onClick.AddListener(ReturnToMainMenu);
 
+        CheckGameMode();
         UpdateTexts();
+    }
+
+    private void Update()
+    {
+        if (GameManager.Instance.CurrentGameMode == GameMode.TimeTrial && TimeModeTimerManager.Instance != null)
+        {
+            float remainingTime = TimeModeTimerManager.Instance.GetRemainingTime();
+            if (remainingTime >= 0)
+            {
+                _timerText.text = FormatTime(remainingTime);
+            }
+            ///
+            ///
+        }
+    }
+
+    private string FormatTime(float time)
+    {
+        int minutes = Mathf.FloorToInt(time / 60);
+        int seconds = Mathf.FloorToInt(time % 60);
+        return $"{minutes:D2}:{seconds:D2}";
     }
 
     private void ReturnToMainMenu()
     {
-        GameManager.Instance.CurrentStatisticController.StopTimer();
-        _infiniteGridManager.SaveCurrentGame();
+        GameManager.Instance.CurrentStatisticController.StopTimer();        
         PlayerProgress.Instance.SavePlayerProgress();
         
-        /*if (!_infiniteGridManager.IsFirstClick)
+        if (_infiniteGridManager.IsFirstClick)
         {
-            GameManager.Instance.IsDownloadedInfiniteGame = false;
-            GameManager.Instance.IsNewInfiniteGame = true;
+            _infiniteGridManager.SaveCurrentGame();
         }
-
-        else
-        {
-            GameManager.Instance.IsDownloadedInfiniteGame = true;
-            GameManager.Instance.IsNewInfiniteGame = false;
-        }
-        
-        GameManager.Instance.SaveGameModes();*/
-        //Debug.Log($"Return:    IsDownloadedInfiniteGame: {GameModesManager.Instance.IsDownloadedInfiniteGame}, IsNewInfiniteGame: {GameModesManager.Instance.IsNewInfiniteGame}");
 
         SceneLoader.Instance.LoadMainMenuScene();
     }
 
     private void ReplayGame()
     {
-        /*PlayerProgress.Instance.ResetSessionStatistic();        
-        GameManager.Instance.IsDownloadedInfiniteGame = false;
-        GameManager.Instance.IsNewInfiniteGame = true;
-        GameManager.Instance.SaveGameModes();*/
-
-        //Debug.Log($"Replay:    IsDownloadedInfiniteGame: {GameModesManager.Instance.IsDownloadedInfiniteGame}, IsNewInfiniteGame: {GameModesManager.Instance.IsNewInfiniteGame}");
+        _loseScreen.gameObject.SetActive(false);       
         GameManager.Instance.CurrentStatisticController.ResetStatistic();
+
+        if (GameManager.Instance.CurrentStatisticController is TimeTrialStatisticController)
+        {
+            if (TimeModeTimerManager.Instance.IsTimerOver && !TimeModeTimerManager.Instance.IsTimerRunning)
+            {
+                TimeModeTimerManager.Instance.ResetModeTimer();
+            }            
+        }
+
         GameManager.Instance.ClearCurrentGame(GameManager.Instance.CurrentGameMode);
+        GameManager.Instance.SetCurrentGameMode(GameManager.Instance.CurrentGameMode);
         SceneLoader.Instance.LoadInfiniteMinesweeperScene();
     }
 
@@ -101,6 +122,14 @@ public class InfiniteGameUI : MonoBehaviour
         GameManager.Instance.CurrentStatisticController.StartTimer();
     }
 
+    private void OpenLoseScreen(GameOverSignal signal)
+    {
+        if (signal.CurrentGameMode == GameManager.Instance.CurrentGameMode)
+        {
+            _loseScreen.gameObject.SetActive(true);
+        }        
+    }
+
     private void UpdateAwardUI(OnGameRewardSignal signal)
     {
         _awardText.text = PlayerProgress.Instance.TotalReward.ToString();
@@ -121,6 +150,20 @@ public class InfiniteGameUI : MonoBehaviour
     private void UpdateTexts(LoadCompletedSignal signal)
     {
         UpdateTexts();
+    }
+
+    private void CheckGameMode()
+    {
+        switch (GameManager.Instance.CurrentGameMode)
+        {
+            case (GameMode.TimeTrial):
+                _timerObject.SetActive(true);
+                break;
+
+            default:
+                _timerObject.SetActive(false);
+                break;
+        }
     }
 
     private void UpdateTexts()
@@ -147,6 +190,7 @@ public class InfiniteGameUI : MonoBehaviour
         SignalBus.Subscribe<OnGameRewardSignal>(UpdateAwardUI);
         SignalBus.Subscribe<FlagPlacingSignal>(UpdateFlagUI);
         SignalBus.Subscribe<LoadCompletedSignal>(UpdateTexts);
+        SignalBus.Subscribe<GameOverSignal>(OpenLoseScreen);        
     }
 
     private void OnDisable()
@@ -154,5 +198,6 @@ public class InfiniteGameUI : MonoBehaviour
         SignalBus.Unsubscribe<OnGameRewardSignal>(UpdateAwardUI);
         SignalBus.Unsubscribe<FlagPlacingSignal>(UpdateFlagUI);
         SignalBus.Unsubscribe<LoadCompletedSignal>(UpdateTexts);
+        SignalBus.Unsubscribe<GameOverSignal>(OpenLoseScreen);
     }
 }

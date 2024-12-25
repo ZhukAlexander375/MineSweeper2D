@@ -7,6 +7,8 @@ public class ThemeConfig : ScriptableObject
     [Header("Frames Colors")]
     public Color MenuFrameBGColor;
     public Color MenuFrameShadowColor;
+    public Color MenuFrameSecondBGColor;
+    public Color MenuFrameSecondShadow2Color;
     public Color EnabledSettingColor;
     public Color DisabledSettingColor;
 

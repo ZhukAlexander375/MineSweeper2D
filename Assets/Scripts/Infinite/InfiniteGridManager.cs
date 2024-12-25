@@ -93,7 +93,7 @@ public class InfiniteGridManager : MonoBehaviour
     }
 
     private void CheckGameStart()
-    {
+    {        
         switch (GameManager.Instance.CurrentGameMode)
         {
             case GameMode.SimpleInfinite:
@@ -113,22 +113,34 @@ public class InfiniteGridManager : MonoBehaviour
                 {
                     LoadSavedGame();
                     SignalBus.Fire<LoadCompletedSignal>();
+
+                    if (_gameManager.HardcoreStats.ExplodedMines > 0 || _gameManager.HardcoreStats.IsGameOver)
+                    {
+                        SignalBus.Fire(new GameOverSignal(GameManager.Instance.CurrentGameMode));
+                    }
                 }
                 else
                 {
-                    StartNewGame();
+                    StartNewGame();                    
                 }
                 break;
 
             case GameMode.TimeTrial:
                 if (_gameManager.TimeTrialStats.IsGameStarted)
-                {
+                {                    
                     LoadSavedGame();
                     SignalBus.Fire<LoadCompletedSignal>();
+
+                    if (_gameManager.TimeTrialStats.IsGameOver)
+                    {
+                        SignalBus.Fire(new GameOverSignal(GameManager.Instance.CurrentGameMode));
+                    }
+
+                    TimeModeTimerManager.Instance.StartModeTimer();
                 }
                 else
                 {
-                    StartNewGame();
+                    StartNewGame();                    
                 }
                 break;
 
@@ -143,7 +155,7 @@ public class InfiniteGridManager : MonoBehaviour
         _gameManager.ResetCurrentModeStatistic();
         //_currentGameModeData.InitializeNewGame();
         SignalBus.Fire<LoadCompletedSignal>();
-        _gameManager.CurrentStatisticController.StartTimer();
+        _gameManager.CurrentStatisticController.StartTimer();        
     }
 
     private void SetCurrentRewardLevel() //MB и через свич
@@ -239,14 +251,6 @@ public class InfiniteGridManager : MonoBehaviour
             }
         }
         
-        ///
-        ///
-        ///
-        //GameManager.Instance.IsDownloadedInfiniteGame = true;
-        ///
-        ///
-        ///
-
         GenerateSectorAwards();
     }
 
@@ -494,12 +498,8 @@ public class InfiniteGridManager : MonoBehaviour
         {
             case CellState.Mine:
 
-                UpdateExplodedMinesCount();
-                UpdateSectorBuyoutLevel();
-
-                currentSector.SetBuyoutCost(_sectorBuyoutCostConfig, _currentSectorBuyoutLevel);
-                currentSector.ExplodeSector(cell);                
-
+                CheckLoseConditions(currentSector, cell);
+                
                 break;
 
             case CellState.Empty:
@@ -698,6 +698,48 @@ public class InfiniteGridManager : MonoBehaviour
                 yield return neighbor;
             }
         }
+    }
+
+    private void CheckLoseConditions(Sector currentSector, InfiniteCell cell)
+    {
+        switch (GameManager.Instance.CurrentGameMode)
+        {
+            case GameMode.Hardcore:
+                UpdateExplodedMinesCount();
+
+                _statisticController.StopTimer();
+                _statisticController.IsGameOver = true;                
+
+                SaveCurrentGame();
+
+                SignalBus.Fire(new GameOverSignal(GameMode.Hardcore));
+                break;
+
+            case GameMode.SimpleInfinite:
+
+                UpdateExplodedMinesCount();
+                UpdateSectorBuyoutLevel();
+
+                currentSector.SetBuyoutCost(_sectorBuyoutCostConfig, _currentSectorBuyoutLevel);
+                currentSector.ExplodeSector(cell);
+                break;
+
+            case GameMode.TimeTrial:
+
+                if (!TimeModeTimerManager.Instance.IsTimerRunning && TimeModeTimerManager.Instance.IsTimeUp())
+                {
+                    SignalBus.Fire(new GameOverSignal(GameMode.TimeTrial));
+                    return;
+                }
+
+                UpdateExplodedMinesCount();
+                UpdateSectorBuyoutLevel();
+
+                currentSector.SetBuyoutCost(_sectorBuyoutCostConfig, _currentSectorBuyoutLevel);
+                currentSector.ExplodeSector(cell);
+                break;
+        }
+        
     }
 
     private void RewardBonus(InfiniteCell cell)
@@ -902,22 +944,6 @@ public class InfiniteGridManager : MonoBehaviour
         }
     }
 
-    private void OnApplicationQuit()
-    {
-        _gameManager.CurrentStatisticController.StopTimer();
-        SaveCurrentGame();
-        SavePlayerProgress();
-
-        if (!IsFirstClick)
-        {
-
-        }
-        else
-        {
-
-        }
-    }
-
     public void SaveCurrentGame()
     {
         var activeSectors = _sectors.Values.Where(s => s.IsActive).ToList();
@@ -1059,6 +1085,17 @@ public class InfiniteGridManager : MonoBehaviour
             Vector3Int cellWorldPosition = cell.Key + new Vector3Int((int)(sector.transform.position.x), (int)(sector.transform.position.y), 0);
             //Debug.Log(cellWorldPosition);
             _allCells[cellWorldPosition] = cell.Value;
+        }
+    }
+
+    private void OnApplicationQuit()
+    {
+        _gameManager.CurrentStatisticController.StopTimer();
+        SavePlayerProgress();
+
+        if (IsFirstClick)
+        {
+            SaveCurrentGame();
         }
     }
 }

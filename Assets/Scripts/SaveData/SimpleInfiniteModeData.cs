@@ -11,6 +11,7 @@ public class SimpleInfiniteModeData
     public int RewardLevel;
     public int SectorBuyoutCostLevel;
     public float TotalPlayTime;
+    public bool IsGameOver;
 
     public SimpleInfiniteModeData(SimpleInfiniteStatisticController controller = null)
     {
@@ -24,6 +25,7 @@ public class SimpleInfiniteModeData
             RewardLevel = controller.RewardLevel;
             SectorBuyoutCostLevel = controller.SectorBuyoutCostLevel;
             TotalPlayTime = controller.TotalPlayTime;
+            IsGameOver = controller.IsGameOver;
         }
     }
 }

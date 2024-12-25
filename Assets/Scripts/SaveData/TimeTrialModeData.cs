@@ -10,6 +10,7 @@ public class TimeTrialModeData
     public int RewardLevel;
     public int SectorBuyoutCostLevel;
     public float TotalPlayTime;
+    public bool IsGameOver;
 
     public TimeTrialModeData(TimeTrialStatisticController controller = null)
     {
@@ -23,6 +24,7 @@ public class TimeTrialModeData
             RewardLevel = controller.RewardLevel;
             SectorBuyoutCostLevel = controller.SectorBuyoutCostLevel;
             TotalPlayTime = controller.TotalPlayTime;
+            IsGameOver = controller.IsGameOver;
         }
     }
 }

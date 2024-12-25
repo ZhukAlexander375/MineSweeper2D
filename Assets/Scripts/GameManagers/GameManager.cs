@@ -12,12 +12,12 @@ public class GameManager : MonoBehaviour
     public SimpleInfiniteStatisticController SimpleInfiniteStats => _simpleInfiniteStatisticController;
     public HardcoreStatisticController HardcoreStats => _hardcoreStatisticController;
     public TimeTrialStatisticController TimeTrialStats => _timeTrialStatisticController;
-    
+
     public GameMode CurrentGameMode { get; private set; }
     public IStatisticController CurrentStatisticController { get; private set; }
-    public GameMode LastPlayedMode { get; private set; }
+    public GameMode LastSessionGameMode { get; private set; }
 
-   
+
 
     private void Awake()
     {
@@ -33,7 +33,7 @@ public class GameManager : MonoBehaviour
 
     private void Start()
     {
-        LoadGameState(); 
+        LoadGameState();
     }
 
     private void LoadGameState()
@@ -41,10 +41,37 @@ public class GameManager : MonoBehaviour
         _simpleInfiniteStatisticController.InitializeFromData(SaveManager.Instance.LoadSimpleInfiniteModeStats());
         _hardcoreStatisticController.InitializeFromData(SaveManager.Instance.LoadHardcoreModeStats());
         _timeTrialStatisticController.InitializeFromData(SaveManager.Instance.LoadTimeTrialModeStats());
-        SignalBus.Fire<LoadCompletedSignal>();
-    }  
+               
+        LastSessionGameMode = PlayerProgress.Instance.LastSessionGameMode;
 
-    
+        switch (LastSessionGameMode)
+        {
+            case (GameMode.SimpleInfinite):
+            {
+                CurrentStatisticController = _simpleInfiniteStatisticController;
+                break;
+            }
+
+            case (GameMode.Hardcore):
+            {
+                CurrentStatisticController = _hardcoreStatisticController;
+                break;
+            }
+            case (GameMode.TimeTrial):
+            {
+                CurrentStatisticController = _timeTrialStatisticController;
+                break;
+            }
+        }        
+
+        if (CurrentStatisticController != null)
+        {
+            SignalBus.Fire<GameManagerLoadCompletedSignal>();
+        }
+        
+    }
+
+
     // MB START NEW GAME????
     public void SetCurrentGameMode(GameMode mode, bool isNewGame = true)
     {
@@ -69,7 +96,9 @@ public class GameManager : MonoBehaviour
                 break;
         }
 
-        LastPlayedMode = mode;
+        LastSessionGameMode = mode;
+       
+        PlayerProgress.Instance.SetLastSessionGameMode(mode);
     }
 
     /*public void SetCurrentGameMode(GameMode mode)
@@ -98,8 +127,8 @@ public class GameManager : MonoBehaviour
 
     public void SaveGameModes()
     {
-        SaveManager.Instance.SaveGameMetaData(CurrentGameMode, true);        
-    }   
+        //SaveManager.Instance.SaveGameMetaData(CurrentGameMode, true);        
+    }
 
     public void ClearCurrentGame(GameMode mode)
     {
@@ -121,16 +150,26 @@ public class GameManager : MonoBehaviour
                 Debug.LogError("Unknown game mode. Cannot save.");
                 break;
         }
-    }   
-
-    public void ContinueGame()
-    {
-        
     }
 
     private void OnApplicationQuit()
     {
-        SaveGameModes();
+        //SaveGameModes();
+    }
+
+    private void GameOver(GameOverSignal signal)
+    {
+
+    }
+
+    private void OnEnable()
+    {
+        SignalBus.Subscribe<GameOverSignal>(GameOver);
+    }
+
+    private void OnDisable()
+    {
+        SignalBus.Unsubscribe<GameOverSignal>(GameOver);
     }
 }
 

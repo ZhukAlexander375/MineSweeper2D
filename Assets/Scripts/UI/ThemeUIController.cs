@@ -15,6 +15,8 @@ public class ThemeUIController : MonoBehaviour
     [Header("Frames Colors")]
     [SerializeField] private Image[] _menuFrameBackgrounds;
     [SerializeField] private Shadow[] _menuFrameShadows;
+    [SerializeField] private Image[] _menuFrameSecondBackgrounds;
+    [SerializeField] private Shadow[] _menuFrameSecondShadows;
 
     [Header("Buttons Colors")]
     [SerializeField] private Button[] _buttonsMain;
@@ -258,6 +260,22 @@ public class ThemeUIController : MonoBehaviour
             foreach (var shadow in _menuFrameShadows)
             {
                 shadow.effectColor = theme.MenuFrameShadowColor;
+            }
+        }
+
+        if (_menuFrameSecondBackgrounds.Length > 0)
+        {
+            foreach (var image in _menuFrameSecondBackgrounds)
+            {
+                image.color = theme.MenuFrameSecondBGColor;
+            }
+        }
+
+        if (_menuFrameSecondShadows.Length > 0)
+        {
+            foreach (var shadow in _menuFrameSecondShadows)
+            {
+                shadow.effectColor = theme.MenuFrameSecondShadow2Color;
             }
         }
 

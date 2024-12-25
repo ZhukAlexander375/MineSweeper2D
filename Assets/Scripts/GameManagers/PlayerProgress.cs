@@ -4,6 +4,8 @@ public class PlayerProgress : MonoBehaviour
 {
     public static PlayerProgress Instance { get; private set; }
     public int TotalReward { get; private set; }
+    public GameMode LastSessionGameMode { get; private set; }
+
     //public int TotalPlacedFlags { get; private set; }
     //public int TotalOpenedCells { get; private set; }
     //public int TotalExplodedMines {  get; private set; }
@@ -18,15 +20,20 @@ public class PlayerProgress : MonoBehaviour
         }
 
         Instance = this;
-        DontDestroyOnLoad(gameObject);
+        DontDestroyOnLoad(gameObject);               
     }
 
     private void Start()
-    {        
-        SignalBus.Subscribe<OnGameRewardSignal>(ChangePlayersReward);
+    {
+        LoadProgress();
         //SignalBus.Subscribe<FlagPlacingSignal>(UpdateFlagsCount);
         //SignalBus.Subscribe<CellRevealedSignal>(UpdateCellsCount);
-        LoadProgress();
+
+    }
+
+    public void SetLastSessionGameMode(GameMode lastMode)
+    {
+        LastSessionGameMode = lastMode;
     }
 
     public void UpdateExplodedMinesCount(int count)
@@ -46,7 +53,8 @@ public class PlayerProgress : MonoBehaviour
     {
         PlayerProgressData playerProgress = new PlayerProgressData
         {
-            RewardCount = TotalReward            
+            TotalReward = TotalReward,
+            LastSessionGameMode = LastSessionGameMode
         };
 
         SaveManager.Instance.SavePlayerProgress(playerProgress);
@@ -92,13 +100,21 @@ public class PlayerProgress : MonoBehaviour
 
         if (playerProgress != null)
         {
-            TotalReward = playerProgress.RewardCount;            
+            TotalReward = playerProgress.TotalReward;
+            LastSessionGameMode = playerProgress.LastSessionGameMode;
+
+            SignalBus.Fire<PlayerProgressLoadCompletedSignal>();
         }
 
         else
         {
             Debug.LogWarning("Failed to load progress, applying default values.");
         }
+    }
+
+    private void OnEnable()
+    {
+        SignalBus.Subscribe<OnGameRewardSignal>(ChangePlayersReward);
     }
 
     private void OnDestroy()

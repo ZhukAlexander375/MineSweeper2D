@@ -48,22 +48,21 @@ public class InfinityModesStatisticsUI : MonoBehaviour
 
     private string FormatTime(float totalSeconds, string modeName)
     {
-        Debug.Log($"{modeName} TotalPlayTime: {totalSeconds}");
         int hours = Mathf.FloorToInt(totalSeconds / 3600);
         int minutes = Mathf.FloorToInt((totalSeconds % 3600) / 60);
         int seconds = Mathf.FloorToInt(totalSeconds % 60);
 
         if (hours > 0)
         {
-            return $"{hours}h. {minutes}min. {seconds}sec";
+            return $"{hours} h. {minutes} min. {seconds} sec";
         }
         else if (minutes > 0)
         {
-            return $"{minutes}min. {seconds}sec";
+            return $"{minutes} min. {seconds} sec";
         }
         else
         {
-            return $"{seconds}sec";
+            return $"{seconds} sec";
         }
     }
 
