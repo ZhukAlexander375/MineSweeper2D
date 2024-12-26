@@ -179,7 +179,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 2efea5936a97a0d4baaa76548260e483, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 886eb624580bcba4eb6f6a39d0f447f2, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -549,6 +549,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 1928848428527899822, guid: 21674685f4d1d5141a78e5eee6c98f75, type: 3}
+      propertyPath: _minesText
+      value: 
+      objectReference: {fileID: 0}
     - target: {fileID: 7745077155729366793, guid: 21674685f4d1d5141a78e5eee6c98f75, type: 3}
       propertyPath: m_Pivot.x
       value: 0

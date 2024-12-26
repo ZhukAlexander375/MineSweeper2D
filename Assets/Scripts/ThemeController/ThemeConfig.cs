@@ -9,6 +9,8 @@ public class ThemeConfig : ScriptableObject
     public Color MenuFrameShadowColor;
     public Color MenuFrameSecondBGColor;
     public Color MenuFrameSecondShadow2Color;
+    public Color MenuFrameTopColor;
+    public Color MenuFrameTopMinesColor;
     public Color EnabledSettingColor;
     public Color DisabledSettingColor;
 
@@ -33,6 +35,7 @@ public class ThemeConfig : ScriptableObject
     public Color IconsSettingsBackColor;
     public Color IconsOnActiveButtonColor;
     public Color IconsOnInactiveButtonColor;
+    public Color MenuFrameTopIconsColor;
 
     [Header("Sliders Colors")]
     public Color SliderFillColor;
