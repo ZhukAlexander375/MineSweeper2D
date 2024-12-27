@@ -9,6 +9,8 @@ public class ThemeUIController : MonoBehaviour
     [SerializeField] private Image[] _topFieldImage;
     [SerializeField] private Image _closeSectorBackground;
     [SerializeField] private Image _transparentBackground;
+    [SerializeField] private Image[] _menuFrameTopColor;
+    [SerializeField] private Image[] _menuFrameTopMinesColor;
     [SerializeField] private Image[] _enabledSettingsImage;
     [SerializeField] private Image[] _disabledSettingsImage;
 
@@ -32,6 +34,7 @@ public class ThemeUIController : MonoBehaviour
     [SerializeField] private Image[] _iconsSettingsBack;
     [SerializeField] private Image[] _iconsOnActiveButtons;
     [SerializeField] private Image[] _iconsOnInactiveButtons;
+    [SerializeField] private Image[] _menuTopIconsColor;
 
     [Header("Sliders Colors")]
     [SerializeField] private Image[] _slidersFillImage;
@@ -47,8 +50,7 @@ public class ThemeUIController : MonoBehaviour
     /// ZATYCHKA FOR NAVIGATION PANEL AND MENU TITLE IMAGE 
     /// </summary>
     [Header("Images")]
-    [SerializeField] private Image _navigationPanelImage;
-    [SerializeField] private Image _menuTitleImage; 
+    [SerializeField] private Image _navigationPanelImage;    
 
 
 
@@ -111,7 +113,7 @@ public class ThemeUIController : MonoBehaviour
         ApplyBackgrounsColor(_currentAppliedTheme);
         ApplyInputFieldsColor(_currentAppliedTheme);
 
-        ApplyMenuTitleImage(_currentAppliedTheme);
+        //ApplyMenuTitleImage(_currentAppliedTheme);
         ApplyNavigationPanel(_currentAppliedTheme);
     }
 
@@ -279,6 +281,22 @@ public class ThemeUIController : MonoBehaviour
             }
         }
 
+        if (_menuFrameTopColor.Length > 0)
+        {
+            foreach (var image in _menuFrameTopColor)
+            {
+                image.color = theme.MenuFrameTopColor;
+            }
+        }
+
+        if (_menuFrameTopMinesColor.Length > 0)
+        {
+            foreach (var image in _menuFrameTopMinesColor)
+            {
+                image.color = theme.MenuFrameTopMinesColor;
+            }
+        }
+
         if (_enabledSettingsImage.Length > 0)
         {
             foreach (var image in _enabledSettingsImage)
@@ -319,6 +337,14 @@ public class ThemeUIController : MonoBehaviour
             foreach (var icon in _iconsOnInactiveButtons)
             {
                 icon.color = theme.IconsOnInactiveButtonColor;
+            }
+        }
+
+        if (_menuTopIconsColor.Length > 0)
+        {
+            foreach (var icon in _menuTopIconsColor)
+            {
+                icon.color = theme.MenuFrameTopIconsColor;
             }
         }
     }      
@@ -370,13 +396,13 @@ public class ThemeUIController : MonoBehaviour
         }
     }
 
-    private void ApplyMenuTitleImage(ThemeConfig theme)
+    /*private void ApplyMenuTitleImage(ThemeConfig theme)
     {
         if (_menuTitleImage != null)
         {
             _menuTitleImage.sprite = theme.MenuTitleImage;
         }
-    }
+    }*/
 
     private void OnDestroy()
     {

@@ -12,11 +12,14 @@ public class LoseScreenUI : MonoBehaviour
 
     [Header("Texts")]
     [SerializeField] private TMP_Text _titleText;
-    [SerializeField] private TMP_Text _scoresText;
-    [SerializeField] private TMP_Text _sectorsText;
-    [SerializeField] private TMP_Text _tilesText;
-    [SerializeField] private TMP_Text _flagsText;
-    [SerializeField] private TMP_Text _minesText;
+    [SerializeField] private TMP_Text _resultText1Text;
+    [SerializeField] private TMP_Text _resultText2Text;
+    [SerializeField] private TMP_Text _resultText3Text;
+    [SerializeField] private TMP_Text _resultText4Text;
+    [SerializeField] private TMP_Text _resultValueText1Text;
+    [SerializeField] private TMP_Text _resultValueText2Text;
+    [SerializeField] private TMP_Text _resultValueText3Text;
+    [SerializeField] private TMP_Text _resultValueText4Text;
 
     [Header("Objects")]
     [SerializeField] private GameObject _loseMenuObject;
@@ -82,11 +85,8 @@ public class LoseScreenUI : MonoBehaviour
     private void UpdateStatisticTexts()
     {
         SetTitleText();
-        _scoresText.text = PlayerProgress.Instance.TotalReward.ToString();
-        _sectorsText.text = GameManager.Instance.CurrentStatisticController.CompletedSectors.ToString();
-        _tilesText.text = GameManager.Instance.CurrentStatisticController.OpenedCells.ToString();
-        _flagsText.text = GameManager.Instance.CurrentStatisticController.PlacedFlags.ToString();
-        _minesText.text = GameManager.Instance.CurrentStatisticController.ExplodedMines.ToString();
+        SetResultTexts();
+        SetResultValueTexts();
     }
 
     private void SetTitleText()
@@ -94,13 +94,72 @@ public class LoseScreenUI : MonoBehaviour
         switch (GameManager.Instance.CurrentGameMode)
         {
             case (GameMode.Hardcore):                
-                _titleText.text = "Remember: one mistake.\nTry again!";
-                
+                _titleText.text = "Hardcore";                
                 break;
 
             case (GameMode.TimeTrial):
-                _titleText.text = "Time is up.\nTry again!";
+                _titleText.text = "Time";
                 break;
+        }
+    }
+
+    private void SetResultTexts()
+    {
+        switch (GameManager.Instance.CurrentGameMode)
+        {
+            case (GameMode.Hardcore):
+                _resultText1Text.text = "Time in mode:";
+                _resultText2Text.text = "Opened cells:";
+                _resultText3Text.text = "Checkboxes placed:";
+                _resultText4Text.text = "Completed sectors:";
+                break;
+
+            case (GameMode.TimeTrial):
+                _resultText1Text.text = "Open cells: ";
+                _resultText2Text.text = "Checkboxes placed:";
+                _resultText3Text.text = "Completed sectors:";
+                _resultText4Text.text = "Triggered mines:";
+                break;
+        }    
+    }
+
+    private void SetResultValueTexts()
+    {
+        switch (GameManager.Instance.CurrentGameMode)
+        {
+            case (GameMode.Hardcore):
+                _resultValueText1Text.text = FormatTime(GameManager.Instance.CurrentStatisticController.TotalPlayTime);
+                _resultValueText2Text.text = GameManager.Instance.CurrentStatisticController.OpenedCells.ToString();
+                _resultValueText3Text.text = GameManager.Instance.CurrentStatisticController.PlacedFlags.ToString();
+                _resultValueText4Text.text = GameManager.Instance.CurrentStatisticController.CompletedSectors.ToString();
+                break;
+
+            case (GameMode.TimeTrial):
+                _resultValueText1Text.text = GameManager.Instance.CurrentStatisticController.OpenedCells.ToString();
+                _resultValueText2Text.text = GameManager.Instance.CurrentStatisticController.PlacedFlags.ToString();
+                _resultValueText3Text.text = GameManager.Instance.CurrentStatisticController.CompletedSectors.ToString();
+                _resultValueText4Text.text = GameManager.Instance.CurrentStatisticController.ExplodedMines.ToString();
+                break;
+        }
+    }
+
+    private string FormatTime(float totalSeconds)
+    {
+        int hours = Mathf.FloorToInt(totalSeconds / 3600);
+        int minutes = Mathf.FloorToInt((totalSeconds % 3600) / 60);
+        int seconds = Mathf.FloorToInt(totalSeconds % 60);
+
+        if (hours > 0)
+        {
+            return $"{hours} h. {minutes} min. {seconds} sec.";
+        }
+        else if (minutes > 0)
+        {
+            return $"{minutes} min. {seconds} sec.";
+        }
+        else
+        {
+            return $"{seconds} sec.";
         }
     }
 

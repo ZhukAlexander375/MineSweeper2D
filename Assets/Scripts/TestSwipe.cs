@@ -1,10 +1,11 @@
-using TMPro;
-using UnityEngine.EventSystems;
-using UnityEngine;
-using UnityEngine.UI;
 using DG.Tweening;
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
-public class SwipeDetector : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IDragHandler
+public class TestSwipe : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IDragHandler
 {
     [SerializeField] private float _minSwipeDistance;
     [SerializeField] private RectTransform _menuContainer;
@@ -15,8 +16,7 @@ public class SwipeDetector : MonoBehaviour, IPointerDownHandler, IPointerUpHandl
     //[SerializeField] private TMP_Text[] _buttonsTexts;
     //[SerializeField] private Sprite _activeButtonSprite;
     //[SerializeField] private Sprite _inactiveButtonSprite;
-    [SerializeField] private GameObject[] _menuWindows;
-    [SerializeField] private Button[] _continuedButtons;
+    [SerializeField] private GameObject[] _menuWindows;    
     [SerializeField] private float _timeToScreen;
     [SerializeField] private bool _isDragging = true;
 
@@ -30,11 +30,8 @@ public class SwipeDetector : MonoBehaviour, IPointerDownHandler, IPointerUpHandl
     {
         _menuWidth = _menuFirstItem.rect.width;
         _menuContainer.anchoredPosition = new Vector2(-_currentMenuIndex * _menuWidth, 0);
-
-        //UpdateActiveButton();
-        UpdateActiveDot();
-        ShowActiveWindow();
-        ButtonContinuedCheckLoading();
+               
+        ShowActiveWindow();        
     }
 
     public void OnPointerDown(PointerEventData eventData)
@@ -74,10 +71,9 @@ public class SwipeDetector : MonoBehaviour, IPointerDownHandler, IPointerUpHandl
     {
         if (_isDragging)
         {
-            _currentMenuIndex = Mathf.Clamp(_currentMenuIndex - 1, 0, _menuWindows.Length - 1);
+            _currentMenuIndex = Mathf.Clamp(_currentMenuIndex - 1, 0, 2);
             //UpdateActiveButton();
-            UpdateActiveDot();
-            ButtonContinuedCheckLoading();
+            UpdateActiveDot();            
             ShowActiveWindow();
         }
     }
@@ -86,11 +82,11 @@ public class SwipeDetector : MonoBehaviour, IPointerDownHandler, IPointerUpHandl
     {
         if (_isDragging)
         {
-            _currentMenuIndex = Mathf.Clamp(_currentMenuIndex + 1, 0, _menuWindows.Length - 1);
+            _currentMenuIndex = Mathf.Clamp(_currentMenuIndex + 1, 0, 2);
             //UpdateActiveButton();
             UpdateActiveDot();
             ShowActiveWindow();
-            ButtonContinuedCheckLoading();
+            
         }
     }
 
@@ -100,7 +96,7 @@ public class SwipeDetector : MonoBehaviour, IPointerDownHandler, IPointerUpHandl
         //UpdateActiveButton();
         UpdateActiveDot();
         ShowActiveWindow();
-        ButtonContinuedCheckLoading();
+        
     }
 
     private void UpdateActiveDot()
@@ -132,20 +128,7 @@ public class SwipeDetector : MonoBehaviour, IPointerDownHandler, IPointerUpHandl
             _menuWindows[i].transform.DOLocalMoveX(targetX, _timeToScreen);
         }
     }
-
-    private void ButtonContinuedCheckLoading()
-    {
-        if (_continuedButtons.Length > 0)
-        {
-            GameMode[] gameModes = { GameMode.SimpleInfinite, GameMode.Hardcore, GameMode.TimeTrial };
-
-            for (int i = 0; i < _continuedButtons.Length; i++)
-            {
-                bool hasSaveData = SaveManager.Instance.HasSavedData(gameModes[i]);
-                _continuedButtons[i].gameObject.SetActive(hasSaveData);
-            }
-        }        
-    }
+   
 
     public void OffSwipe()
     {

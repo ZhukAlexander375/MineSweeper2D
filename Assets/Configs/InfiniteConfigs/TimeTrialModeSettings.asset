@@ -12,4 +12,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8fc2fe2ebae44a243b68b8a0ceed55c9, type: 3}
   m_Name: TimeTrialModeSettings
   m_EditorClassIdentifier: 
-  DurationInSec: 300
+  DurationInSec: 600

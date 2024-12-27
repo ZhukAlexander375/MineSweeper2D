@@ -18,9 +18,15 @@ public class MainMenuUI : MonoBehaviour
     [SerializeField] private Button _settingsButton;
     [SerializeField] private Button _continueGameButton;
 
+    [SerializeField] private Button _chooseInfinitymodeButton;
+    [SerializeField] private Button _newClassicGameButton;
+
     [Header("Screens")]
     [SerializeField] private Canvas[] _mainMenuScreens;
     [SerializeField] private Canvas _settingsScreen;
+    [SerializeField] private Canvas _infinityModeMenuScreen;
+    [SerializeField] private Canvas _classicModeMenuScreen;
+    
 
     [Header("Texts")]
     [SerializeField] private TMP_Text _lastModeText;
@@ -43,10 +49,13 @@ public class MainMenuUI : MonoBehaviour
         _timeTrialNewGameButton.onClick.AddListener(NewTimeTrialGame);
         _timeTrialContinuedGameButton.onClick.AddListener(ContinuedTimeTrialGame);
 
-        _classicGameMenuButton.onClick.AddListener(OpenClassicGame);
-        _episodeGameMenuButton.onClick.AddListener(OpenEpisodeGame);
+        //_classicGameMenuButton.onClick.AddListener(OpenClassicGame);
+        //_episodeGameMenuButton.onClick.AddListener(OpenEpisodeGame);
         _settingsButton.onClick.AddListener(OpenSettingsScreen);
         _continueGameButton.onClick.AddListener(ContinueLastSession);
+
+        _chooseInfinitymodeButton.onClick.AddListener(OpenInfinityModeMenuScreen);
+        _newClassicGameButton.onClick.AddListener(OpenClassicModeMenuScreen);
 
         //UpdateLastSessionStatistic(new LoadCompletedSignal());
         //SignalBus.Subscribe<PlayerProgressLoadCompletedSignal>(UpdateLastSessionStatistic);
@@ -62,8 +71,11 @@ public class MainMenuUI : MonoBehaviour
     {
         for (int i = 0; i < _mainMenuScreens.Length; i++)
         {
-            _mainMenuScreens[i].gameObject.SetActive(i == index);
+            _mainMenuScreens[i].gameObject.SetActive(i == index);            
         }
+
+        _infinityModeMenuScreen.gameObject.SetActive(false);
+        _classicModeMenuScreen.gameObject.SetActive(false);
     }
 
     private void ContinueLastSession()
@@ -127,6 +139,17 @@ public class MainMenuUI : MonoBehaviour
         SceneLoader.Instance.LoadClassicMinesweeperScene();
     }
 
+    private void OpenInfinityModeMenuScreen() 
+    {        
+        _infinityModeMenuScreen.gameObject.SetActive(true);
+    }
+
+    private void OpenClassicModeMenuScreen()
+    {
+        _classicModeMenuScreen.gameObject.SetActive(true);
+    }
+
+
     private void OpenEpisodeGame()
     {
 
@@ -183,15 +206,15 @@ public class MainMenuUI : MonoBehaviour
 
         if (hours > 0)
         {
-            return $"{hours} h. {minutes} min. {seconds} sec";
+            return $"{hours} h. {minutes} min. {seconds} sec.";
         }
         else if (minutes > 0)
         {
-            return $"{minutes} min. {seconds} sec";
+            return $"{minutes} min. {seconds} sec.";
         }
         else
         {
-            return $"{seconds} sec";
+            return $"{seconds} sec.";
         }
     }
         
