@@ -48,13 +48,14 @@ public class ThemeConfig : ScriptableObject
     public Color ButtonsMinorTextColor;
 
     [Header("Images")]
-    public Sprite NavigationPanel;    
+    public Sprite NavigationPanel;
+    public Sprite MenuTitleImage;
 
 
-    
+
     //       
     //public Color MenuTitleTextColor; 
-    
+
     //public Color TextsOnButtons;
     //public Color ButtonsTextColorLight;
 }

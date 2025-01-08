@@ -5,7 +5,9 @@ public class PlayerProgressData
 {
     public int TotalReward;
     public GameMode LastSessionGameMode;
-   
+    public GameMode LastClassicSessionMode;
+    public bool IsFirstTimePlayed;
+
     //public int TotalPlacedFlags;
     //public int TotalOpenedCells;
     //public int TotalCompletedSectors;
@@ -16,6 +18,8 @@ public class PlayerProgressData
         {
             TotalReward = playerProgress.TotalReward;
             LastSessionGameMode = playerProgress.LastSessionGameMode;
+            LastClassicSessionMode = playerProgress.LastClassicSessionMode;
+            IsFirstTimePlayed = playerProgress.IsFirstTimePlayed;            
         }
     }
 }

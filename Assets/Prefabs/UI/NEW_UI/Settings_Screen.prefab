@@ -4658,6 +4658,8 @@ MonoBehaviour:
   _topFieldImage: []
   _closeSectorBackground: {fileID: 0}
   _transparentBackground: {fileID: 8280077564966119632}
+  _menuFrameTopColor: []
+  _menuFrameTopMinesColor: []
   _enabledSettingsImage:
   - {fileID: 5791846402087284053}
   - {fileID: 4047491367494992834}
@@ -4690,6 +4692,7 @@ MonoBehaviour:
   - {fileID: 3146285975173457343}
   - {fileID: 7381888750717614058}
   - {fileID: 6773854441621549463}
+  _menuTopIconsColor: []
   _slidersFillImage:
   - {fileID: 1946193184860415929}
   - {fileID: 5316556824392590459}
@@ -4699,7 +4702,6 @@ MonoBehaviour:
   _menuTitleText: {fileID: 0}
   _mainMenuTexts: []
   _navigationPanelImage: {fileID: 0}
-  _menuTitleImage: {fileID: 0}
 --- !u!114 &8197504206090946587
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5291,10 +5293,6 @@ MonoBehaviour:
   m_Options:
     m_Options:
     - m_Text: English
-      m_Image: {fileID: 0}
-    - m_Text: Russian
-      m_Image: {fileID: 0}
-    - m_Text: Spanish
       m_Image: {fileID: 0}
   m_OnValueChanged:
     m_PersistentCalls:

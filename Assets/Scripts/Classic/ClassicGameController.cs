@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class ClassicGameController : MonoBehaviour
 {
-    [SerializeField] private SampleGridManager _gridManager;
+    [SerializeField] private SimpleGridManager _gridManager;
 
     public void StartPresetLevel(int levelIndex)
     {

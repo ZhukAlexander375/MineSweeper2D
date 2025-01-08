@@ -9,13 +9,16 @@ public class GameManager : MonoBehaviour
     [SerializeField] private SimpleInfiniteStatisticController _simpleInfiniteStatisticController;
     [SerializeField] private HardcoreStatisticController _hardcoreStatisticController;
     [SerializeField] private TimeTrialStatisticController _timeTrialStatisticController;
+    [SerializeField] private ClassicModeStatisticController _classicStatisticController;
     public SimpleInfiniteStatisticController SimpleInfiniteStats => _simpleInfiniteStatisticController;
     public HardcoreStatisticController HardcoreStats => _hardcoreStatisticController;
     public TimeTrialStatisticController TimeTrialStats => _timeTrialStatisticController;
+    public ClassicModeStatisticController ClassicStats => _classicStatisticController;
 
     public GameMode CurrentGameMode { get; private set; }
     public IStatisticController CurrentStatisticController { get; private set; }
     public GameMode LastSessionGameMode { get; private set; }
+    public GameMode LastClassicSessionMode { get; private set; }
 
 
 
@@ -41,8 +44,10 @@ public class GameManager : MonoBehaviour
         _simpleInfiniteStatisticController.InitializeFromData(SaveManager.Instance.LoadSimpleInfiniteModeStats());
         _hardcoreStatisticController.InitializeFromData(SaveManager.Instance.LoadHardcoreModeStats());
         _timeTrialStatisticController.InitializeFromData(SaveManager.Instance.LoadTimeTrialModeStats());
+        _classicStatisticController.InitializeFromData(SaveManager.Instance.LoadClassicModeStats());
                
         LastSessionGameMode = PlayerProgress.Instance.LastSessionGameMode;
+        LastClassicSessionMode = PlayerProgress.Instance.LastClassicSessionMode;
 
         switch (LastSessionGameMode)
         {
@@ -62,15 +67,21 @@ public class GameManager : MonoBehaviour
                 CurrentStatisticController = _timeTrialStatisticController;
                 break;
             }
+
+            case (GameMode.ClassicEasy):
+            case (GameMode.ClassicMedium):
+            case (GameMode.ClassicHard):
+                {
+                    CurrentStatisticController = _classicStatisticController;
+                    break;
+                }
         }        
 
         if (CurrentStatisticController != null)
         {
             SignalBus.Fire<GameManagerLoadCompletedSignal>();
-        }
-        
+        }        
     }
-
 
     // MB START NEW GAME????
     public void SetCurrentGameMode(GameMode mode, bool isNewGame = true)
@@ -94,17 +105,34 @@ public class GameManager : MonoBehaviour
                 CurrentStatisticController = TimeTrialStats;
                 TimeTrialStats.IsGameStarted = isNewGame;
                 break;
+
+            case GameMode.ClassicEasy:
+                CurrentGameMode = GameMode.ClassicEasy;
+                CurrentStatisticController = ClassicStats;
+                ClassicStats.IsGameStarted = isNewGame;
+                LastClassicSessionMode = mode;
+                break;
+
+            case GameMode.ClassicMedium:
+                CurrentGameMode = GameMode.ClassicMedium;
+                CurrentStatisticController = ClassicStats;
+                ClassicStats.IsGameStarted = isNewGame;
+                LastClassicSessionMode = mode;
+                break;
+
+            case GameMode.ClassicHard:
+                CurrentGameMode = GameMode.ClassicHard;
+                CurrentStatisticController = ClassicStats;
+                ClassicStats.IsGameStarted = isNewGame;
+                LastClassicSessionMode = mode;
+                break;
         }
 
         LastSessionGameMode = mode;
        
-        PlayerProgress.Instance.SetLastSessionGameMode(mode);
-    }
-
-    /*public void SetCurrentGameMode(GameMode mode)
-    {
-        CurrentGameMode = mode;        
-    }*/
+        PlayerProgress.Instance.SetLastSessionGameMode(LastSessionGameMode);
+        PlayerProgress.Instance.SetLastClassicSessionGameMode(LastClassicSessionMode);
+    }    
 
     public void ResetCurrentModeStatistic()
     {
@@ -118,6 +146,15 @@ public class GameManager : MonoBehaviour
                 break;
             case GameMode.TimeTrial:
                 _timeTrialStatisticController.ResetStatistic();
+                break;
+            case GameMode.ClassicEasy:
+                _classicStatisticController.ResetStatistic();
+                break;
+            case GameMode.ClassicMedium:
+                _classicStatisticController.ResetStatistic();
+                break;
+            case GameMode.ClassicHard:
+                _classicStatisticController.ResetStatistic();
                 break;
             default:
                 Debug.LogWarning("Unknown game mode.");
@@ -144,6 +181,12 @@ public class GameManager : MonoBehaviour
 
             case GameMode.TimeTrial:
                 SaveManager.Instance.ClearSavedTimeTrialGame();
+                break;
+
+            case GameMode.ClassicEasy:
+            case GameMode.ClassicMedium:
+            case GameMode.ClassicHard:
+                SaveManager.Instance.ClearSavesClassicGame();
                 break;
 
             default:

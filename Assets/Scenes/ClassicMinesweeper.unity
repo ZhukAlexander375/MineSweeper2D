@@ -148,6 +148,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 2063490924}
     - target: {fileID: 6880383999153144735, guid: 1a3a08da3ff7dad478a8a6f6e83edcda, type: 3}
+      propertyPath: _cameraController
+      value: 
+      objectReference: {fileID: 1639130782}
+    - target: {fileID: 6880383999153144735, guid: 1a3a08da3ff7dad478a8a6f6e83edcda, type: 3}
       propertyPath: _flagPlaceParticle
       value: 
       objectReference: {fileID: 3503042423861992223, guid: 35e832249f1901243a3190aca1dfaff8, type: 3}

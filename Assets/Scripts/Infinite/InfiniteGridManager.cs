@@ -25,8 +25,7 @@ public class InfiniteGridManager : MonoBehaviour
     [SerializeField] private SectorRewardConfig sectorRewardConfig;
 
     public bool IsFirstClick;
-    public bool IsGenerateEnabled;
-    public int ExplodedMines;
+    public bool IsGenerateEnabled;    
 
     private int _sectorSize = 9;            ///
     private Camera mainCamera;    
@@ -551,7 +550,7 @@ public class InfiniteGridManager : MonoBehaviour
         {
             VibrateOnAction();
         }
-
+        
         RedrawSectors();
 
         SectorCompletionCheck(currentSector);

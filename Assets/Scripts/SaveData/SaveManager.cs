@@ -14,6 +14,7 @@ public class SaveManager : MonoBehaviour
     private const string SaveSimpleInfiniteGameFileName = "SimpleInfiniteGameSave.json";
     private const string SaveHardcoreGameFileName = "HardcoreInfiniteGameSave.json";
     private const string SaveTimeTrialGameFileName = "TimeTrialInfiniteGameSave.json";
+    private const string SaveClassicGameFileName = "ClassicGameSave.json";
 
     private const string SaveTimerFileName = "TimerSave.json";
 
@@ -118,6 +119,28 @@ public class SaveManager : MonoBehaviour
         File.WriteAllText(filePath, json);
     }
 
+    public void SaveClassicGame(ClassicModeStatisticController classicStats)
+    {
+        ClassicGameSaveWrapper saveData = new ClassicGameSaveWrapper
+        {
+            ClassicModeData = new ClassicModeData(classicStats)
+            {
+                IsGameStarted = classicStats.IsGameStarted,
+                OpenedCells = classicStats.OpenedCells,
+                PlacedFlags = classicStats.PlacedFlags,
+                CompletedSectors = classicStats.CompletedSectors,
+                ExplodedMines = classicStats.ExplodedMines,
+                RewardLevel = classicStats.RewardLevel,
+                SectorBuyoutCostLevel = classicStats.SectorBuyoutCostLevel,
+                TotalPlayTime = classicStats.TotalPlayTime,
+                IsGameOver = classicStats.IsGameOver,
+            }
+        };
+        string json = JsonUtility.ToJson(saveData, true);
+        var filePath = Path.Combine(Application.persistentDataPath, SaveClassicGameFileName);
+        File.WriteAllText(filePath, json);
+    }
+
     /// <summary>
     /// FOR LOAD ONLY MODES STATISTICS 
     /// </summary>
@@ -168,6 +191,21 @@ public class SaveManager : MonoBehaviour
         
         //Debug.Log($"Simple Infinite Game stats loaded successfully from {filePath}");
         return saveData.TimeTrialModeData;
+    }
+
+    public ClassicModeData LoadClassicModeStats()
+    {
+        var filePath = Path.Combine(Application.persistentDataPath, SaveClassicGameFileName);
+
+        if (!File.Exists(filePath))
+        {
+            return new ClassicModeData();
+        }
+
+        string json = File.ReadAllText(filePath);
+        ClassicGameSaveWrapper saveData = JsonUtility.FromJson<ClassicGameSaveWrapper>(json);
+
+        return saveData.ClassicModeData;
     }
 
     /// <summary>
@@ -303,6 +341,21 @@ public class SaveManager : MonoBehaviour
     public void ClearSavedTimeTrialGame()
     {
         var filePath = Path.Combine(Application.persistentDataPath, SaveTimeTrialGameFileName);
+
+        if (File.Exists(filePath))
+        {
+            File.Delete(filePath);
+            //Debug.Log($"Save file at {filePath} has been deleted.");
+        }
+        else
+        {
+            //Debug.LogWarning("No save file found to delete for TimeTrial.");
+        }
+    }
+
+    public void ClearSavesClassicGame()
+    {
+        var filePath = Path.Combine(Application.persistentDataPath, SaveClassicGameFileName);
 
         if (File.Exists(filePath))
         {

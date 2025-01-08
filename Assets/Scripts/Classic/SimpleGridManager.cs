@@ -4,8 +4,12 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 
 [DefaultExecutionOrder(-1)]
-public class SampleGridManager : MonoBehaviour
+public class SimpleGridManager : MonoBehaviour
 {
+    [Header("Camera Controller")]
+    [SerializeField] private CameraController _cameraController;
+
+    [Header("Settings")]
     [SerializeField] private Board _board;
     [SerializeField] private List<LevelConfig> _levels = new();
     [SerializeField] private GameObject _flagPlaceParticle;
@@ -15,10 +19,11 @@ public class SampleGridManager : MonoBehaviour
     private int _width;
     private int _height;
     private int _mineCount;
-        
+
     private CellGrid _cellGrid;
     private int _currentLevel = 0;
 
+    public bool IsFirstClick;
     private bool IsGameOver;
     private bool IsGenerated;
 
@@ -28,105 +33,49 @@ public class SampleGridManager : MonoBehaviour
     private float _lastClickTime = -1f;
     private const float DoubleClickThreshold = 0.3f; // Порог для двойного клика (в секундах)
 
+    private SaveManager _saveManager;
+    private PlayerProgress _playerProgress;
+    private GameManager _gameManager;
+    private IStatisticController _statisticController;
+
     private void Awake()
     {
-        Application.targetFrameRate = 60;
+
     }
 
     private void Start()
     {
-        gameObject.SetActive(false);
-        //NewGame();
-    }
+        _saveManager = SaveManager.Instance;
+        _playerProgress = PlayerProgress.Instance;
+        _gameManager = GameManager.Instance;
+        _statisticController = GameManager.Instance.CurrentStatisticController;
 
-    public void StartLevel(int levelIndex)
-    {
-        if (levelIndex >= 0 && levelIndex < _levels.Count)
-        {
-            _currentLevel = levelIndex;
-            SetLevelSettings();
-            NewGame();
-        }
-        else
-        {
-            Debug.LogError("Level index out of range");
-        }
-    }
-
-    public void StartCustomLevel(ClassicGameSettings settings)
-    {
-        SetCustomLevelSettings(settings);
-        NewGame();       
-    }
-
-    private void NewGame()
-    {
-        StopAllCoroutines();               
-
-        IsGameOver = false;
-        IsGenerated = false;
-
-        _cellGrid = new CellGrid(_width, _height);
-        _board.Draw(_cellGrid);
-
-        //_cellGrid = new CellGrid((int)Mathf.Sqrt(_freeForm.GridSize), (int)Mathf.Sqrt(_freeForm.GridSize));
-        //_board.DrawFreeForm(_freeForm, _cellGrid);
-    }
-
-    private void SetLevelSettings()
-    {
-        _width = _levels[_currentLevel].Width;
-        _height = _levels[_currentLevel].Height;
-        _mineCount = _levels[_currentLevel].MineCount;
-        _mineCount = Mathf.Clamp(_mineCount, 0, _width * _height);
-
-        AdjustCameraToGridSize(_width, _height);
-        //Camera.main.transform.position = new Vector3(_width / 2f, _height / 2f, -10f);
-    }
-
-    private void SetCustomLevelSettings(ClassicGameSettings settings)
-    {
-        int width = ClassicGameMinSize.ClampValue(settings.Width, ClassicGameMinSize.MinWidth, ClassicGameMinSize.MaxWidth);
-        int height = ClassicGameMinSize.ClampValue(settings.Height, ClassicGameMinSize.MinHeight, ClassicGameMinSize.MaxHeight);
-        int maxMines = ClassicGameMinSize.MaxMines(width, height);
-        int mines = ClassicGameMinSize.ClampValue(settings.Mines, ClassicGameMinSize.MinMines(width, height), maxMines);
-
-        _width = width;
-        _height = height;
-        _mineCount = mines;
-
-        AdjustCameraToGridSize(width, height);
-        //Camera.main.transform.position = new Vector3(_width / 2f, _height / 2f, -10f);
-    }
-
-    private void AdjustCameraToGridSize(int gridWidth, int gridHeight)
-    {        
-        Camera camera = Camera.main;
-        if (camera.orthographic)
-        {
-            float aspectRatio = (float)Screen.width / Screen.height;
-            
-            float cameraSizeX = gridWidth / 2f;
-            float cameraSizeY = gridHeight / 2f;
-
-            camera.orthographicSize = Mathf.Max(cameraSizeY, cameraSizeX / aspectRatio);
-
-            camera.transform.position = new Vector3(gridWidth / 2f, gridHeight / 2f, -10f);
-        }
-        else
-        {
-            Debug.LogError("Camera is not set to orthographic mode.");
-        }
+        CheckGameStart();
     }
 
     private void Update()
     {
+        if (_cameraController.IsCameraInteracting)
+        {
+            return;
+        }
+
         // check click on ui or gamefield
         if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject())
         {
-            return; 
+            return;
         }
 
+        if (Input.touchCount > 0 && EventSystem.current.IsPointerOverGameObject(Input.GetTouch(0).fingerId))
+        {
+            return;
+        }
+
+        HandleGameInput();
+    }
+
+    private void HandleGameInput()
+    {
         if (Input.GetMouseButtonDown(0))
         {
             float currentTime = Time.time;
@@ -187,8 +136,122 @@ public class SampleGridManager : MonoBehaviour
         }*/
     }
 
+    private void CheckGameStart()
+    {
+        switch (GameManager.Instance.CurrentGameMode)
+        {
+            case GameMode.ClassicEasy:
+                StartLevel(0);
+                break;
+
+            case GameMode.ClassicMedium:
+                StartLevel(1);
+                break;
+
+            case GameMode.ClassicHard:
+                StartLevel(2);
+                break;
+                /*if (_gameManager.SimpleInfiniteStats.IsGameStarted)
+                {
+                    LoadSavedGame();
+                    SignalBus.Fire<LoadCompletedSignal>();
+                }
+                else
+                {
+                    StartNewGame();
+                }
+                break;*/
+        }
+    }
+
+    public void StartLevel(int levelIndex)
+    {
+        if (levelIndex >= 0 && levelIndex < _levels.Count)
+        {
+            _currentLevel = levelIndex;
+            SetLevelSettings();
+            NewGame();
+        }
+        else
+        {
+            Debug.LogError("Level index out of range");
+        }
+    }
+
+    public void StartCustomLevel(ClassicGameSettings settings)
+    {
+        SetCustomLevelSettings(settings);
+        NewGame();
+    }
+
+    private void NewGame()
+    {
+        StopAllCoroutines();
+
+        IsGenerated = false;
+
+        _cellGrid = new CellGrid(_width, _height);
+        _board.Draw(_cellGrid);
+
+        _gameManager.CurrentStatisticController.StartTimer();
+
+        //_cellGrid = new CellGrid((int)Mathf.Sqrt(_freeForm.GridSize), (int)Mathf.Sqrt(_freeForm.GridSize));
+        //_board.DrawFreeForm(_freeForm, _cellGrid);
+    }
+
+    private void SetLevelSettings()
+    {
+        _width = _levels[_currentLevel].Width;
+        _height = _levels[_currentLevel].Height;
+        _mineCount = _levels[_currentLevel].MineCount;
+        _mineCount = Mathf.Clamp(_mineCount, 0, _width * _height);
+
+        AdjustCameraToGridSize(_width, _height);
+        //Camera.main.transform.position = new Vector3(_width / 2f, _height / 2f, -10f);
+    }
+
+    private void SetCustomLevelSettings(ClassicGameSettings settings)
+    {
+        int width = ClassicGameMinSize.ClampValue(settings.Width, ClassicGameMinSize.MinWidth, ClassicGameMinSize.MaxWidth);
+        int height = ClassicGameMinSize.ClampValue(settings.Height, ClassicGameMinSize.MinHeight, ClassicGameMinSize.MaxHeight);
+        int maxMines = ClassicGameMinSize.MaxMines(width, height);
+        int mines = ClassicGameMinSize.ClampValue(settings.Mines, ClassicGameMinSize.MinMines(width, height), maxMines);
+
+        _width = width;
+        _height = height;
+        _mineCount = mines;
+
+        AdjustCameraToGridSize(width, height);
+        //Camera.main.transform.position = new Vector3(_width / 2f, _height / 2f, -10f);
+    }
+
+    private void AdjustCameraToGridSize(int gridWidth, int gridHeight)
+    {
+        Camera camera = Camera.main;
+        if (camera.orthographic)
+        {
+            float aspectRatio = (float)Screen.width / Screen.height;
+
+            float cameraSizeX = gridWidth / 2f;
+            float cameraSizeY = gridHeight / 2f;
+
+            camera.orthographicSize = Mathf.Max(cameraSizeY, cameraSizeX / aspectRatio);
+
+            camera.transform.position = new Vector3(gridWidth / 2f, gridHeight / 2f, -10f);
+        }
+        else
+        {
+            Debug.LogError("Camera is not set to orthographic mode.");
+        }
+    }
+
     private void Reveal()
     {
+        if (!IsFirstClick)
+        {
+            IsFirstClick = true;
+        }
+
         if (TryGetCellAtMousePosition(out BaseCell cell))
         {
             if (!IsGenerated)
@@ -210,7 +273,9 @@ public class SampleGridManager : MonoBehaviour
         switch (cell.CellState)
         {
             case CellState.Mine:
+                UpdateExplodedMinesCount();
                 Explode(cell);
+                SaveCurrentGame();
                 break;
 
             case CellState.Empty:
@@ -220,6 +285,7 @@ public class SampleGridManager : MonoBehaviour
 
             default:
                 cell.IsRevealed = true;
+                UpdateOpenedCells();
                 CheckWinCondition();
                 break;
         }
@@ -234,6 +300,12 @@ public class SampleGridManager : MonoBehaviour
         if (cell.CellState == CellState.Mine) yield break;
 
         cell.IsRevealed = true;
+
+        if (cell.IsRevealed)
+        {
+            UpdateOpenedCells();
+        }
+
         _board.Draw(_cellGrid);
 
         yield return null;
@@ -277,25 +349,35 @@ public class SampleGridManager : MonoBehaviour
 
     private void Flag()
     {
+        if (!IsFirstClick)
+        {
+            IsFirstClick = true;
+        }
+
         if (!TryGetCellAtMousePosition(out BaseCell cell)) return;
         if (cell.IsRevealed) return;
 
         bool isPlacingFlag = !cell.IsFlagged;
         cell.IsFlagged = !cell.IsFlagged;
 
+        UpdateFlagsCount(isPlacingFlag);
         InstantiateParticleAtCell(isPlacingFlag ? _flagPlaceParticle : _flagRemoveParticle, cell);
-        VibrateOnAction();
+
+        if (GameSettingsManager.Instance.IsVibrationEnabled)
+        {
+            VibrateOnAction();
+        }
 
         _board.Draw(_cellGrid);
     }
 
     private void InstantiateParticleAtCell(GameObject particlePrefab, BaseCell cell)
-    {        
+    {
         Vector3 worldPosition = cell.GlobalCellPosition;
 
         GameObject particleInstance = Instantiate(particlePrefab, worldPosition, Quaternion.identity);
 
-        Destroy(particleInstance, 2f); 
+        Destroy(particleInstance, 2f);
     }
 
     private void VibrateOnAction()
@@ -364,13 +446,13 @@ public class SampleGridManager : MonoBehaviour
 
     private void Explode(BaseCell cell)
     {
-        IsGameOver = true;
+        _statisticController.StopTimer();
+        _statisticController.IsGameOver = true;
+        SignalBus.Fire(new GameOverSignal(GameManager.Instance.CurrentGameMode));
 
-        // Set the mine as exploded
         cell.IsExploded = true;
         cell.IsRevealed = true;
 
-        // Reveal all other mines
         for (int x = 0; x < _width; x++)
         {
             for (int y = 0; y < _height; y++)
@@ -385,8 +467,27 @@ public class SampleGridManager : MonoBehaviour
         }
     }
 
+    private void UpdateOpenedCells()
+    {
+        _statisticController.IncrementOpenedCells();
+    }
+
+    private void UpdateFlagsCount(bool isPlacingFlag)
+    {
+        _statisticController.IncrementPlacedFlags(isPlacingFlag);
+    }
+
+    private void UpdateExplodedMinesCount()
+    {
+        _statisticController.IncrementExplodedMines();
+
+    }
+
     private void CheckWinCondition()
     {
+        bool allNonMinesRevealed = true;
+        bool allMinesFlagged = true;
+
         for (int x = 0; x < _width; x++)
         {
             for (int y = 0; y < _height; y++)
@@ -396,14 +497,32 @@ public class SampleGridManager : MonoBehaviour
                 // All non-mine cells must be revealed to have won
                 if (cell.CellState != CellState.Mine && !cell.IsRevealed)
                 {
-                    return; // no win
+                    allNonMinesRevealed = false; // no win
+                }
+
+                if (cell.CellState == CellState.Mine && !cell.IsFlagged)
+                {
+                    allMinesFlagged = false;
+                }
+
+                // Если хотя бы одно из условий не выполнено, игра не выиграна
+                if (!allNonMinesRevealed || !allMinesFlagged)
+                {
+                    return;
                 }
             }
         }
 
-        IsGameOver = true;
+        HandleWinCondition();
+    }
 
-        // Flag all the mines
+    private void HandleWinCondition()
+    {
+        _statisticController.StopTimer();
+
+        SignalBus.Fire(new GameOverSignal(GameManager.Instance.CurrentGameMode));
+
+        // Флагируем все мины (для визуализации)
         for (int x = 0; x < _width; x++)
         {
             for (int y = 0; y < _height; y++)
@@ -416,6 +535,24 @@ public class SampleGridManager : MonoBehaviour
                 }
             }
         }
+
+        _board.Draw(_cellGrid);
+    }
+
+    public void SaveCurrentGame()
+    {
+        switch (GameManager.Instance.CurrentGameMode)
+        {
+            case GameMode.ClassicEasy:
+            case GameMode.ClassicMedium:
+            case GameMode.ClassicHard:
+                _saveManager.SaveClassicGame(GameManager.Instance.ClassicStats);
+                break;
+
+            default:
+                Debug.LogError("Unknown game mode. Cannot save.");
+                break;
+        }
     }
 
     private bool TryGetCellAtMousePosition(out BaseCell cell)
@@ -423,5 +560,16 @@ public class SampleGridManager : MonoBehaviour
         Vector3 worldPosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
         Vector3Int cellPosition = _board.Tilemap.WorldToCell(worldPosition);
         return _cellGrid.TryGetCell(cellPosition.x, cellPosition.y, out cell);
+    }
+
+    private void OnApplicationQuit()
+    {
+        _gameManager.CurrentStatisticController.StopTimer();
+        //SavePlayerProgress();
+
+        if (IsFirstClick)
+        {
+            SaveCurrentGame();
+        }
     }
 }

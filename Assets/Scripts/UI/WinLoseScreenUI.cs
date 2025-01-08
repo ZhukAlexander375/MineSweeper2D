@@ -2,16 +2,17 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class LoseScreenUI : MonoBehaviour
+public class WinLoseScreenUI : MonoBehaviour
 {
     [Header("Buttons")]
-    [SerializeField] private Button _replayHardcoreLevelButton;
+    [SerializeField] private Button _replayLevelButton;
     [SerializeField] private Button _goHomeButton;
     [SerializeField] private Button _backButton;
     [SerializeField] private Button _fieldOverviewButton;
 
     [Header("Texts")]
     [SerializeField] private TMP_Text _titleText;
+    [SerializeField] private TMP_Text _modeNameText;
     [SerializeField] private TMP_Text _resultText1Text;
     [SerializeField] private TMP_Text _resultText2Text;
     [SerializeField] private TMP_Text _resultText3Text;
@@ -24,17 +25,25 @@ public class LoseScreenUI : MonoBehaviour
     [Header("Objects")]
     [SerializeField] private GameObject _loseMenuObject;
 
+    [Header("Images, Sprites")]
+    [SerializeField] private Image _titleImage;
+    [SerializeField] private Sprite _resultSprite;
+    [SerializeField] private Sprite _loseSprite;
+    [SerializeField] private Sprite _winSprite;
+
     private InfiniteGridManager _infiniteGridManager;
+    private SimpleGridManager _simpleGridManager;
 
     private void Awake()
     {
         _infiniteGridManager = FindObjectOfType<InfiniteGridManager>();
+        _simpleGridManager = FindObjectOfType<SimpleGridManager>();
     }
 
 
     private void Start()
     {
-        _replayHardcoreLevelButton.onClick.AddListener(ReplayGame);
+        _replayLevelButton.onClick.AddListener(ReplayGame);
         _goHomeButton.onClick.AddListener(ReturnToMainMenu);
         _fieldOverviewButton.onClick.AddListener(HideLoseMenu);
         _backButton.onClick.AddListener(ShowLoseMenu);
@@ -55,7 +64,20 @@ public class LoseScreenUI : MonoBehaviour
 
         GameManager.Instance.ClearCurrentGame(GameManager.Instance.CurrentGameMode);
         GameManager.Instance.SetCurrentGameMode(GameManager.Instance.CurrentGameMode);
-        SceneLoader.Instance.LoadInfiniteMinesweeperScene();
+        
+        switch (GameManager.Instance.CurrentGameMode)
+        {
+            case GameMode.Hardcore:
+            case GameMode.TimeTrial:
+                SceneLoader.Instance.LoadInfiniteMinesweeperScene();
+                break;
+
+            case GameMode.ClassicEasy:
+            case GameMode.ClassicMedium:
+            case GameMode.ClassicHard:
+                SceneLoader.Instance.LoadClassicMinesweeperScene();
+                break;
+        }        
     }
 
     private void ReturnToMainMenu()
@@ -63,9 +85,24 @@ public class LoseScreenUI : MonoBehaviour
         GameManager.Instance.CurrentStatisticController.StopTimer();
         PlayerProgress.Instance.SavePlayerProgress();
 
-        if (_infiniteGridManager.IsFirstClick)
+        switch (GameManager.Instance.CurrentGameMode)
         {
-            _infiniteGridManager.SaveCurrentGame();
+            case GameMode.Hardcore:
+            case GameMode.TimeTrial:
+                if (_infiniteGridManager != null && _infiniteGridManager.IsFirstClick)
+                {
+                    _infiniteGridManager.SaveCurrentGame();
+                }
+                break;
+
+            case GameMode.ClassicEasy:
+            case GameMode.ClassicMedium:
+            case GameMode.ClassicHard:
+                if (_simpleGridManager != null && _simpleGridManager.IsFirstClick)
+                {
+                    _simpleGridManager.SaveCurrentGame();
+                }
+                break;
         }
 
         SceneLoader.Instance.LoadMainMenuScene();
@@ -84,21 +121,62 @@ public class LoseScreenUI : MonoBehaviour
 
     private void UpdateStatisticTexts()
     {
-        SetTitleText();
+        SetTitleIconAndText();
+        SetModeNameText();
         SetResultTexts();
         SetResultValueTexts();
     }
 
-    private void SetTitleText()
+    private void SetTitleIconAndText()
+    {
+        switch (GameManager.Instance.CurrentGameMode)
+        {
+            case GameMode.Hardcore:
+            case GameMode.TimeTrial:
+                _titleImage.sprite = _resultSprite;
+                _titleText.text = "Results";
+                break;
+
+            case GameMode.ClassicEasy:
+            case GameMode.ClassicMedium:
+            case GameMode.ClassicHard:
+                if (GameManager.Instance.CurrentStatisticController.IsGameOver)
+                {
+                    _titleImage.sprite = _loseSprite;
+                    _titleText.text = "Try again";
+                }
+                else
+                {
+                    _titleImage.sprite = _winSprite;
+                    _titleText.text = "You win";
+                }
+                break;
+        }
+    }
+
+
+    private void SetModeNameText()
     {
         switch (GameManager.Instance.CurrentGameMode)
         {
             case (GameMode.Hardcore):                
-                _titleText.text = "Hardcore";                
+                _modeNameText.text = "Hardcore";                
                 break;
 
             case (GameMode.TimeTrial):
-                _titleText.text = "Time";
+                _modeNameText.text = "Time";
+                break;
+
+            case (GameMode.ClassicEasy):
+                _modeNameText.text = "Easy";
+                break;
+
+            case (GameMode.ClassicMedium):
+                _modeNameText.text = "Medium";
+                break;
+
+            case (GameMode.ClassicHard):
+                _modeNameText.text = "Hard";
                 break;
         }
     }
@@ -120,6 +198,15 @@ public class LoseScreenUI : MonoBehaviour
                 _resultText3Text.text = "Completed sectors:";
                 _resultText4Text.text = "Triggered mines:";
                 break;
+
+            case (GameMode.ClassicEasy):
+            case (GameMode.ClassicMedium):
+            case (GameMode.ClassicHard):
+                _resultText1Text.text = "Time in mode:";
+                _resultText2Text.text = "Opened cells:";
+                _resultText3Text.text = "Checkboxes placed:";
+                _resultText4Text.text = "Triggered mines:";
+                break;
         }    
     }
 
@@ -138,6 +225,15 @@ public class LoseScreenUI : MonoBehaviour
                 _resultValueText1Text.text = GameManager.Instance.CurrentStatisticController.OpenedCells.ToString();
                 _resultValueText2Text.text = GameManager.Instance.CurrentStatisticController.PlacedFlags.ToString();
                 _resultValueText3Text.text = GameManager.Instance.CurrentStatisticController.CompletedSectors.ToString();
+                _resultValueText4Text.text = GameManager.Instance.CurrentStatisticController.ExplodedMines.ToString();
+                break;
+
+            case (GameMode.ClassicEasy):
+            case (GameMode.ClassicMedium):
+            case (GameMode.ClassicHard):
+                _resultValueText1Text.text = FormatTime(GameManager.Instance.CurrentStatisticController.TotalPlayTime);
+                _resultValueText2Text.text = GameManager.Instance.CurrentStatisticController.OpenedCells.ToString();
+                _resultValueText3Text.text = GameManager.Instance.CurrentStatisticController.PlacedFlags.ToString();
                 _resultValueText4Text.text = GameManager.Instance.CurrentStatisticController.ExplodedMines.ToString();
                 break;
         }

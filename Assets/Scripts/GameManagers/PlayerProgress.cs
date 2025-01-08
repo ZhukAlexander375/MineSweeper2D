@@ -5,6 +5,8 @@ public class PlayerProgress : MonoBehaviour
     public static PlayerProgress Instance { get; private set; }
     public int TotalReward { get; private set; }
     public GameMode LastSessionGameMode { get; private set; }
+    public GameMode LastClassicSessionMode { get; private set; }
+    public bool IsFirstTimePlayed { get; private set; }
 
     //public int TotalPlacedFlags { get; private set; }
     //public int TotalOpenedCells { get; private set; }
@@ -36,6 +38,11 @@ public class PlayerProgress : MonoBehaviour
         LastSessionGameMode = lastMode;
     }
 
+    public void SetLastClassicSessionGameMode(GameMode lastClassic)
+    {
+        LastClassicSessionMode = lastClassic;
+    }
+
     public void UpdateExplodedMinesCount(int count)
     {
         //ExplodedMines = count;
@@ -54,7 +61,9 @@ public class PlayerProgress : MonoBehaviour
         PlayerProgressData playerProgress = new PlayerProgressData
         {
             TotalReward = TotalReward,
-            LastSessionGameMode = LastSessionGameMode
+            LastSessionGameMode = LastSessionGameMode,
+            LastClassicSessionMode = LastClassicSessionMode,
+            IsFirstTimePlayed = IsFirstTimePlayed
         };
 
         SaveManager.Instance.SavePlayerProgress(playerProgress);
@@ -63,6 +72,14 @@ public class PlayerProgress : MonoBehaviour
     public bool CheckAwardCount(int value)
     {
         return TotalReward >= value;
+    }
+
+    public void SetFirstTimePlayed()
+    {
+        if (!IsFirstTimePlayed)
+        {
+            IsFirstTimePlayed = true;
+        }        
     }
 
     private void ChangePlayersReward(OnGameRewardSignal signal)
@@ -102,6 +119,8 @@ public class PlayerProgress : MonoBehaviour
         {
             TotalReward = playerProgress.TotalReward;
             LastSessionGameMode = playerProgress.LastSessionGameMode;
+            LastClassicSessionMode = playerProgress.LastClassicSessionMode;
+            IsFirstTimePlayed = playerProgress.IsFirstTimePlayed;
 
             SignalBus.Fire<PlayerProgressLoadCompletedSignal>();
         }

@@ -29,6 +29,8 @@ public class SectorUI : MonoBehaviour
         _replayLevelButton.onClick.AddListener(ReplayLevel);
         //gameObject.SetActive(false);
         UpdatePrizeCountText();
+
+        CheckRewardButtonInteractable(new OnGameRewardSignal());
     }
 
     public void SetSector(Sector sector)
@@ -55,7 +57,7 @@ public class SectorUI : MonoBehaviour
         UpdatePrizeCountText();
 
         _closeButton.gameObject.SetActive(false);
-        _containerForHideObjects.gameObject.SetActive(true);        
+        _containerForHideObjects.gameObject.SetActive(true);
     }
 
     public void CompletedSector()
@@ -77,18 +79,33 @@ public class SectorUI : MonoBehaviour
     {
         _sector.OpenSector(0);
     }
-    
-    private void ReplayLevel() 
+
+    private void ReplayLevel()
     {
         PlayerProgress.Instance.ResetSessionStatistic();
         //GameManager.Instance.IsDownloadedInfiniteGame = false;
         //GameManager.Instance.IsNewInfiniteGame = true;
-       // GameManager.Instance.SaveGameModes();
+        // GameManager.Instance.SaveGameModes();
         SceneLoader.Instance.LoadInfiniteMinesweeperScene();
     }
 
     private void UpdatePrizeCountText()
     {
         _prizeCountText.text = _sector.CurrentBuyoutCost.ToString();
+    }
+
+    private void CheckRewardButtonInteractable(OnGameRewardSignal signal)
+    {
+        _openSectorForAwardButton.interactable = PlayerProgress.Instance.CheckAwardCount(_sector.CurrentBuyoutCost);
+    }
+
+    private void OnEnable()
+    {
+        SignalBus.Subscribe<OnGameRewardSignal>(CheckRewardButtonInteractable);
+    }
+
+    private void OnDestroy()
+    {
+        SignalBus.Unsubscribe<OnGameRewardSignal>(CheckRewardButtonInteractable);        
     }
 }

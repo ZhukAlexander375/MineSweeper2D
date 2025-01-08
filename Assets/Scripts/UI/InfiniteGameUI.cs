@@ -1,4 +1,5 @@
 using TMPro;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -11,6 +12,7 @@ public class InfiniteGameUI : MonoBehaviour
     [SerializeField] private Button _closeSettingsButton;
     [SerializeField] private Button _replayLevelButton;    
     [SerializeField] private Button _goHomeButton;
+    [SerializeField] private Button _backLastClickButton;
 
     [Header("Screens")]
     [SerializeField] private Canvas _pauseMenuScreen;
@@ -26,11 +28,11 @@ public class InfiniteGameUI : MonoBehaviour
     [Header("Objects")]
     [SerializeField] private GameObject _timerObject;
         
-    private InfiniteGridManager _infiniteGridManager;
+    private InfiniteGridManager _infiniteGridManager;    
 
     private void Awake()
     {       
-        _infiniteGridManager = FindObjectOfType<InfiniteGridManager>();
+        _infiniteGridManager = FindObjectOfType<InfiniteGridManager>();        
     }
 
     private void Start()
@@ -41,6 +43,7 @@ public class InfiniteGameUI : MonoBehaviour
         _closeSettingsButton.onClick.AddListener(CloseSettings);
         _replayLevelButton.onClick.AddListener(ReplayGame);        
         _goHomeButton.onClick.AddListener(ReturnToMainMenu);
+        _backLastClickButton.onClick.AddListener(BackToLastClickButton);
 
         CheckGameMode();
         UpdateTexts();
@@ -71,11 +74,11 @@ public class InfiniteGameUI : MonoBehaviour
     {
         GameManager.Instance.CurrentStatisticController.StopTimer();        
         PlayerProgress.Instance.SavePlayerProgress();
-        
+               
         if (_infiniteGridManager.IsFirstClick)
         {
             _infiniteGridManager.SaveCurrentGame();
-        }
+        } 
 
         SceneLoader.Instance.LoadMainMenuScene();
     }
@@ -128,6 +131,11 @@ public class InfiniteGameUI : MonoBehaviour
         {
             _loseScreen.gameObject.SetActive(true);
         }        
+    }
+
+    private void BackToLastClickButton()
+    {
+        _infiniteGridManager.ReturnCameraToLastClick();
     }
 
     private void UpdateAwardUI(OnGameRewardSignal signal)

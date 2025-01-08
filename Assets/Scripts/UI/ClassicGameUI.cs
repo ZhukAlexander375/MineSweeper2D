@@ -10,19 +10,18 @@ public class ClassicGameUI : MonoBehaviour
     [SerializeField] private Button _pauseButton;
     [SerializeField] private Button _continueButton;
     [SerializeField] private Button _settingsOnPauseButton;
-    [SerializeField] private Button _replayLevel;
-    [SerializeField] private Button _backToClassicGameMenu;
+    [SerializeField] private Button _replayLevelButton;
+    [SerializeField] private Button _goHomeButton;
 
-    [SerializeField] private Button _easyLvlButton;
-    [SerializeField] private Button _mediumLvlButton;
-    [SerializeField] private Button _hardLvlButton;
-    [SerializeField] private Button _customLvlButton;
+    //[SerializeField] private Button _easyLvlButton;
+    //[SerializeField] private Button _mediumLvlButton;
+    //[SerializeField] private Button _hardLvlButton;
+    //[SerializeField] private Button _customLvlButton;
     [SerializeField] private Button _startCustomGameButton;
 
-    [SerializeField] private Button _backToMainMenuButton;        
-    //[SerializeField] private Button _backToMenuButton;
-    //[SerializeField] private Button _backToClassicGameMenu;
-    
+    //[SerializeField] private Button _backToMainMenuButton;
+    //[SerializeField] private Button _backToMenuButton;   
+
 
     [Header("InputFields")]
     [SerializeField] private InputFieldHandler _inputWidth;
@@ -35,12 +34,12 @@ public class ClassicGameUI : MonoBehaviour
     [Header("Screens")]
     [SerializeField] private Canvas _pauseMenuScreen;
     [SerializeField] private Canvas _settingsScreen;
-    [SerializeField] private Canvas _classicGameMenuScreen;
+    [SerializeField] private Canvas _loseScreen;    
     [SerializeField] private Canvas _gameScreen;
     [SerializeField] private Canvas _customGameSettingsScreen;
 
     [Header("GridManager")]
-    [SerializeField] private SampleGridManager _gridManager;
+    [SerializeField] private SimpleGridManager _gridManager;
     [SerializeField] private GameObject _sampleGrid;
 
     [Header("Settings For Custom Game")]
@@ -50,12 +49,11 @@ public class ClassicGameUI : MonoBehaviour
     [SerializeField] private int _maxMines = 5000;
     [SerializeField] private ClassicGameController _classicGameController;
 
-    private SceneLoader _sceneLoader;  
-
+    private SimpleGridManager _simpleGridManager;
 
     private void Awake()
-    {
-        _sceneLoader = SceneLoader.Instance;
+    {        
+        _simpleGridManager = FindObjectOfType<SimpleGridManager>();
     }
 
     private void Start()
@@ -64,18 +62,17 @@ public class ClassicGameUI : MonoBehaviour
         _pauseButton.onClick.AddListener(OpenPauseMenu);
         _continueButton.onClick.AddListener(ClosePauseMenu);
         _settingsOnPauseButton.onClick.AddListener(OpenSettings);
-        //_replayLevel.onClick.AddListener(RESTART GAME);
-        _backToClassicGameMenu.onClick.AddListener(ReturnToClassicGameMenu);
+        _replayLevelButton.onClick.AddListener(ReplayGame);
+        _goHomeButton.onClick.AddListener(ReturnToMainMenu);
         //_goHomeButtonOnPause.onClick.AddListener(ReturnToMainMenu);
 
-        _easyLvlButton.onClick.AddListener(() => StartLevel("Easy", 0));
-        _mediumLvlButton.onClick.AddListener(() => StartLevel("Medium", 1));
-        _hardLvlButton.onClick.AddListener(() => StartLevel("Hard", 2));
-        _customLvlButton.onClick.AddListener(OpenCustomGameSettingsScreen);
+        //_easyLvlButton.onClick.AddListener(() => StartLevel("Easy", 0));
+        //_mediumLvlButton.onClick.AddListener(() => StartLevel("Medium", 1));
+        //_hardLvlButton.onClick.AddListener(() => StartLevel("Hard", 2));
+        //_customLvlButton.onClick.AddListener(OpenCustomGameSettingsScreen);
         _startCustomGameButton.onClick.AddListener(StartCustomLevel);
-                
-        _backToMainMenuButton.onClick.AddListener(ReturnToMainMenu);
-        //_backToMenuButton.onClick.AddListener(ReturnToClassicGameMenu);        
+
+        SetModeName();
     }
 
     private void OpenPauseMenu()
@@ -93,6 +90,16 @@ public class ClassicGameUI : MonoBehaviour
         _settingsScreen.gameObject.SetActive(true);
     }
 
+    private void ReplayGame()
+    {
+        _loseScreen.gameObject.SetActive(false);        
+
+        // GameManager.Instance.ClearCurrentGame(GameManager.Instance.CurrentGameMode);
+        GameManager.Instance.SetCurrentGameMode(GameManager.Instance.CurrentGameMode);
+        GameManager.Instance.ResetCurrentModeStatistic();
+        SceneLoader.Instance.LoadClassicMinesweeperScene();
+    }
+
     private void StartLevel(string modeName, int levelIndex)
     {
         OpenGameScreen(modeName);
@@ -101,8 +108,7 @@ public class ClassicGameUI : MonoBehaviour
     }
 
     private void OpenCustomGameSettingsScreen()
-    {
-        _classicGameMenuScreen.gameObject.SetActive(false);
+    {        
         _customGameSettingsScreen.gameObject.SetActive(true);
 
     }
@@ -120,7 +126,7 @@ public class ClassicGameUI : MonoBehaviour
                     ClassicGameMinSize.MinMines(width, height),
                     maxMines
                     );
-        
+
         var customSettings = new ClassicGameSettings
         {
             Width = width,
@@ -132,9 +138,26 @@ public class ClassicGameUI : MonoBehaviour
 
     }
 
+    private void SetModeName()
+    {
+        switch (GameManager.Instance.CurrentGameMode)
+        {
+            case GameMode.ClassicEasy:
+                _gameModeName.text = "Easy";
+                break;
+
+            case GameMode.ClassicMedium:
+                _gameModeName.text = "Medium";
+                break;
+
+            case GameMode.ClassicHard:
+                _gameModeName.text = "Hard";
+                break;
+        }
+    }
+
     private void OpenGameScreen(string gameModeName)
     {        
-        _classicGameMenuScreen.gameObject.SetActive(false);
         _customGameSettingsScreen.gameObject.SetActive(false);
         _gameScreen.gameObject.SetActive(true);
         _gameModeName.text = gameModeName;
@@ -149,14 +172,29 @@ public class ClassicGameUI : MonoBehaviour
 
     private void ReturnToMainMenu()
     {
-        _sceneLoader.LoadMainMenuScene();
+        GameManager.Instance.CurrentStatisticController.StopTimer();
+        PlayerProgress.Instance.SavePlayerProgress();
+
+        if (_simpleGridManager.IsFirstClick)
+        {
+            _simpleGridManager.SaveCurrentGame();
+        }
+
+        SceneLoader.Instance.LoadMainMenuScene();
+    }
+
+    private void OpenLoseScreen(GameOverSignal signal)
+    {
+        if (signal.CurrentGameMode == GameManager.Instance.CurrentGameMode)
+        {
+            _loseScreen.gameObject.SetActive(true);
+        }
     }
 
     private void ReturnToClassicGameMenu()
     {
         ClearInputFields();
-        _pauseMenuScreen.gameObject.SetActive(false);
-        _classicGameMenuScreen.gameObject.SetActive(true);
+        _pauseMenuScreen.gameObject.SetActive(false);       
         _customGameSettingsScreen.gameObject.SetActive(false);
         _gameScreen.gameObject.SetActive(false);
         _gridManager.gameObject.SetActive(false);
@@ -168,7 +206,23 @@ public class ClassicGameUI : MonoBehaviour
         {
             return parsedValue;
         }
-        
+
         return defaultValue;
-    }    
+    }
+
+    private void OnEnable()
+    {
+        //SignalBus.Subscribe<OnGameRewardSignal>(UpdateAwardUI);
+        //SignalBus.Subscribe<FlagPlacingSignal>(UpdateFlagUI);
+        //SignalBus.Subscribe<LoadCompletedSignal>(UpdateTexts);
+        SignalBus.Subscribe<GameOverSignal>(OpenLoseScreen);
+    }
+
+    private void OnDisable()
+    {
+        //SignalBus.Unsubscribe<OnGameRewardSignal>(UpdateAwardUI);
+        //SignalBus.Unsubscribe<FlagPlacingSignal>(UpdateFlagUI);
+        //SignalBus.Unsubscribe<LoadCompletedSignal>(UpdateTexts);
+        SignalBus.Unsubscribe<GameOverSignal>(OpenLoseScreen);
+    }
 }

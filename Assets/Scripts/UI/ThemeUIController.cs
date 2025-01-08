@@ -50,12 +50,13 @@ public class ThemeUIController : MonoBehaviour
     /// ZATYCHKA FOR NAVIGATION PANEL AND MENU TITLE IMAGE 
     /// </summary>
     [Header("Images")]
-    [SerializeField] private Image _navigationPanelImage;    
+    [SerializeField] private Image _navigationPanelImage;
+    [SerializeField] private Image _menuTitleImage;
 
 
 
     //[SerializeField] private InputFieldHandler[] _inputFields;
-    
+
 
     private ThemeConfig _currentAppliedTheme;
 
@@ -113,7 +114,7 @@ public class ThemeUIController : MonoBehaviour
         ApplyBackgrounsColor(_currentAppliedTheme);
         ApplyInputFieldsColor(_currentAppliedTheme);
 
-        //ApplyMenuTitleImage(_currentAppliedTheme);
+        ApplyMenuTitleImage(_currentAppliedTheme);
         ApplyNavigationPanel(_currentAppliedTheme);
     }
 
@@ -396,13 +397,13 @@ public class ThemeUIController : MonoBehaviour
         }
     }
 
-    /*private void ApplyMenuTitleImage(ThemeConfig theme)
+    private void ApplyMenuTitleImage(ThemeConfig theme)
     {
         if (_menuTitleImage != null)
         {
             _menuTitleImage.sprite = theme.MenuTitleImage;
         }
-    }*/
+    }
 
     private void OnDestroy()
     {
