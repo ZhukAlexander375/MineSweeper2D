@@ -16,6 +16,7 @@ public class CameraController : MonoBehaviour
     private Vector3 touchStartPos;
     private ThemeConfig _currentAppliedTheme;
     private Vector3 previousPosition;
+    private Vector3 cameraCurrentPosition;
     private float _cameraMoveThreshold = 5f;
     private float zoomStartTime;
     private float zoomEndTime;
@@ -49,6 +50,7 @@ public class CameraController : MonoBehaviour
             {
                 IsMoving = false;
                 touchStartPos = touch.position;
+                cameraCurrentPosition = transform.position;
             }
             else if (touch.phase == TouchPhase.Moved)
             {
@@ -88,6 +90,12 @@ public class CameraController : MonoBehaviour
             IsZooming = false;
         }
     }
+    
+    public bool IsCameraMoving()
+    {
+        return transform.position == cameraCurrentPosition;
+    }
+
 
     private void HandleMouseInput()
     {

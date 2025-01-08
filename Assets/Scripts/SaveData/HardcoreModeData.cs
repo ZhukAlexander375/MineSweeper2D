@@ -1,4 +1,6 @@
 
+using UnityEngine;
+
 [System.Serializable]
 
 public class HardcoreModeData
@@ -12,6 +14,7 @@ public class HardcoreModeData
     public int SectorBuyoutCostLevel;
     public float TotalPlayTime;
     public bool IsGameOver;
+    public Vector3 LastClickPosition;
 
     public HardcoreModeData(HardcoreStatisticController controller = null)
     {
@@ -26,6 +29,7 @@ public class HardcoreModeData
             SectorBuyoutCostLevel = controller.SectorBuyoutCostLevel;
             TotalPlayTime = controller.TotalPlayTime;
             IsGameOver = controller.IsGameOver;
+            LastClickPosition = controller.LastClickPosition;
         }
     }
 }       

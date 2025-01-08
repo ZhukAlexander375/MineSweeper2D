@@ -13,6 +13,7 @@ public class HardcoreStatisticController : MonoBehaviour, IStatisticController
     public int SectorBuyoutCostLevel { get; set; }
     public float TotalPlayTime { get; set; }
     public bool IsGameOver { get; set; }
+    public Vector3 LastClickPosition { get; set; }
 
     private float _sessionStartTime;
     private bool _isTimerRunning;
@@ -40,6 +41,7 @@ public class HardcoreStatisticController : MonoBehaviour, IStatisticController
         SectorBuyoutCostLevel = data.SectorBuyoutCostLevel;
         TotalPlayTime = data.TotalPlayTime;
         IsGameOver = data.IsGameOver;
+        LastClickPosition = data.LastClickPosition;
     }
 
     public void ResetStatistic()
@@ -51,6 +53,7 @@ public class HardcoreStatisticController : MonoBehaviour, IStatisticController
         ExplodedMines = 0;
         RewardLevel = 0;
         SectorBuyoutCostLevel = 0;
+        LastClickPosition = new Vector3(0, 0, 0);
 
         TotalPlayTime = 0;
         _isTimerRunning = false;
@@ -120,5 +123,9 @@ public class HardcoreStatisticController : MonoBehaviour, IStatisticController
     public void IncrementSectorBuyoutIndex()
     {
         SectorBuyoutCostLevel++;
+    }
+    public void SetLastClickPosition(Vector3 position)
+    {
+        LastClickPosition = position;
     }
 }

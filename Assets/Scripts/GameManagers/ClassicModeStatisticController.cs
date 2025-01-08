@@ -14,6 +14,7 @@ public class ClassicModeStatisticController : MonoBehaviour, IStatisticControlle
     public int CompletedSectors { get; set; }       // interface
     public int RewardLevel { get; set; }            // interface
     public int SectorBuyoutCostLevel { get; set; }  // interface
+    public Vector3 LastClickPosition { get; set; }  // interface
 
     private float _sessionStartTime;
     private bool _isTimerRunning;
@@ -113,6 +114,10 @@ public class ClassicModeStatisticController : MonoBehaviour, IStatisticControlle
         {
             IsGameOver = true;
         }
+    }
+    public void SetLastClickPosition(Vector3 position)
+    {
+        LastClickPosition = position;
     }
 
     private void OnEnable()

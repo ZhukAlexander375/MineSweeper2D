@@ -232,7 +232,7 @@ public class MainMenuUI : MonoBehaviour
         if (GameManager.Instance != null && GameManager.Instance.ClassicStats != null)
         {
             //_lastClassicSessionText.text = "Last session " + GetGameModeName(GameManager.Instance.LastClassicSessionMode);
-            _difficultyLevelText.text = "Difficulty level " + GetGameModeDifficulty(GameManager.Instance.LastClassicSessionMode);            
+            _difficultyLevelText.text = "Difficulty level: " + GetGameModeDifficulty(GameManager.Instance.LastClassicSessionMode);            
             _classicSessionCellsOpenText.text = "Cells Open: " + GameManager.Instance.ClassicStats.OpenedCells.ToString();
             _classicSessionFlagsPlacedText.text = "Flags Placed: " + GameManager.Instance.ClassicStats.PlacedFlags.ToString();
             _classicSessionTimeSpentText.text = "Time spent: " + FormatTime(GameManager.Instance.ClassicStats.TotalPlayTime);
@@ -280,7 +280,7 @@ public class MainMenuUI : MonoBehaviour
                 return "Hard";
 
             default:
-                return "Choose mode";
+                return "";
         }
     }
 

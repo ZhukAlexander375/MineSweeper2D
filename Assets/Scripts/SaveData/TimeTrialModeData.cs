@@ -1,4 +1,6 @@
 
+using UnityEngine;
+
 [System.Serializable]
 public class TimeTrialModeData
 {
@@ -11,6 +13,7 @@ public class TimeTrialModeData
     public int SectorBuyoutCostLevel;
     public float TotalPlayTime;
     public bool IsGameOver;
+    public Vector3 LastClickPosition;
 
     public TimeTrialModeData(TimeTrialStatisticController controller = null)
     {
@@ -25,6 +28,7 @@ public class TimeTrialModeData
             SectorBuyoutCostLevel = controller.SectorBuyoutCostLevel;
             TotalPlayTime = controller.TotalPlayTime;
             IsGameOver = controller.IsGameOver;
+            LastClickPosition = controller.LastClickPosition;
         }
     }
 }

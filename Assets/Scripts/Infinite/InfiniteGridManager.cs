@@ -71,7 +71,7 @@ public class InfiniteGridManager : MonoBehaviour
     private void Update()
     {
         UpdateVisibleSectors();
-
+                
         if (_cameraController.IsCameraInteracting)
         {
             return;
@@ -192,7 +192,7 @@ public class InfiniteGridManager : MonoBehaviour
 
         if (Input.GetMouseButtonUp(0))
         {
-            if (!_flagSet && _isHolding && Time.time - _clickStartTime < GameSettingsManager.Instance.HoldTime)
+            if (!_flagSet && _isHolding && _cameraController.IsCameraMoving())
             {
                 GetSectorAtClick();
             }
@@ -522,6 +522,7 @@ public class InfiniteGridManager : MonoBehaviour
         }
 
         _lastClickPosition = cell.GlobalCellPosition;
+        _statisticController.SetLastClickPosition(_lastClickPosition);
 
         RedrawSectors();
     }
@@ -544,6 +545,7 @@ public class InfiniteGridManager : MonoBehaviour
         InstantiateParticleAtCell(isPlacingFlag ? _flagPlaceParticle : _flagRemoveParticle, cell);
 
         _lastClickPosition = cell.GlobalCellPosition;
+        _statisticController.SetLastClickPosition(_lastClickPosition);
 
         // Вибрация и перерисовка
         if (GameSettingsManager.Instance.IsVibrationEnabled)
@@ -855,6 +857,10 @@ public class InfiniteGridManager : MonoBehaviour
         var sectorCenterY = sectorY * _sectorSize + _sectorSize / 2f;
 
         mainCamera.transform.position = new Vector3(sectorCenterX, sectorCenterY, mainCamera.transform.position.z);
+        
+        _lastClickPosition = _statisticController.LastClickPosition;
+        
+        ReturnCameraToLastClick();
     }        
 
     private void UpdateVisibleSectors()
