@@ -27,7 +27,7 @@ public class NavigationPanel : MonoBehaviour
         _mainMenuUi.SelectMenu(0);
     }
 
-    private void SetSelectedImage(int selectedIndex)
+    public void SetSelectedImage(int selectedIndex)
     {
         for (int i = 0; i < _selectedImages.Length; i++)
         {

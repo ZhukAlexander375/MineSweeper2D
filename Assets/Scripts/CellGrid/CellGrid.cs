@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 public class CellGrid
@@ -22,6 +23,30 @@ public class CellGrid
                     GlobalCellPosition = new Vector3Int(x, y, 0),
                     CellState = CellState.Empty
                 };
+            }
+        }
+    }
+
+    public void InitialializeCellsFromData(List<CellData> cellsData)
+    {
+        foreach (var cellData in cellsData)
+        {
+            int x = cellData.GlobalCellPosition.x;
+            int y = cellData.GlobalCellPosition.y;
+
+            if (InBounds(x, y))
+            {
+                var cell = cells[x, y];
+                cell.CellState = cellData.CellState;
+                cell.IsRevealed = cellData.IsRevealed;
+                cell.IsFlagged = cellData.IsFlagged;
+                cell.CellNumber = cellData.CellNumber;
+                cell.IsExploded = cellData.IsExploded;
+            }
+        
+            else
+            {
+                Debug.LogWarning($"Cell at position is out of bounds and cannot be initialized.");
             }
         }
     }
@@ -163,5 +188,16 @@ public class CellGrid
 
         return Mathf.Abs(a.GlobalCellPosition.x - b.GlobalCellPosition.x) <= 1 &&
                Mathf.Abs(a.GlobalCellPosition.y - b.GlobalCellPosition.y) <= 1;
+    }
+
+    public IEnumerable<BaseCell> GetAllCells()
+    {
+        for (int x = 0; x < Width; x++)
+        {
+            for (int y = 0; y < Height; y++)
+            {
+                yield return this[x, y];
+            }
+        }
     }
 }

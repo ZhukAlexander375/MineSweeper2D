@@ -52,6 +52,9 @@ public class InfiniteGridManager : MonoBehaviour
 
     private HashSet<Sector> _sectorsToRedraw = new HashSet<Sector>();
     private int _activeFloodCoroutines = 0;
+    private Vector3 _startMousePosition; // Начальная позиция мыши/пальца
+    private bool _isCameraMovement; // Флаг, указывающий на перемещение камеры
+    private const float MovementThreshold = 5f; // Порог для определения перемещения
 
     void Start()
     {
@@ -88,7 +91,7 @@ public class InfiniteGridManager : MonoBehaviour
             return;
         }
 
-        HandleGameInput();        
+        HandleGameInput();
     }
 
     private void CheckGameStart()
@@ -154,6 +157,7 @@ public class InfiniteGridManager : MonoBehaviour
         _gameManager.ResetCurrentModeStatistic();
         //_currentGameModeData.InitializeNewGame();
         SignalBus.Fire<LoadCompletedSignal>();
+        _gameManager.CurrentStatisticController.IsGameStarted = true;
         _gameManager.CurrentStatisticController.StartTimer();        
     }
 
@@ -190,9 +194,19 @@ public class InfiniteGridManager : MonoBehaviour
             }
         }
 
-        if (Input.GetMouseButtonUp(0))
+        /*if (Input.GetMouseButtonUp(0))
         {
-            if (!_flagSet && _isHolding && _cameraController.IsCameraMoving())
+            if (!_flagSet && _isHolding && _cameraController.IsCameraMoving() && _isOneTouch)
+            {
+                GetSectorAtClick();
+            }
+            _isHolding = false;
+        }*/
+
+
+       if (Input.GetMouseButtonUp(0))
+        {
+            if (!_flagSet && _isHolding && Time.time - _clickStartTime < GameSettingsManager.Instance.HoldTime)
             {
                 GetSectorAtClick();
             }
@@ -974,10 +988,6 @@ public class InfiniteGridManager : MonoBehaviour
         }
     }
 
-    private void SavePlayerProgress()
-    {
-        _playerProgress.SavePlayerProgress();        
-    }
 
     public void LoadSavedGame()
     {
@@ -1096,7 +1106,7 @@ public class InfiniteGridManager : MonoBehaviour
     private void OnApplicationQuit()
     {
         _gameManager.CurrentStatisticController.StopTimer();
-        SavePlayerProgress();
+        _playerProgress.SavePlayerProgress();
 
         if (IsFirstClick)
         {

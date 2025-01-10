@@ -3,18 +3,18 @@ using UnityEngine;
 public static class ClassicGameMinSize
 {
     public const int MinWidth = 5;
-    public const int MaxWidth = 100;
+    public const int MaxWidth = 50;
     public const int MinHeight = 5;
-    public const int MaxHeight = 100;    
+    public const int MaxHeight = 50;    
 
     public static int MaxMines(int width, int height)
     {
-        return Mathf.Max(1, width * height / 2); 
+        return Mathf.RoundToInt(width * height * 0.35f); 
     }
 
     public static int MinMines(int width, int height)
     {
-        return Mathf.Max(1, width * height / 10);
+        return Mathf.RoundToInt(width * height * 0.2f); ;
     }
 
     public static int ClampValue(int value, int min, int max)

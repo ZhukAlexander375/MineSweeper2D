@@ -2,7 +2,7 @@
 public enum GameMode
 { 
     SimpleInfinite,
-    Hardcore,       //One Life
+    Hardcore,
     TimeTrial,
     ClassicEasy,
     ClassicMedium, 

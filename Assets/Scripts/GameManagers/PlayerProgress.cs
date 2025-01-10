@@ -34,8 +34,8 @@ public class PlayerProgress : MonoBehaviour
     }
 
     public void SetLastSessionGameMode(GameMode lastMode)
-    {
-        LastSessionGameMode = lastMode;
+    {        
+        LastSessionGameMode = lastMode;        
     }
 
     public void SetLastClassicSessionGameMode(GameMode lastClassic)
@@ -65,6 +65,7 @@ public class PlayerProgress : MonoBehaviour
             LastClassicSessionMode = LastClassicSessionMode,
             IsFirstTimePlayed = IsFirstTimePlayed
         };
+
 
         SaveManager.Instance.SavePlayerProgress(playerProgress);
     }

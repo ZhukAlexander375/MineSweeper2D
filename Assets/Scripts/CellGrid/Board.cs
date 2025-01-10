@@ -56,6 +56,13 @@ public class Board : MonoBehaviour
     {
         // нвхыемхе!!!!!!!!!!!!!!!!!!!!!!!! вей опх янупюмемхх врн декюрэ???????????
         ClearGrid();
+
+        if (grid == null)
+        {
+            Debug.LogWarning("Grid is null. Cannot draw.");
+            return;
+        }
+
         int width = grid.Width;
         int height = grid.Height;
 

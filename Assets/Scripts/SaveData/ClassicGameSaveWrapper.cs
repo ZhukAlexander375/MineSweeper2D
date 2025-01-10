@@ -1,9 +1,7 @@
 
-using System.Collections.Generic;
-
 [System.Serializable]
 public class ClassicGameSaveWrapper
 {
-    //public List<CellData> Cells;
+    public SimpleGridData SimpleGridData;
     public ClassicModeData ClassicModeData;
 }

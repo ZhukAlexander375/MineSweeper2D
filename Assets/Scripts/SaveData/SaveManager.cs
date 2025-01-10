@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using UnityEngine;
 
 public class SaveManager : MonoBehaviour
@@ -49,6 +50,13 @@ public class SaveManager : MonoBehaviour
 
         return Path.Combine(Application.persistentDataPath, fileName);
     }
+
+    public bool HasClassicGameSave()
+    {
+        var filePath = Path.Combine(Application.persistentDataPath, SaveClassicGameFileName);
+        return File.Exists(filePath);
+    }
+
 
     public void SaveSimpleInfiniteGame(List<SectorData> sectors, SimpleInfiniteStatisticController simpleInfiniteStats)
     {
@@ -122,10 +130,26 @@ public class SaveManager : MonoBehaviour
         File.WriteAllText(filePath, json);
     }
 
-    public void SaveClassicGame(ClassicModeStatisticController classicStats)
+    public void SaveClassicGame(CellGrid cellGrid, ClassicModeStatisticController classicStats)
     {
         ClassicGameSaveWrapper saveData = new ClassicGameSaveWrapper
         {
+            SimpleGridData = new SimpleGridData
+            {
+                Width = cellGrid.Width,
+                Height = cellGrid.Height,
+                Cells = cellGrid.GetAllCells().Select(cell => new CellData
+                {
+                    GlobalCellPosition = cell.GlobalCellPosition,
+                    CellState = cell.CellState,                    
+                    IsRevealed = cell.IsRevealed,
+                    IsFlagged = cell.IsFlagged,
+                    IsExploded = cell.IsExploded,
+                    Chorded = cell.Chorded,
+                    CellNumber = cell.CellNumber
+                }).ToList()
+            },
+            
             ClassicModeData = new ClassicModeData(classicStats)
             {
                 IsGameStarted = classicStats.IsGameStarted,
@@ -260,6 +284,19 @@ public class SaveManager : MonoBehaviour
 
         //Debug.Log($"Simple Infinite Game sectors loaded successfully from {filePath}");
         return saveData.Sectors;
+    }
+
+    public (SimpleGridData, ClassicModeData) LoadClassicGame()
+    {
+        var filePath = Path.Combine(Application.persistentDataPath, SaveClassicGameFileName);
+        if (!File.Exists(filePath))
+        {
+            return (null, null);
+        }
+
+        string json = File.ReadAllText(filePath);
+        ClassicGameSaveWrapper saveData = JsonUtility.FromJson<ClassicGameSaveWrapper>(json);
+        return (saveData.SimpleGridData, saveData.ClassicModeData);
     }
 
     /// <summary>

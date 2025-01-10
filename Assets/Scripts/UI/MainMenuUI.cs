@@ -1,3 +1,4 @@
+using System;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -19,6 +20,7 @@ public class MainMenuUI : MonoBehaviour
     [SerializeField] private Button _mediumLvlButton;
     [SerializeField] private Button _hardLvlButton;
     [SerializeField] private Button _customLvlButton;
+    [SerializeField] private Button _continueClassicGameButton;
     //[SerializeField] private Button _classicGameMenuButton;
     //[SerializeField] private Button _episodeGameMenuButton;
 
@@ -33,7 +35,8 @@ public class MainMenuUI : MonoBehaviour
     [SerializeField] private Canvas _settingsScreen;
     [SerializeField] private Canvas _infinityModeMenuScreen;
     [SerializeField] private Canvas _classicModeMenuScreen;
-    
+    [SerializeField] private Canvas _customGameSettingsScreen;
+
 
     [Header("Home Mode Screen Texts")]
     [SerializeField] private TMP_Text _lastModeText;
@@ -65,22 +68,23 @@ public class MainMenuUI : MonoBehaviour
         _timeTrialNewGameButton.onClick.AddListener(NewTimeTrialGame);
         _timeTrialContinuedGameButton.onClick.AddListener(ContinuedTimeTrialGame);
 
-        _playButton.onClick.AddListener(OpenInfinityModeMenuScreen);
+        _playButton.onClick.AddListener(OpenChooseModeScreen);
         _easyLvlButton.onClick.AddListener(NewClassicEasyGame);
         _mediumLvlButton.onClick.AddListener(NewClassicMediumGame);
         _hardLvlButton.onClick.AddListener(NewClassicHardGame);
-        //_classicGameMenuButton.onClick.AddListener(OpenClassicGame);
+        _customLvlButton.onClick.AddListener(OpenCustomGameSettingsScreen);
         //_episodeGameMenuButton.onClick.AddListener(OpenEpisodeGame);
         _settingsButton.onClick.AddListener(OpenSettingsScreen);
         _continueGameButton.onClick.AddListener(ContinueLastSession);
+        _continueClassicGameButton.onClick.AddListener(ContinueLastClassicSession);
+
 
         _chooseInfinitymodeButton.onClick.AddListener(OpenInfinityModeMenuScreen);
         _newClassicGameButton.onClick.AddListener(OpenClassicModeMenuScreen);
 
-        //UpdateLastSessionStatistic(new LoadCompletedSignal());
-        //SignalBus.Subscribe<PlayerProgressLoadCompletedSignal>(UpdateLastSessionStatistic);
-        //UpdateLastSessionStatistic(new PlayerProgressLoadCompletedSignal());
-    }
+        ContinueClassicButtonInteractable();
+        //UpdateLastSessionStatistic(new LoadCompletedSignal());        
+    }       
 
     public void SelectMenu(int index)
     {
@@ -102,14 +106,36 @@ public class MainMenuUI : MonoBehaviour
     {
         if (GameManager.Instance != null && GameManager.Instance.CurrentStatisticController != null)
         {
-            GameManager.Instance.SetCurrentGameMode(GameManager.Instance.LastSessionGameMode);
-            SceneLoader.Instance.LoadInfiniteMinesweeperScene();
+            if (GameManager.Instance.LastSessionGameMode == GameMode.SimpleInfinite ||
+                GameManager.Instance.LastSessionGameMode == GameMode.Hardcore ||
+                GameManager.Instance.LastSessionGameMode == GameMode.TimeTrial)
+            {
+                GameManager.Instance.SetCurrentGameMode(GameManager.Instance.LastSessionGameMode);
+                SceneLoader.Instance.LoadInfiniteMinesweeperScene();
+            }
+            else if (GameManager.Instance.LastSessionGameMode == GameMode.ClassicEasy ||
+                GameManager.Instance.LastSessionGameMode == GameMode.ClassicMedium ||
+                GameManager.Instance.LastSessionGameMode == GameMode.ClassicHard ||
+                GameManager.Instance.LastSessionGameMode == GameMode.Custom)
+            {
+                GameManager.Instance.SetCurrentGameMode(GameManager.Instance.LastSessionGameMode);
+                SceneLoader.Instance.LoadClassicMinesweeperScene();
+            }
         }
         else
         {
             GameManager.Instance.SetCurrentGameMode(GameMode.SimpleInfinite);
             SceneLoader.Instance.LoadInfiniteMinesweeperScene();
         }
+    }
+
+    private void ContinueLastClassicSession()
+    {
+        if (GameManager.Instance != null && GameManager.Instance.CurrentStatisticController != null)
+        {
+            GameManager.Instance.SetCurrentGameMode(GameManager.Instance.LastClassicSessionMode);
+            SceneLoader.Instance.LoadClassicMinesweeperScene();
+        }        
     }
 
     private void NewInfinityGame()
@@ -163,7 +189,8 @@ public class MainMenuUI : MonoBehaviour
     private void NewClassicEasyGame()
     {
         GameManager.Instance.SetCurrentGameMode(GameMode.ClassicEasy);
-        GameManager.Instance.ResetCurrentModeStatistic();
+        GameManager.Instance.ClearCurrentGame(GameMode.ClassicEasy);
+        //GameManager.Instance.ResetCurrentModeStatistic();
         SceneLoader.Instance.LoadClassicMinesweeperScene();
 
         PlayerProgress.Instance.SetFirstTimePlayed();
@@ -172,7 +199,8 @@ public class MainMenuUI : MonoBehaviour
     private void NewClassicMediumGame()
     {
         GameManager.Instance.SetCurrentGameMode(GameMode.ClassicMedium);
-        GameManager.Instance.ResetCurrentModeStatistic();
+        GameManager.Instance.ClearCurrentGame(GameMode.ClassicMedium);
+        //GameManager.Instance.ResetCurrentModeStatistic();
         SceneLoader.Instance.LoadClassicMinesweeperScene();
 
         PlayerProgress.Instance.SetFirstTimePlayed();
@@ -181,10 +209,21 @@ public class MainMenuUI : MonoBehaviour
     private void NewClassicHardGame()
     {
         GameManager.Instance.SetCurrentGameMode(GameMode.ClassicHard);
-        GameManager.Instance.ResetCurrentModeStatistic();
+        GameManager.Instance.ClearCurrentGame(GameMode.ClassicHard);
+        //GameManager.Instance.ResetCurrentModeStatistic();
         SceneLoader.Instance.LoadClassicMinesweeperScene();
 
         PlayerProgress.Instance.SetFirstTimePlayed();
+    }
+
+    private void OpenCustomGameSettingsScreen()
+    {
+        _customGameSettingsScreen.gameObject.SetActive(true);
+    }
+
+    private void OpenChooseModeScreen()
+    {
+        SetActiveScreen(1);
     }
 
     private void OpenInfinityModeMenuScreen() 
@@ -195,6 +234,7 @@ public class MainMenuUI : MonoBehaviour
     private void OpenClassicModeMenuScreen()
     {
         _classicModeMenuScreen.gameObject.SetActive(true);
+        ContinueClassicButtonInteractable();
     }
 
 
@@ -235,7 +275,7 @@ public class MainMenuUI : MonoBehaviour
             _difficultyLevelText.text = "Difficulty level: " + GetGameModeDifficulty(GameManager.Instance.LastClassicSessionMode);            
             _classicSessionCellsOpenText.text = "Cells Open: " + GameManager.Instance.ClassicStats.OpenedCells.ToString();
             _classicSessionFlagsPlacedText.text = "Flags Placed: " + GameManager.Instance.ClassicStats.PlacedFlags.ToString();
-            _classicSessionTimeSpentText.text = "Time spent: " + FormatTime(GameManager.Instance.ClassicStats.TotalPlayTime);
+            _classicSessionTimeSpentText.text = "Time spent: " + FormatTime(GameManager.Instance.ClassicStats.TotalPlayTime);            
         }
     }
 
@@ -261,6 +301,9 @@ public class MainMenuUI : MonoBehaviour
             case GameMode.ClassicHard:
                 return "Classic hard";
 
+            case GameMode.Custom:
+                return "Custom level";
+
             default:
                 return "Choose mode";
         }        
@@ -278,6 +321,9 @@ public class MainMenuUI : MonoBehaviour
 
             case GameMode.ClassicHard:
                 return "Hard";
+
+            case GameMode.Custom:
+                return "Custom";
 
             default:
                 return "";
@@ -304,10 +350,15 @@ public class MainMenuUI : MonoBehaviour
         }
     }
 
+    private void ContinueClassicButtonInteractable()
+    {
+        _continueClassicGameButton.interactable = SaveManager.Instance.HasClassicGameSave();
+    }
+
     private void PlayButtonInteractable(PlayerProgressLoadCompletedSignal signal)
     {
         if (PlayerProgress.Instance != null)
-        {
+        {            
             _playButton.gameObject.SetActive(!PlayerProgress.Instance.IsFirstTimePlayed);
             _containerLastSession.SetActive(PlayerProgress.Instance.IsFirstTimePlayed);
         }        

@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -10,6 +9,8 @@ public class GameManager : MonoBehaviour
     [SerializeField] private HardcoreStatisticController _hardcoreStatisticController;
     [SerializeField] private TimeTrialStatisticController _timeTrialStatisticController;
     [SerializeField] private ClassicModeStatisticController _classicStatisticController;
+    [SerializeField] public List<LevelConfig> PredefinedLevels;
+    public LevelConfig CustomLevel;
     public SimpleInfiniteStatisticController SimpleInfiniteStats => _simpleInfiniteStatisticController;
     public HardcoreStatisticController HardcoreStats => _hardcoreStatisticController;
     public TimeTrialStatisticController TimeTrialStats => _timeTrialStatisticController;
@@ -19,7 +20,9 @@ public class GameManager : MonoBehaviour
     public IStatisticController CurrentStatisticController { get; private set; }
     public GameMode LastSessionGameMode { get; private set; }
     public GameMode LastClassicSessionMode { get; private set; }
-
+    public int CustomWidth { get; private set; }
+    public int CustomHeight { get; private set; }
+    public int CustomMines { get; private set; }
 
 
     private void Awake()
@@ -39,100 +42,66 @@ public class GameManager : MonoBehaviour
         LoadGameState();
     }
 
-    private void LoadGameState()
+    public void SetCustomLevelSettings(LevelConfig customLevel)
     {
-        _simpleInfiniteStatisticController.InitializeFromData(SaveManager.Instance.LoadSimpleInfiniteModeStats());
-        _hardcoreStatisticController.InitializeFromData(SaveManager.Instance.LoadHardcoreModeStats());
-        _timeTrialStatisticController.InitializeFromData(SaveManager.Instance.LoadTimeTrialModeStats());
-        _classicStatisticController.InitializeFromData(SaveManager.Instance.LoadClassicModeStats());
-               
-        LastSessionGameMode = PlayerProgress.Instance.LastSessionGameMode;
-        LastClassicSessionMode = PlayerProgress.Instance.LastClassicSessionMode;
-
-        switch (LastSessionGameMode)
-        {
-            case (GameMode.SimpleInfinite):
-            {
-                CurrentStatisticController = _simpleInfiniteStatisticController;
-                break;
-            }
-
-            case (GameMode.Hardcore):
-            {
-                CurrentStatisticController = _hardcoreStatisticController;
-                break;
-            }
-            case (GameMode.TimeTrial):
-            {
-                CurrentStatisticController = _timeTrialStatisticController;
-                break;
-            }
-
-            case (GameMode.ClassicEasy):
-            case (GameMode.ClassicMedium):
-            case (GameMode.ClassicHard):
-                {
-                    CurrentStatisticController = _classicStatisticController;
-                    break;
-                }
-        }        
-
-        if (CurrentStatisticController != null)
-        {
-            SignalBus.Fire<GameManagerLoadCompletedSignal>();
-        }        
+        CustomLevel = customLevel;
     }
 
-    // MB START NEW GAME????
-    public void SetCurrentGameMode(GameMode mode, bool isNewGame = true)
+
+    public void SetCurrentGameMode(GameMode mode)
     {
         switch (mode)
         {
             case GameMode.SimpleInfinite:
                 CurrentGameMode = GameMode.SimpleInfinite;
                 CurrentStatisticController = SimpleInfiniteStats;
-                SimpleInfiniteStats.IsGameStarted = isNewGame;
+                LastSessionGameMode = mode;
                 break;
 
             case GameMode.Hardcore:
                 CurrentGameMode = GameMode.Hardcore;
                 CurrentStatisticController = HardcoreStats;
-                HardcoreStats.IsGameStarted = isNewGame;
+                LastSessionGameMode = mode;
                 break;
 
             case GameMode.TimeTrial:
                 CurrentGameMode = GameMode.TimeTrial;
                 CurrentStatisticController = TimeTrialStats;
-                TimeTrialStats.IsGameStarted = isNewGame;
+                LastSessionGameMode = mode;
                 break;
 
             case GameMode.ClassicEasy:
                 CurrentGameMode = GameMode.ClassicEasy;
                 CurrentStatisticController = ClassicStats;
-                ClassicStats.IsGameStarted = isNewGame;
+                LastSessionGameMode = mode;
                 LastClassicSessionMode = mode;
                 break;
 
             case GameMode.ClassicMedium:
                 CurrentGameMode = GameMode.ClassicMedium;
                 CurrentStatisticController = ClassicStats;
-                ClassicStats.IsGameStarted = isNewGame;
+                LastSessionGameMode = mode;
                 LastClassicSessionMode = mode;
                 break;
 
             case GameMode.ClassicHard:
                 CurrentGameMode = GameMode.ClassicHard;
                 CurrentStatisticController = ClassicStats;
-                ClassicStats.IsGameStarted = isNewGame;
+                LastSessionGameMode = mode;
+                LastClassicSessionMode = mode;
+                break;
+
+            case GameMode.Custom:
+                CurrentGameMode = GameMode.Custom;
+                CurrentStatisticController = ClassicStats;
+                LastSessionGameMode = mode;
                 LastClassicSessionMode = mode;
                 break;
         }
 
-        LastSessionGameMode = mode;
-       
         PlayerProgress.Instance.SetLastSessionGameMode(LastSessionGameMode);
         PlayerProgress.Instance.SetLastClassicSessionGameMode(LastClassicSessionMode);
-    }    
+    }
 
     public void ResetCurrentModeStatistic()
     {
@@ -156,15 +125,13 @@ public class GameManager : MonoBehaviour
             case GameMode.ClassicHard:
                 _classicStatisticController.ResetStatistic();
                 break;
+            case GameMode.Custom:
+                _classicStatisticController.ResetStatistic();
+                break;
             default:
                 Debug.LogWarning("Unknown game mode.");
                 break;
         }
-    }
-
-    public void SaveGameModes()
-    {
-        //SaveManager.Instance.SaveGameMetaData(CurrentGameMode, true);        
     }
 
     public void ClearCurrentGame(GameMode mode)
@@ -186,6 +153,7 @@ public class GameManager : MonoBehaviour
             case GameMode.ClassicEasy:
             case GameMode.ClassicMedium:
             case GameMode.ClassicHard:
+            case GameMode.Custom:
                 SaveManager.Instance.ClearSavesClassicGame();
                 break;
 
@@ -195,24 +163,62 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    private void OnApplicationQuit()
+    private void LoadGameState()
     {
-        //SaveGameModes();
+        _simpleInfiniteStatisticController.InitializeFromData(SaveManager.Instance.LoadSimpleInfiniteModeStats());
+        _hardcoreStatisticController.InitializeFromData(SaveManager.Instance.LoadHardcoreModeStats());
+        _timeTrialStatisticController.InitializeFromData(SaveManager.Instance.LoadTimeTrialModeStats());
+        _classicStatisticController.InitializeFromData(SaveManager.Instance.LoadClassicModeStats());       
     }
 
-    private void GameOver(GameOverSignal signal)
+    private void OnPlayerProgressLoaded(PlayerProgressLoadCompletedSignal signal)
     {
+        LastSessionGameMode = PlayerProgress.Instance.LastSessionGameMode;
+        LastClassicSessionMode = PlayerProgress.Instance.LastClassicSessionMode;
 
+        switch (LastSessionGameMode)
+        {
+            case GameMode.SimpleInfinite:
+                {
+                    CurrentStatisticController = _simpleInfiniteStatisticController;
+                    break;
+                }
+
+            case GameMode.Hardcore:
+                {
+                    CurrentStatisticController = _hardcoreStatisticController;
+                    break;
+                }
+            case GameMode.TimeTrial:
+                {
+                    CurrentStatisticController = _timeTrialStatisticController;
+                    break;
+                }
+
+            case GameMode.ClassicEasy:
+            case GameMode.ClassicMedium:
+            case GameMode.ClassicHard:
+            case GameMode.Custom:
+                {
+                    CurrentStatisticController = _classicStatisticController;
+                    break;
+                }
+        }
+
+        if (CurrentStatisticController != null)
+        {
+            SignalBus.Fire<GameManagerLoadCompletedSignal>();
+        }
     }
 
     private void OnEnable()
     {
-        SignalBus.Subscribe<GameOverSignal>(GameOver);
+        SignalBus.Subscribe<PlayerProgressLoadCompletedSignal>(OnPlayerProgressLoaded);
     }
-
-    private void OnDisable()
+    private void OnDestroy()
     {
-        SignalBus.Unsubscribe<GameOverSignal>(GameOver);
+        
+        SignalBus.Unsubscribe<PlayerProgressLoadCompletedSignal>(OnPlayerProgressLoaded);
     }
 }
 

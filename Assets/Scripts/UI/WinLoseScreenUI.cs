@@ -62,6 +62,7 @@ public class WinLoseScreenUI : MonoBehaviour
             }
         }
 
+        GameManager.Instance.ResetCurrentModeStatistic();
         GameManager.Instance.ClearCurrentGame(GameManager.Instance.CurrentGameMode);
         GameManager.Instance.SetCurrentGameMode(GameManager.Instance.CurrentGameMode);
         
@@ -75,6 +76,7 @@ public class WinLoseScreenUI : MonoBehaviour
             case GameMode.ClassicEasy:
             case GameMode.ClassicMedium:
             case GameMode.ClassicHard:
+            case GameMode.Custom:
                 SceneLoader.Instance.LoadClassicMinesweeperScene();
                 break;
         }        

@@ -11,13 +11,13 @@ public class CameraController : MonoBehaviour
     [SerializeField] private float zoomSpeed;
     [SerializeField] private float minZoom = 5f;
     [SerializeField] private float maxZoom = 20f;
+    [SerializeField] private float deadZoneThrashhold = 100f;
 
     private Camera mainCamera;
     private Vector3 touchStartPos;
     private ThemeConfig _currentAppliedTheme;
     private Vector3 previousPosition;
-    private Vector3 cameraCurrentPosition;
-    private float _cameraMoveThreshold = 5f;
+    private Vector3 cameraCurrentPosition;    
     private float zoomStartTime;
     private float zoomEndTime;
 
@@ -55,12 +55,18 @@ public class CameraController : MonoBehaviour
             else if (touch.phase == TouchPhase.Moved)
             {
                 var delta = (Vector3)touch.position - touchStartPos;
-                if (delta.magnitude > _cameraMoveThreshold)
+
+                if (!IsMoving && delta.magnitude > deadZoneThrashhold)
                 {
                     IsMoving = true;
                 }
-                touchStartPos = touch.position;
-                MoveCamera(delta);
+
+                if (IsMoving)
+                {
+                    touchStartPos = touch.position;
+                    MoveCamera(delta);
+                }
+                
             }
 
             else if (touch.phase == TouchPhase.Ended)
@@ -107,12 +113,17 @@ public class CameraController : MonoBehaviour
         if (Input.GetMouseButton(0))
         {
             var delta = Input.mousePosition - previousPosition;
-            if (delta.magnitude > _cameraMoveThreshold)
+
+            if (!IsMoving && delta.magnitude > deadZoneThrashhold)
             {
                 IsMoving = true;
             }
-            previousPosition = Input.mousePosition;
-            MoveCamera(delta);
+
+            if (IsMoving)
+            {
+                previousPosition = Input.mousePosition;
+                MoveCamera(delta);
+            }           
         }
 
         if (Input.GetMouseButtonUp(0))

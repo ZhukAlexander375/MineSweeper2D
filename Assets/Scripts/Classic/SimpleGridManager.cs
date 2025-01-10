@@ -1,5 +1,4 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -11,7 +10,7 @@ public class SimpleGridManager : MonoBehaviour
 
     [Header("Settings")]
     [SerializeField] private Board _board;
-    [SerializeField] private List<LevelConfig> _levels = new();
+    //[SerializeField] private List<LevelConfig> _levels = new();
     [SerializeField] private GameObject _flagPlaceParticle;
     [SerializeField] private GameObject _flagRemoveParticle;
     //[SerializeField] private FreeForm _freeForm;
@@ -141,35 +140,77 @@ public class SimpleGridManager : MonoBehaviour
         switch (GameManager.Instance.CurrentGameMode)
         {
             case GameMode.ClassicEasy:
-                StartLevel(0);
-                break;
-
-            case GameMode.ClassicMedium:
-                StartLevel(1);
-                break;
-
-            case GameMode.ClassicHard:
-                StartLevel(2);
-                break;
-                /*if (_gameManager.SimpleInfiniteStats.IsGameStarted)
+                if (_gameManager.ClassicStats.IsGameStarted)
                 {
                     LoadSavedGame();
                     SignalBus.Fire<LoadCompletedSignal>();
+
+                    if (_gameManager.ClassicStats.IsGameOver)
+                    {
+                        SignalBus.Fire(new GameOverSignal(GameManager.Instance.CurrentGameMode));
+                    }
                 }
                 else
                 {
-                    StartNewGame();
+                    StartLevel(0);
+                }                
+                break;
+
+            case GameMode.ClassicMedium:
+                if (_gameManager.ClassicStats.IsGameStarted)
+                {
+                    LoadSavedGame();
+                    if (_gameManager.ClassicStats.IsGameOver)
+                    {
+                        SignalBus.Fire(new GameOverSignal(GameManager.Instance.CurrentGameMode));
+                    }
                 }
-                break;*/
+                else
+                {
+                    StartLevel(1);
+                }
+                break;
+
+            case GameMode.ClassicHard:
+                if (_gameManager.ClassicStats.IsGameStarted)
+                {
+                    LoadSavedGame();
+                    if (_gameManager.ClassicStats.IsGameOver)
+                    {
+                        SignalBus.Fire(new GameOverSignal(GameManager.Instance.CurrentGameMode));
+                    }
+                }
+                else
+                {
+                    StartLevel(2);
+                }
+                break;
+
+            case GameMode.Custom:
+                if (_gameManager.ClassicStats.IsGameStarted)
+                {
+                    LoadSavedGame();
+                    if (_gameManager.ClassicStats.IsGameOver)
+                    {
+                        SignalBus.Fire(new GameOverSignal(GameManager.Instance.CurrentGameMode));
+                    }
+                }
+                else
+                {
+                    StartCustomLevel(_gameManager.CustomLevel);
+                }
+                break;
         }
     }
 
-    public void StartLevel(int levelIndex)
+    private void StartLevel(int levelIndex)
     {
-        if (levelIndex >= 0 && levelIndex < _levels.Count)
+        var levels = GameManager.Instance.PredefinedLevels;
+
+        if (levelIndex >= 0 && levelIndex < levels.Count)
         {
             _currentLevel = levelIndex;
-            SetLevelSettings();
+            SetLevelSettings(levels[_currentLevel]);
             NewGame();
         }
         else
@@ -178,66 +219,49 @@ public class SimpleGridManager : MonoBehaviour
         }
     }
 
-    public void StartCustomLevel(ClassicGameSettings settings)
+    private void StartCustomLevel(LevelConfig customLevel)
     {
-        SetCustomLevelSettings(settings);
+        SetLevelSettings(customLevel);
         NewGame();
     }
 
+    private void SetLevelSettings(LevelConfig level)
+    {
+        _width = level.Width;
+        _height = level.Height;        
+        _mineCount = Mathf.Clamp(level.MineCount, 0, _width * _height);
+
+        AdjustCameraToGridSize();
+        //Camera.main.transform.position = new Vector3(_width / 2f, _height / 2f, -10f);
+    }
     private void NewGame()
     {
         StopAllCoroutines();
 
-        IsGenerated = false;
-
         _cellGrid = new CellGrid(_width, _height);
         _board.Draw(_cellGrid);
 
+        _gameManager.CurrentStatisticController.IsGameStarted = true;
         _gameManager.CurrentStatisticController.StartTimer();
 
         //_cellGrid = new CellGrid((int)Mathf.Sqrt(_freeForm.GridSize), (int)Mathf.Sqrt(_freeForm.GridSize));
         //_board.DrawFreeForm(_freeForm, _cellGrid);
     }
+        
 
-    private void SetLevelSettings()
-    {
-        _width = _levels[_currentLevel].Width;
-        _height = _levels[_currentLevel].Height;
-        _mineCount = _levels[_currentLevel].MineCount;
-        _mineCount = Mathf.Clamp(_mineCount, 0, _width * _height);
-
-        AdjustCameraToGridSize(_width, _height);
-        //Camera.main.transform.position = new Vector3(_width / 2f, _height / 2f, -10f);
-    }
-
-    private void SetCustomLevelSettings(ClassicGameSettings settings)
-    {
-        int width = ClassicGameMinSize.ClampValue(settings.Width, ClassicGameMinSize.MinWidth, ClassicGameMinSize.MaxWidth);
-        int height = ClassicGameMinSize.ClampValue(settings.Height, ClassicGameMinSize.MinHeight, ClassicGameMinSize.MaxHeight);
-        int maxMines = ClassicGameMinSize.MaxMines(width, height);
-        int mines = ClassicGameMinSize.ClampValue(settings.Mines, ClassicGameMinSize.MinMines(width, height), maxMines);
-
-        _width = width;
-        _height = height;
-        _mineCount = mines;
-
-        AdjustCameraToGridSize(width, height);
-        //Camera.main.transform.position = new Vector3(_width / 2f, _height / 2f, -10f);
-    }
-
-    private void AdjustCameraToGridSize(int gridWidth, int gridHeight)
+    public void AdjustCameraToGridSize()
     {
         Camera camera = Camera.main;
         if (camera.orthographic)
         {
             float aspectRatio = (float)Screen.width / Screen.height;
 
-            float cameraSizeX = gridWidth / 2f;
-            float cameraSizeY = gridHeight / 2f;
+            float cameraSizeX = _width / 2f;
+            float cameraSizeY = _height / 2f;
 
             camera.orthographicSize = Mathf.Max(cameraSizeY, cameraSizeX / aspectRatio);
 
-            camera.transform.position = new Vector3(gridWidth / 2f, gridHeight / 2f, -10f);
+            camera.transform.position = new Vector3(_width / 2f, _height / 2f, -10f);
         }
         else
         {
@@ -546,13 +570,55 @@ public class SimpleGridManager : MonoBehaviour
             case GameMode.ClassicEasy:
             case GameMode.ClassicMedium:
             case GameMode.ClassicHard:
-                _saveManager.SaveClassicGame(GameManager.Instance.ClassicStats);
+            case GameMode.Custom:
+                _saveManager.SaveClassicGame(_cellGrid, GameManager.Instance.ClassicStats);
                 break;
 
             default:
                 Debug.LogError("Unknown game mode. Cannot save.");
                 break;
         }
+    }
+
+    private void LoadSavedGame()
+    {
+        var (gridData, classicModeData) = _saveManager.LoadClassicGame();
+
+        if (gridData == null)
+        {
+            //Debug.Log("No saved data found. Starting a new game.");
+            switch (GameManager.Instance.CurrentGameMode)
+            {
+                case GameMode.ClassicEasy:
+                    StartLevel(0);
+                    break;
+
+                case GameMode.ClassicMedium:
+                    StartLevel(1);
+                    break;
+
+                case GameMode.ClassicHard:
+                    StartLevel(2);
+                    break;
+
+                case GameMode.Custom:
+                    StartCustomLevel(_gameManager.CustomLevel);
+                    break;
+            }
+            return;
+        }
+
+        _width = gridData.Width;
+        _height = gridData.Height;
+
+        _cellGrid = new CellGrid(_width, _height);
+        _cellGrid.InitialializeCellsFromData(gridData.Cells);
+        _board.Draw(_cellGrid);
+
+        AdjustCameraToGridSize();
+        _gameManager.CurrentStatisticController.StartTimer();
+
+        IsFirstClick = true;
     }
 
     private bool TryGetCellAtMousePosition(out BaseCell cell)
@@ -565,7 +631,7 @@ public class SimpleGridManager : MonoBehaviour
     private void OnApplicationQuit()
     {
         _gameManager.CurrentStatisticController.StopTimer();
-        //SavePlayerProgress();
+        _playerProgress.SavePlayerProgress();
 
         if (IsFirstClick)
         {
