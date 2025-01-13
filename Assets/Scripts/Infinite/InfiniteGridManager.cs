@@ -12,6 +12,7 @@ public class InfiniteGridManager : MonoBehaviour
     public int SectorSize => _sectorSize;
     [Header("Camera Controller")]
     [SerializeField] private CameraController _cameraController;
+    //[SerializeField] private float _postCameraInteractionDelay = 0.15f;
 
     [Header("Settings")]
     [SerializeField] private Sector _sectorPrefab;
@@ -36,6 +37,7 @@ public class InfiniteGridManager : MonoBehaviour
 
     private Dictionary<Vector2Int, Sector> _sectors = new Dictionary<Vector2Int, Sector>();
     private Dictionary<Vector3Int, InfiniteCell> _allCells = new Dictionary<Vector3Int, InfiniteCell>();
+    
     private float _clickStartTime;
     private bool _isHolding;
     private bool _flagSet;
@@ -52,9 +54,8 @@ public class InfiniteGridManager : MonoBehaviour
 
     private HashSet<Sector> _sectorsToRedraw = new HashSet<Sector>();
     private int _activeFloodCoroutines = 0;
-    private Vector3 _startMousePosition; // Начальная позиция мыши/пальца
-    private bool _isCameraMovement; // Флаг, указывающий на перемещение камеры
-    private const float MovementThreshold = 5f; // Порог для определения перемещения
+    //private float _lastCameraInteractionTime = 0f;
+    private bool IsInputLocked;
 
     void Start()
     {
@@ -74,13 +75,26 @@ public class InfiniteGridManager : MonoBehaviour
     private void Update()
     {
         UpdateVisibleSectors();
-                
+        
         if (_cameraController.IsCameraInteracting)
         {
+            IsInputLocked = true;
+            Debug.Log("Input locked due to camera interaction.");                       
+            _isHolding = false;
             return;
         }
 
-        // check click on ui or gamefield
+        if (_cameraController.HasFinishedInteracting)
+        {
+            Debug.Log("Camera finished interacting. Resetting interaction state.");
+            _cameraController.ResetFinishedInteracting();
+            if (!Input.GetMouseButton(0) && Input.touchCount == 0)
+            {
+                IsInputLocked = false;
+            }
+            Debug.Log("Input unlocked after camera interaction.");
+        }
+
         if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject())
         {
             return;
@@ -91,7 +105,12 @@ public class InfiniteGridManager : MonoBehaviour
             return;
         }
 
-        HandleGameInput();
+        IsInputLocked = false;
+
+        if (!IsInputLocked)
+        {
+            HandleGameInput();
+        }
     }
 
     private void CheckGameStart()
@@ -142,7 +161,8 @@ public class InfiniteGridManager : MonoBehaviour
                 }
                 else
                 {
-                    StartNewGame();                    
+                    StartNewGame();
+                    TimeModeTimerManager.Instance.StartModeTimer();
                 }
                 break;
 
@@ -175,8 +195,15 @@ public class InfiniteGridManager : MonoBehaviour
 
     private void HandleGameInput()
     {
+        if (IsInputLocked)
+        {
+            Debug.Log("Game input ignored: Input is locked.");
+            return;
+        }
+
         if (Input.GetMouseButtonDown(0))
         {
+            Debug.Log("Mouse or touch began.");
             float currentTime = Time.time;
 
             // Проверка на двойной клик
@@ -187,6 +214,7 @@ public class InfiniteGridManager : MonoBehaviour
             }
             else
             {
+                Debug.Log("Single click detected.");
                 _clickStartTime = currentTime;
                 _isHolding = true;
                 _flagSet = false;
@@ -204,10 +232,12 @@ public class InfiniteGridManager : MonoBehaviour
         }*/
 
 
-       if (Input.GetMouseButtonUp(0))
+        if (Input.GetMouseButtonUp(0))
         {
+            Debug.Log("Mouse or touch ended.");
             if (!_flagSet && _isHolding && Time.time - _clickStartTime < GameSettingsManager.Instance.HoldTime)
             {
+                Debug.Log("Click action triggered.");
                 GetSectorAtClick();
             }
             _isHolding = false;
@@ -215,6 +245,7 @@ public class InfiniteGridManager : MonoBehaviour
 
         if (_isHolding && !_flagSet && Time.time - _clickStartTime >= GameSettingsManager.Instance.HoldTime)
         {
+            Debug.Log("Long press action triggered.");
             SetSectorForFlagAtClick();
             _flagSet = true;
         }

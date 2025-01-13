@@ -7,7 +7,8 @@ public class SimpleGridManager : MonoBehaviour
 {
     [Header("Camera Controller")]
     [SerializeField] private CameraController _cameraController;
-
+    //[SerializeField] private float _postCameraInteractionDelay = 0.15f; // Задержка после завершения работы камеры
+      
     [Header("Settings")]
     [SerializeField] private Board _board;
     //[SerializeField] private List<LevelConfig> _levels = new();
@@ -37,6 +38,9 @@ public class SimpleGridManager : MonoBehaviour
     private GameManager _gameManager;
     private IStatisticController _statisticController;
 
+    //private float _lastCameraInteractionTime = 0f;
+    private bool IsInputLocked;
+
     private void Awake()
     {
 
@@ -56,6 +60,16 @@ public class SimpleGridManager : MonoBehaviour
     {
         if (_cameraController.IsCameraInteracting)
         {
+            IsInputLocked = true;
+            _isHolding = false;
+            return;
+        }
+
+        if (_cameraController.HasFinishedInteracting)
+        { 
+            _cameraController.ResetFinishedInteracting();
+            IsInputLocked = false;
+            Debug.Log("Input unlocked after camera interaction.");
             return;
         }
 
@@ -70,11 +84,21 @@ public class SimpleGridManager : MonoBehaviour
             return;
         }
 
-        HandleGameInput();
+        IsInputLocked = false;
+
+        if (!IsInputLocked)
+        {
+            HandleGameInput();
+        }
     }
 
     private void HandleGameInput()
     {
+        if (IsInputLocked)
+        {
+            return;
+        }
+
         if (Input.GetMouseButtonDown(0))
         {
             float currentTime = Time.time;
@@ -96,43 +120,18 @@ public class SimpleGridManager : MonoBehaviour
 
         if (Input.GetMouseButtonUp(0))
         {
-            if (!_flagSet && _isHolding && Time.time - _clickStartTime < 0.3f)
+            if (!_flagSet && _isHolding && Time.time - _clickStartTime < GameSettingsManager.Instance.HoldTime)
             {
                 Reveal();
             }
             _isHolding = false;
         }
 
-        if (_isHolding && !_flagSet && Time.time - _clickStartTime >= 0.3f)
+        if (_isHolding && !_flagSet && Time.time - _clickStartTime >= GameSettingsManager.Instance.HoldTime)
         {
             Flag();
             _flagSet = true;
-        }
-        /*if (Input.GetKeyDown(KeyCode.N) || Input.GetKeyDown(KeyCode.R) || Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.Space))
-        {
-            NewGame();
-            return;
-        }
-
-        if (!IsGameOver)
-        {
-            if (Input.GetMouseButtonDown(0))
-            {
-                Reveal();
-            }
-            else if (Input.GetMouseButtonDown(1))
-            {
-                Flag();
-            }
-            else if (Input.GetMouseButton(2))
-            {
-                Chord();
-            }
-            else if (Input.GetMouseButtonUp(2))
-            {
-                Unchord();
-            }
-        }*/
+        }        
     }
 
     private void CheckGameStart()

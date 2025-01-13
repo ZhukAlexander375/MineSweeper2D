@@ -5,25 +5,26 @@ public class CameraController : MonoBehaviour
     public bool IsCameraInteracting => IsMoving || IsZooming;
     public bool IsMoving { get; private set; }
     public bool IsZooming { get; private set; }
+    public bool HasFinishedInteracting { get; private set; } = false;
 
     [Header("Settings")]
-    [SerializeField] private float moveSpeed = 0.5f;
+    [SerializeField] private float moveSpeed;
     [SerializeField] private float zoomSpeed;
-    [SerializeField] private float minZoom = 5f;
-    [SerializeField] private float maxZoom = 20f;
-    [SerializeField] private float deadZoneThrashhold = 100f;
+    [SerializeField] private float minZoom;
+    [SerializeField] private float maxZoom;
+    [SerializeField] private float deadZoneThrashhold;    
 
     private Camera mainCamera;
     private Vector3 touchStartPos;
     private ThemeConfig _currentAppliedTheme;
-    private Vector3 previousPosition;
-    private Vector3 cameraCurrentPosition;    
-    private float zoomStartTime;
-    private float zoomEndTime;
+    private Vector3 previousMousePosition;
+    private Vector3 cameraCurrentPosition;
+    private bool isSwitchingToSingleTouch = false;
+    private Vector3 lastTouchPosition;
 
     private void Start()
     {
-        Application.targetFrameRate = 1000;
+        Application.targetFrameRate = 240;
         mainCamera = Camera.main;
         SignalBus.Subscribe<ThemeChangeSignal>(OnThemeChanged);
         TryApplyTheme(ThemeManager.Instance.CurrentTheme);
@@ -40,66 +41,94 @@ public class CameraController : MonoBehaviour
 #endif
     }
 
+    public void ResetFinishedInteracting()
+    {
+        if (HasFinishedInteracting)
+        {
+            HasFinishedInteracting = false;
+        }
+    }
+
+    /// <summary>
+    /// 
+    /// 
+    /// Õ¿◊»Õ¿ﬁ Œ“—ﬁƒ¿!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    /// 
+    /// 
+    /// 
+    /// </summary>
     private void HandleTouchInput()
     {
         if (Input.touchCount == 1)
         {
             var touch = Input.GetTouch(0);
 
+            if (IsZooming)
+            {
+                IsZooming = false;
+                isSwitchingToSingleTouch = true;
+                lastTouchPosition = touch.position;
+                return;
+            }
+
+            if (isSwitchingToSingleTouch)
+            {
+                if (touch.phase == TouchPhase.Moved && Vector3.Distance(touch.position, lastTouchPosition) > deadZoneThrashhold)
+                {
+                    isSwitchingToSingleTouch = false;
+                    IsMoving = true;
+                }
+                else if (touch.phase == TouchPhase.Ended)
+                {
+                    isSwitchingToSingleTouch = false;
+                }
+                return;
+            }
+            
+
             if (touch.phase == TouchPhase.Began)
             {
-                IsMoving = false;
                 touchStartPos = touch.position;
-                cameraCurrentPosition = transform.position;
             }
             else if (touch.phase == TouchPhase.Moved)
             {
                 var delta = (Vector3)touch.position - touchStartPos;
 
-                if (!IsMoving && delta.magnitude > deadZoneThrashhold)
+                if (delta.magnitude > deadZoneThrashhold)
                 {
                     IsMoving = true;
-                }
-
-                if (IsMoving)
-                {
-                    touchStartPos = touch.position;
                     MoveCamera(delta);
+                    touchStartPos = touch.position;
                 }
-                
             }
-
             else if (touch.phase == TouchPhase.Ended)
             {
                 IsMoving = false;
+                HasFinishedInteracting = true;
+                Debug.Log("Touch ended; camera interaction finished.");
             }
         }
-
-        if (Input.touchCount == 2)
+        else if (Input.touchCount == 2)
         {
-            IsZooming = true;
-
             var touch0 = Input.GetTouch(0);
             var touch1 = Input.GetTouch(1);
 
-            if (touch0.phase == TouchPhase.Moved || touch1.phase == TouchPhase.Moved)
-            {
-                var currentDistance = Vector2.Distance(touch0.position, touch1.position);
-                var previousDistance = Vector2.Distance(touch0.position - touch0.deltaPosition, touch1.position - touch1.deltaPosition);
-                var deltaDistance = currentDistance - previousDistance;
+            var currentDistance = Vector2.Distance(touch0.position, touch1.position);
+            var previousDistance = Vector2.Distance(
+                touch0.position - touch0.deltaPosition,
+                touch1.position - touch1.deltaPosition
+            );
 
-                ZoomCamera(deltaDistance * GameSettingsManager.Instance.CameraZoom);
-            }
+            var deltaDistance = currentDistance - previousDistance;
+
+            IsZooming = true;
+            isSwitchingToSingleTouch = false;
+            ZoomCamera(deltaDistance * zoomSpeed);
         }
         else
         {
             IsZooming = false;
         }
-    }
-    
-    public bool IsCameraMoving()
-    {
-        return transform.position == cameraCurrentPosition;
     }
 
 
@@ -107,42 +136,37 @@ public class CameraController : MonoBehaviour
     {
         if (Input.GetMouseButtonDown(0))
         {
-            previousPosition = Input.mousePosition;
+            previousMousePosition = Input.mousePosition;
         }
 
         if (Input.GetMouseButton(0))
         {
-            var delta = Input.mousePosition - previousPosition;
+            var delta = Input.mousePosition - previousMousePosition;
 
-            if (!IsMoving && delta.magnitude > deadZoneThrashhold)
+            if (delta.magnitude > deadZoneThrashhold)
             {
                 IsMoving = true;
-            }
-
-            if (IsMoving)
-            {
-                previousPosition = Input.mousePosition;
                 MoveCamera(delta);
-            }           
+                previousMousePosition = Input.mousePosition;
+            }
         }
-
-        if (Input.GetMouseButtonUp(0))
+        else if (Input.GetMouseButtonUp(0))
         {
             IsMoving = false;
+            HasFinishedInteracting = true;
+            Debug.Log("Mouse button released; camera interaction finished.");
         }
 
         if (Input.mouseScrollDelta.y != 0)
         {
             IsZooming = true;
-            zoomStartTime = Time.time;
-            ZoomCamera(Input.mouseScrollDelta.y * GameSettingsManager.Instance.CameraZoom);
-            zoomEndTime = Time.time;
+            ZoomCamera(Input.mouseScrollDelta.y * zoomSpeed);
         }
         else
         {
-            IsZooming = zoomEndTime + 0.1f > Time.time;
+            IsZooming = false;
         }
-    }
+    }       
 
     private void MoveCamera(Vector3 delta)
     {
