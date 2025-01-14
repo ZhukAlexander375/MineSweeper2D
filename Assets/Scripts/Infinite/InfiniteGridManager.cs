@@ -540,7 +540,7 @@ public class InfiniteGridManager : MonoBehaviour
             case CellState.Mine:
                 if (!cell.IsExploded)
                 {
-                    CheckLoseConditions(currentSector, cell);
+                    CheckLoseConditions(cell.Sector, cell);     //check sector of this cell
                 }                
                 
                 break;
@@ -549,19 +549,19 @@ public class InfiniteGridManager : MonoBehaviour
                 StartCoroutine(Flood(currentSector, cell, _sectorsToRedraw));
 
                 //CheckWinCondition();
-                SectorCompletionCheck(currentSector);
+                SectorCompletionCheck(cell.Sector);             //check sector of this cell
                 break;
 
             default:
                 cell.IsRevealed = true;
 
                 UpdateOpenedCells();
-                SignalBus.Fire<CellRevealedSignal>();
+                //SignalBus.Fire<CellRevealedSignal>();
 
                 cell.IsActive = true;
 
                 //CheckWinCondition();
-                SectorCompletionCheck(currentSector);
+                SectorCompletionCheck(cell.Sector);             //check sector of this cell                
                 break;
         }
 
@@ -599,7 +599,7 @@ public class InfiniteGridManager : MonoBehaviour
         
         RedrawSectors();
 
-        SectorCompletionCheck(currentSector);
+        SectorCompletionCheck(cell.Sector);             //check sector of this cell
     }
 
     private void InstantiateParticleAtCell(GameObject particlePrefab, InfiniteCell cell)
@@ -708,7 +708,7 @@ public class InfiniteGridManager : MonoBehaviour
 
         affectedSectors.Add(currentSector);
 
-        SectorCompletionCheck(currentSector);
+        SectorCompletionCheck(cell.Sector);             //check sector of this cell
 
         yield return null;
 

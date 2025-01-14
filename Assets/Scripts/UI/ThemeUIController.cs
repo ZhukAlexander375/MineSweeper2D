@@ -298,7 +298,9 @@ public class ThemeUIController : MonoBehaviour
         {
             foreach (var image in _menuFrameBackgrounds)
             {
-                image.color = theme.MenuFrameBGColor;
+                image.material = theme.MenuFrameGradientMaterial;
+
+                //image.color = theme.MenuFrameBGColor;
             }
         }
 

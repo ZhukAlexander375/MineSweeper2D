@@ -54,7 +54,7 @@ public class ThemeConfig : ScriptableObject
     public Sprite FieldImage;
 
     [Header("Materials")]
-    public Sprite MenuFrameGradientMaterial;
+    public Material MenuFrameGradientMaterial;
     //       
     //public Color MenuTitleTextColor; 
 

@@ -45,3 +45,4 @@ MonoBehaviour:
   MenuTitleImage: {fileID: 21300000, guid: 38a96e81281f9194eacea7d588ebee89, type: 3}
   StartTutorialImage: {fileID: 21300000, guid: 3834c0e832a47a84bb2035831df71193, type: 3}
   FieldImage: {fileID: 21300000, guid: 58e86a7b09ada174e870d3fdf13817b2, type: 3}
+  MenuFrameGradientMaterial: {fileID: 2100000, guid: 8869716a79bb84a4e877149ea2e83cb9, type: 2}
