@@ -52,6 +52,8 @@ public class ThemeUIController : MonoBehaviour
     [Header("Images")]
     [SerializeField] private Image _navigationPanelImage;
     [SerializeField] private Image _menuTitleImage;
+    [SerializeField] private Image _startTutorialImage;
+    [SerializeField] private Image _fieldImage;
 
 
 
@@ -91,6 +93,7 @@ public class ThemeUIController : MonoBehaviour
 
         if (_currentAppliedTheme == theme)
         {
+            ApplyButtonsColor(_currentAppliedTheme);
             return;
         }
 
@@ -183,6 +186,47 @@ public class ThemeUIController : MonoBehaviour
         {
             foreach (var button in _buttonsMain)
             {
+                if (button.interactable)
+                {
+                    button.image.color = theme.ButtonsMainColor;
+                }
+                else
+                {
+                    button.image.color = theme.ButtonsInactiveColor;
+                }
+            }
+        }
+
+        if (_buttonsShadowMain.Length > 0)
+        {
+            foreach (var shadow in _buttonsShadowMain)
+            {
+                var button = shadow.GetComponent<Button>();
+                if (button != null && button.interactable)
+                {
+                    shadow.effectColor = theme.ButtonsMainShadowColor;
+                }
+                else
+                {
+                    shadow.effectColor = theme.ButtonsInactiveShadowColor;
+                }
+            }
+        }
+
+        if (_buttonsInactiveMainColor.Length > 0)
+        {
+            foreach (var button in _buttonsInactiveMainColor)
+            {
+                if (!button.interactable)
+                {
+                    button.image.color = theme.ButtonsInactiveColor;
+                }
+            }
+        }
+        /*if (_buttonsMain.Length > 0)
+        {
+            foreach (var button in _buttonsMain)
+            {
                 button.image.color = theme.ButtonsMainColor;
             }
         }
@@ -209,7 +253,7 @@ public class ThemeUIController : MonoBehaviour
             {
                 shadow.effectColor = theme.ButtonsInactiveShadowColor;
             }
-        }
+        }*/
     }
 
     private void ApplyDropdownColor(ThemeConfig theme)
@@ -402,6 +446,16 @@ public class ThemeUIController : MonoBehaviour
         if (_menuTitleImage != null)
         {
             _menuTitleImage.sprite = theme.MenuTitleImage;
+        }
+
+        if (_startTutorialImage != null)
+        {
+            _startTutorialImage.sprite = theme.StartTutorialImage;
+        }
+
+        if (_fieldImage != null)
+        {
+            _fieldImage.sprite = theme.FieldImage;
         }
     }
 

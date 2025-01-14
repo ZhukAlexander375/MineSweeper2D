@@ -1927,6 +1927,8 @@ MonoBehaviour:
   _topFieldImage: []
   _closeSectorBackground: {fileID: 2143243940541402842}
   _transparentBackground: {fileID: 0}
+  _menuFrameTopColor: []
+  _menuFrameTopMinesColor: []
   _enabledSettingsImage: []
   _disabledSettingsImage: []
   _menuFrameBackgrounds: []
@@ -1952,12 +1954,15 @@ MonoBehaviour:
   _iconsSettingsBack: []
   _iconsOnActiveButtons: []
   _iconsOnInactiveButtons: []
+  _menuTopIconsColor: []
   _slidersFillImage: []
   _slidersHandleImage: []
   _menuTitleText: {fileID: 0}
   _mainMenuTexts: []
   _navigationPanelImage: {fileID: 0}
   _menuTitleImage: {fileID: 0}
+  _startTutorialImage: {fileID: 0}
+  _fieldImage: {fileID: 0}
 --- !u!1 &7608627554652279030
 GameObject:
   m_ObjectHideFlags: 0

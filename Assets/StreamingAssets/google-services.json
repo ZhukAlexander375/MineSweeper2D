@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "235901328384",
+    "project_id": "borderless-minesweeper",
+    "storage_bucket": "borderless-minesweeper.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:235901328384:android:b304dd6d7527c50ee7cce5",
+        "android_client_info": {
+          "package_name": "com.extgamemo.BorderlessMinesweeper"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCGv0f6Sw45mrqyuwhCkBWnxl4WOlf54hw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

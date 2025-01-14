@@ -301,10 +301,15 @@ public class Sector : MonoBehaviour
                 break;
             }
 
-            if (cell.CellState == CellState.Mine && !cell.IsRevealed && !cell.IsFlagged)
+            if (cell.CellState == CellState.Mine && !cell.IsRevealed && !cell.IsFlagged && !cell.IsExploded)
             {
                 isSectorCompleted = false;
                 break;
+            }
+
+            if (cell.CellState == CellState.Mine && cell.IsExploded)
+            {
+                continue;
             }
 
             if (cell.IsFlagged && cell.CellState != CellState.Mine)
@@ -333,7 +338,7 @@ public class Sector : MonoBehaviour
         switch (cell.CellState)
         {
             case CellState.Empty: return _tileSets[_currentTileSetIndex].TileEmpty;
-            case CellState.Mine: return cell.IsExploded ? _tileSets[_currentTileSetIndex].TileMine : _tileSets[_currentTileSetIndex].TileExploded;
+            case CellState.Mine: return cell.IsExploded ? _tileSets[_currentTileSetIndex].TileExploded : _tileSets[_currentTileSetIndex].TileMine;
             case CellState.Number: return GetNumberTile(cell);
             default: return null;
         }
@@ -420,6 +425,7 @@ public class Sector : MonoBehaviour
 
     public void ExplodeSector(InfiniteCell cell)
     {
+        cell.IsExploded = true;
         cell.IsRevealed = true;
         CloseSector();
     }

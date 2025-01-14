@@ -69,7 +69,6 @@ public class SimpleGridManager : MonoBehaviour
         { 
             _cameraController.ResetFinishedInteracting();
             IsInputLocked = false;
-            Debug.Log("Input unlocked after camera interaction.");
             return;
         }
 

@@ -53,6 +53,7 @@ public class MainMenuUI : MonoBehaviour
 
     [Header("Objects")]
     [SerializeField] private GameObject _containerLastSession;
+    [SerializeField] private GameObject _startTutorialObject;
 
     private void Awake()
     {
@@ -353,13 +354,14 @@ public class MainMenuUI : MonoBehaviour
     private void ContinueClassicButtonInteractable()
     {
         _continueClassicGameButton.interactable = SaveManager.Instance.HasClassicGameSave();
+        SignalBus.Fire(new ThemeChangeSignal(ThemeManager.Instance.CurrentTheme, ThemeManager.Instance.CurrentThemeIndex));
     }
 
     private void PlayButtonInteractable(PlayerProgressLoadCompletedSignal signal)
     {
         if (PlayerProgress.Instance != null)
         {            
-            _playButton.gameObject.SetActive(!PlayerProgress.Instance.IsFirstTimePlayed);
+            _startTutorialObject.gameObject.SetActive(!PlayerProgress.Instance.IsFirstTimePlayed);
             _containerLastSession.SetActive(PlayerProgress.Instance.IsFirstTimePlayed);
         }        
     }

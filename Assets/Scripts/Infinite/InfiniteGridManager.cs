@@ -24,6 +24,7 @@ public class InfiniteGridManager : MonoBehaviour
     [SerializeField] private GameObject _awardSpritePrefab;
     [SerializeField] private SectorBuyoutCostConfig _sectorBuyoutCostConfig;
     [SerializeField] private SectorRewardConfig sectorRewardConfig;
+    [SerializeField] private MinesConfig _minesConfig;
 
     public bool IsFirstClick;
     public bool IsGenerateEnabled;    
@@ -78,21 +79,19 @@ public class InfiniteGridManager : MonoBehaviour
         
         if (_cameraController.IsCameraInteracting)
         {
-            IsInputLocked = true;
-            Debug.Log("Input locked due to camera interaction.");                       
+            IsInputLocked = true;                       
             _isHolding = false;
             return;
         }
 
         if (_cameraController.HasFinishedInteracting)
         {
-            Debug.Log("Camera finished interacting. Resetting interaction state.");
             _cameraController.ResetFinishedInteracting();
             if (!Input.GetMouseButton(0) && Input.touchCount == 0)
             {
                 IsInputLocked = false;
             }
-            Debug.Log("Input unlocked after camera interaction.");
+            
         }
 
         if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject())
@@ -197,13 +196,11 @@ public class InfiniteGridManager : MonoBehaviour
     {
         if (IsInputLocked)
         {
-            Debug.Log("Game input ignored: Input is locked.");
             return;
         }
 
         if (Input.GetMouseButtonDown(0))
         {
-            Debug.Log("Mouse or touch began.");
             float currentTime = Time.time;
 
             // ѕроверка на двойной клик
@@ -214,7 +211,6 @@ public class InfiniteGridManager : MonoBehaviour
             }
             else
             {
-                Debug.Log("Single click detected.");
                 _clickStartTime = currentTime;
                 _isHolding = true;
                 _flagSet = false;
@@ -234,10 +230,8 @@ public class InfiniteGridManager : MonoBehaviour
 
         if (Input.GetMouseButtonUp(0))
         {
-            Debug.Log("Mouse or touch ended.");
             if (!_flagSet && _isHolding && Time.time - _clickStartTime < GameSettingsManager.Instance.HoldTime)
             {
-                Debug.Log("Click action triggered.");
                 GetSectorAtClick();
             }
             _isHolding = false;
@@ -245,7 +239,6 @@ public class InfiniteGridManager : MonoBehaviour
 
         if (_isHolding && !_flagSet && Time.time - _clickStartTime >= GameSettingsManager.Instance.HoldTime)
         {
-            Debug.Log("Long press action triggered.");
             SetSectorForFlagAtClick();
             _flagSet = true;
         }
@@ -332,7 +325,8 @@ public class InfiniteGridManager : MonoBehaviour
     private void GenerateMinesInSector(Sector sector, InfiniteCell startingCell)
     {
         int generatedMines = 0;
-        int minesCount = CalculateProgressiveMinesCount();
+        //int minesCount = CalculateProgressiveMinesCount();
+        int minesCount = CalculateDynamicMinesCount(_sectorsCount);
 
         while (generatedMines < minesCount)
         {
@@ -372,17 +366,20 @@ public class InfiniteGridManager : MonoBehaviour
 
     private int CalculateDynamicMinesCount(int activeSectorCount)
     {
-        int minMines = _minMinesCount;
-        int maxMines = _maxMinesCount;
+        int minMines = _minesConfig.MinMinesCount;
+        int maxMines = _minesConfig.MaxMinesCount;
 
         // ¬ычисл€ем, сколько раз по 2 активных секторов открыто
-        int incrementSteps = activeSectorCount / 2;
+        int incrementSteps = activeSectorCount / _minesConfig.DifficultyStepCoef;
+        int stepsInt = Mathf.FloorToInt(incrementSteps);
 
         // ќбновл€ем пороги с учетом каждого шага
-        minMines = Mathf.Min(minMines + incrementSteps, 15); // нижний порог не превышает 15
-        maxMines = Mathf.Min(maxMines + incrementSteps * 2, 25); // верхний порог не превышает 25
-
-        return Random.Range(minMines, maxMines);
+        minMines = Mathf.Min(minMines + stepsInt, _minesConfig.AbsoluteMin); // нижний порог не превышает 15
+        maxMines = Mathf.Min((int)(maxMines + stepsInt * _minesConfig.IncrementMaxCoef), _minesConfig.AbsoluteMax); // верхний порог не превышает 25
+         
+        int mines = Random.Range(minMines, maxMines);
+        //Debug.Log($"—ектор: {activeSectorCount}. ћин в нем: {mines}");
+        return mines;
     }
 
     public void GenerateNumbers(Sector sector)
@@ -541,8 +538,10 @@ public class InfiniteGridManager : MonoBehaviour
         switch (cell.CellState)
         {
             case CellState.Mine:
-
-                CheckLoseConditions(currentSector, cell);
+                if (!cell.IsExploded)
+                {
+                    CheckLoseConditions(currentSector, cell);
+                }                
                 
                 break;
 

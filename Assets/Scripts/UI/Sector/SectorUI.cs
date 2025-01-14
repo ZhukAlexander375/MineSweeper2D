@@ -20,6 +20,11 @@ public class SectorUI : MonoBehaviour
 
     private Sector _sector;
 
+    private void Awake()
+    {
+        SignalBus.Subscribe<OnGameRewardSignal>(CheckRewardButtonInteractable);        
+    }
+
     private void Start()
     {
         _viewSectorButton.onClick.AddListener(ShowSector);
@@ -28,9 +33,7 @@ public class SectorUI : MonoBehaviour
         _openSectorForAdButton.onClick.AddListener(OpenSectorForAd);
         _replayLevelButton.onClick.AddListener(ReplayLevel);
         //gameObject.SetActive(false);
-        UpdatePrizeCountText();
-
-        CheckRewardButtonInteractable(new OnGameRewardSignal());
+        UpdatePrizeCountText();        
     }
 
     public void SetSector(Sector sector)
@@ -101,7 +104,7 @@ public class SectorUI : MonoBehaviour
 
     private void OnEnable()
     {
-        SignalBus.Subscribe<OnGameRewardSignal>(CheckRewardButtonInteractable);
+        CheckRewardButtonInteractable(new OnGameRewardSignal());
     }
 
     private void OnDestroy()

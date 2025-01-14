@@ -105,7 +105,6 @@ public class CameraController : MonoBehaviour
             {
                 IsMoving = false;
                 HasFinishedInteracting = true;
-                Debug.Log("Touch ended; camera interaction finished.");
             }
         }
         else if (Input.touchCount == 2)
@@ -154,7 +153,6 @@ public class CameraController : MonoBehaviour
         {
             IsMoving = false;
             HasFinishedInteracting = true;
-            Debug.Log("Mouse button released; camera interaction finished.");
         }
 
         if (Input.mouseScrollDelta.y != 0)
@@ -177,7 +175,8 @@ public class CameraController : MonoBehaviour
 
     private void ZoomCamera(float deltaDistance)
     {
-        var newSize = mainCamera.orthographicSize - deltaDistance;
+        float zoomSpeed = GameSettingsManager.Instance.CameraZoom;
+        var newSize = mainCamera.orthographicSize - deltaDistance * zoomSpeed;
         mainCamera.orthographicSize = Mathf.Clamp(newSize, minZoom, maxZoom);
     }
 

@@ -944,7 +944,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   moveSpeed: 0.029
-  zoomSpeed: 0.1
+  zoomSpeed: 0.02
   minZoom: 5
   maxZoom: 35
   deadZoneThrashhold: 10

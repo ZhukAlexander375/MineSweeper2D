@@ -142,10 +142,11 @@ public class SwipeDetector : MonoBehaviour, IPointerDownHandler, IPointerUpHandl
             for (int i = 0; i < _continuedButtons.Length; i++)
             {
                 bool hasSaveData = SaveManager.Instance.HasSavedData(gameModes[i]);
-                _continuedButtons[i].gameObject.SetActive(hasSaveData);
+                //_continuedButtons[i].gameObject.SetActive(hasSaveData);
 
-                //_continuedButtons[i].interactable = hasSaveData;
+                _continuedButtons[i].interactable = hasSaveData;
             }
+            SignalBus.Fire(new ThemeChangeSignal(ThemeManager.Instance.CurrentTheme, ThemeManager.Instance.CurrentThemeIndex));
         }        
     }
 

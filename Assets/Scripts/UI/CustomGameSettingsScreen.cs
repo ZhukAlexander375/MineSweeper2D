@@ -95,12 +95,15 @@ public class CustomGameSettingsScreen : MonoBehaviour
         _startCustomModeButton.interactable = !string.IsNullOrEmpty(_inputWidth.InputField.text)
                                     && !string.IsNullOrEmpty(_inputHeight.InputField.text)
                                     && !string.IsNullOrEmpty(_inputMines.InputField.text);
+
+        SignalBus.Fire(new ThemeChangeSignal(ThemeManager.Instance.CurrentTheme, ThemeManager.Instance.CurrentThemeIndex));
     }
 
     private void CloseScreen()
     {
         //gameObject.SetActive(false);
         ClearInputFields();
+        ValidateStartButton();
     }
 
     public void StartCustomGame()

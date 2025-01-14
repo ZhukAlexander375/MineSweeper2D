@@ -16,7 +16,7 @@ public class ThemeConfig : ScriptableObject
 
     [Header("Buttons Colors")]
     public Color ButtonsMainColor;
-    public Color ButtonsMainShadowColor;    
+    public Color ButtonsMainShadowColor;
     public Color ButtonsInactiveColor;
     public Color ButtonsInactiveShadowColor;
 
@@ -50,9 +50,11 @@ public class ThemeConfig : ScriptableObject
     [Header("Images")]
     public Sprite NavigationPanel;
     public Sprite MenuTitleImage;
+    public Sprite StartTutorialImage;
+    public Sprite FieldImage;
 
-
-
+    [Header("Materials")]
+    public Sprite MenuFrameGradientMaterial;
     //       
     //public Color MenuTitleTextColor; 
 
