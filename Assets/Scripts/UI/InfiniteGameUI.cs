@@ -24,6 +24,7 @@ public class InfiniteGameUI : MonoBehaviour
     [SerializeField] private TMP_Text _flagsTexts;
     [SerializeField] private TMP_Text _gameModeText;
     [SerializeField] private TMP_Text _timerText;
+    [SerializeField] private TMP_Text _replayLevelText;
 
     [Header("Objects")]
     [SerializeField] private GameObject _timerObject;
@@ -32,7 +33,9 @@ public class InfiniteGameUI : MonoBehaviour
 
     private void Awake()
     {       
-        _infiniteGridManager = FindObjectOfType<InfiniteGridManager>();        
+        _infiniteGridManager = FindObjectOfType<InfiniteGridManager>();
+
+        SignalBus.Subscribe<OnGameRewardSignal>(CheckReplayLevelButtonInteractable);
     }
 
     private void Start()
@@ -96,9 +99,25 @@ public class InfiniteGameUI : MonoBehaviour
             }            
         }
 
+        GameManager.Instance.ResetCurrentModeStatistic();
         GameManager.Instance.ClearCurrentGame(GameManager.Instance.CurrentGameMode);
         GameManager.Instance.SetCurrentGameMode(GameManager.Instance.CurrentGameMode);
-        SceneLoader.Instance.LoadInfiniteMinesweeperScene();
+
+        switch (GameManager.Instance.CurrentGameMode)
+        {
+            case GameMode.Hardcore:
+            case GameMode.TimeTrial:
+                if (PlayerProgress.Instance.CheckAwardCount(GameManager.Instance.HardcoreTimeModeCost))
+                {
+                    SignalBus.Fire(new OnGameRewardSignal(0, -GameManager.Instance.HardcoreTimeModeCost));
+                    SceneLoader.Instance.LoadInfiniteMinesweeperScene();
+                }
+                break;
+
+            case GameMode.SimpleInfinite:            
+                SceneLoader.Instance.LoadInfiniteMinesweeperScene();
+                break;
+        }        
     }
 
     private void OpenPauseMenu()
@@ -129,7 +148,17 @@ public class InfiniteGameUI : MonoBehaviour
     {
         if (signal.CurrentGameMode == GameManager.Instance.CurrentGameMode)
         {
-            _loseScreen.gameObject.SetActive(true);
+            if (signal.IsGameOver == true)
+            {
+                _loseScreen.gameObject.SetActive(true);
+                _pauseButton.gameObject.SetActive(false);
+                _pauseMenuScreen.gameObject.SetActive(false);
+            }
+            else
+            {
+                _loseScreen.gameObject.SetActive(false);
+                _pauseButton.gameObject.SetActive(true);
+            }
         }        
     }
 
@@ -193,19 +222,56 @@ public class InfiniteGameUI : MonoBehaviour
         }
     }
 
+    private void SetReplayButton()
+    {
+        switch (GameManager.Instance.CurrentGameMode)
+        {
+            case (GameMode.Hardcore):
+            case (GameMode.TimeTrial):
+                _replayLevelText.text = $"Replay level \n<sprite=0> {GameManager.Instance.HardcoreTimeModeCost}";
+                break;
+
+            default:
+                _replayLevelText.text = $"Replay level";
+                break;
+        }
+    }
+
+    private void CheckReplayLevelButtonInteractable(OnGameRewardSignal signal)
+    {
+        switch (GameManager.Instance.CurrentGameMode)
+        {
+            case GameMode.SimpleInfinite:
+                _replayLevelButton.interactable = true;
+                break;
+
+            case GameMode.Hardcore:
+            case GameMode.TimeTrial:
+
+                _replayLevelButton.interactable = PlayerProgress.Instance.CheckAwardCount(GameManager.Instance.HardcoreTimeModeCost);
+                break;
+        }
+
+        SignalBus.Fire(new ThemeChangeSignal(ThemeManager.Instance.CurrentTheme, ThemeManager.Instance.CurrentThemeIndex));
+    }
+
     private void OnEnable()
     {
         SignalBus.Subscribe<OnGameRewardSignal>(UpdateAwardUI);
         SignalBus.Subscribe<FlagPlacingSignal>(UpdateFlagUI);
         SignalBus.Subscribe<LoadCompletedSignal>(UpdateTexts);
-        SignalBus.Subscribe<GameOverSignal>(OpenLoseScreen);        
-    }
+        SignalBus.Subscribe<GameOverSignal>(OpenLoseScreen);
 
+        SetReplayButton();
+        CheckReplayLevelButtonInteractable(new OnGameRewardSignal());
+    }
     private void OnDisable()
     {
         SignalBus.Unsubscribe<OnGameRewardSignal>(UpdateAwardUI);
         SignalBus.Unsubscribe<FlagPlacingSignal>(UpdateFlagUI);
         SignalBus.Unsubscribe<LoadCompletedSignal>(UpdateTexts);
         SignalBus.Unsubscribe<GameOverSignal>(OpenLoseScreen);
+        SignalBus.Unsubscribe<OnGameRewardSignal>(CheckReplayLevelButtonInteractable);
     }
+
 }

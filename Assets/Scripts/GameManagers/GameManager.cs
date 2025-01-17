@@ -11,10 +11,12 @@ public class GameManager : MonoBehaviour
     [SerializeField] private ClassicModeStatisticController _classicStatisticController;
     [SerializeField] public List<LevelConfig> PredefinedLevels;
     public LevelConfig CustomLevel;
+    [SerializeField] private int _hardcoreTimeModeCost;
     public SimpleInfiniteStatisticController SimpleInfiniteStats => _simpleInfiniteStatisticController;
     public HardcoreStatisticController HardcoreStats => _hardcoreStatisticController;
     public TimeTrialStatisticController TimeTrialStats => _timeTrialStatisticController;
     public ClassicModeStatisticController ClassicStats => _classicStatisticController;
+    public int HardcoreTimeModeCost => _hardcoreTimeModeCost;
 
     public GameMode CurrentGameMode { get; private set; }
     public IStatisticController CurrentStatisticController { get; private set; }

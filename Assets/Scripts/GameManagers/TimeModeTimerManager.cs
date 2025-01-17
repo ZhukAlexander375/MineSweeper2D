@@ -33,7 +33,13 @@ public class TimeModeTimerManager : MonoBehaviour
         if (!IsTimerRunning && IsTimeUp() && IsTimerOver)
         {
             Debug.Log("Time is up! The game ended while you were away.");
-            SignalBus.Fire(new GameOverSignal(GameMode.TimeTrial));
+            SignalBus.Fire(
+                new GameOverSignal(
+                    GameManager.Instance.CurrentGameMode,
+                    TimeTrialStatisticController.Instance.IsGameOver,
+                    TimeTrialStatisticController.Instance.IsGameWin
+                )
+            );
         }
     }
 
@@ -62,10 +68,19 @@ public class TimeModeTimerManager : MonoBehaviour
     {        
         if (IsTimerRunning)
         {
-            //Debug.Log("стоп таймер");
             IsTimerRunning = false;
             IsTimerOver = true;
-            SignalBus.Fire(new GameOverSignal(GameMode.TimeTrial));
+
+            TimeTrialStatisticController.Instance.IsGameOver = true;
+
+            SignalBus.Fire(
+                new GameOverSignal(
+                    GameManager.Instance.CurrentGameMode,
+                    TimeTrialStatisticController.Instance.IsGameOver,
+                    TimeTrialStatisticController.Instance.IsGameWin
+                )
+            );
+
             SaveTimer();
         }
     }

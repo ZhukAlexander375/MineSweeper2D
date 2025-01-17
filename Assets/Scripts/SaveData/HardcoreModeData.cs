@@ -14,6 +14,7 @@ public class HardcoreModeData
     public int SectorBuyoutCostLevel;
     public float TotalPlayTime;
     public bool IsGameOver;
+    public bool IsGameWin;
     public Vector3 LastClickPosition;
 
     public HardcoreModeData(HardcoreStatisticController controller = null)
@@ -29,6 +30,7 @@ public class HardcoreModeData
             SectorBuyoutCostLevel = controller.SectorBuyoutCostLevel;
             TotalPlayTime = controller.TotalPlayTime;
             IsGameOver = controller.IsGameOver;
+            IsGameWin = controller.IsGameWin;
             LastClickPosition = controller.LastClickPosition;
         }
     }

@@ -1,4 +1,5 @@
 using System;
+using System.Numerics;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -28,7 +29,11 @@ public class MainMenuUI : MonoBehaviour
     [SerializeField] private Button _settingsButton;
     [SerializeField] private Button _continueGameButton;
     [SerializeField] private Button _playButton;
-    
+
+    [Header("Texts")]
+    [SerializeField] private TMP_Text[] _awardTexts;
+    [SerializeField] private TMP_Text _hardcoreNewGameText;
+    [SerializeField] private TMP_Text _timeTrialNewGameText;
 
     [Header("Screens")]
     [SerializeField] private Canvas[] _mainMenuScreens;
@@ -56,7 +61,13 @@ public class MainMenuUI : MonoBehaviour
     [SerializeField] private GameObject _startTutorialObject;
 
     private void Awake()
-    {
+    {    
+        //SignalBus.Subscribe<GameManagerLoadCompletedSignal>(UpdateLastSessionStatistic);
+        //SignalBus.Subscribe<GameManagerLoadCompletedSignal>(UpdateLastClassicSessionStatistic);
+        //SignalBus.Subscribe<PlayerProgressLoadCompletedSignal>(PlayButtonInteractable);
+
+        //SignalBus.Subscribe<OnGameRewardSignal>(UpdateAwardText);
+        //SignalBus.Subscribe<OnGameRewardSignal>(CheckNewGameButtonsInteractable);    
         //_sceneLoader = SceneLoader.Instance;
     }
 
@@ -83,7 +94,9 @@ public class MainMenuUI : MonoBehaviour
         _chooseInfinitymodeButton.onClick.AddListener(OpenInfinityModeMenuScreen);
         _newClassicGameButton.onClick.AddListener(OpenClassicModeMenuScreen);
 
-        ContinueClassicButtonInteractable();
+        UpdateNewGameButtonsText();
+        ContinueClassicButtonInteractable();        
+        CheckNewGameButtonsInteractable(new OnGameRewardSignal());
         //UpdateLastSessionStatistic(new LoadCompletedSignal());        
     }       
 
@@ -157,12 +170,17 @@ public class MainMenuUI : MonoBehaviour
 
     private void NewHardcoreGame()
     {
-        GameManager.Instance.SetCurrentGameMode(GameMode.Hardcore);
-        GameManager.Instance.ClearCurrentGame(GameMode.Hardcore);
-        SceneLoader.Instance.LoadInfiniteMinesweeperScene();
-        //Debug.Log($"{GameManager.Instance.CurrentGameMode}");
+        if (PlayerProgress.Instance.CheckAwardCount(GameManager.Instance.HardcoreTimeModeCost))
+        {            
+            SignalBus.Fire(new OnGameRewardSignal(0, -GameManager.Instance.HardcoreTimeModeCost));
 
-        PlayerProgress.Instance.SetFirstTimePlayed();
+            GameManager.Instance.SetCurrentGameMode(GameMode.Hardcore);
+            GameManager.Instance.ClearCurrentGame(GameMode.Hardcore);
+            SceneLoader.Instance.LoadInfiniteMinesweeperScene();
+            //Debug.Log($"{GameManager.Instance.CurrentGameMode}");
+
+            PlayerProgress.Instance.SetFirstTimePlayed();
+        }       
     }
 
     private void ContinuedHardcoreGame()
@@ -173,12 +191,17 @@ public class MainMenuUI : MonoBehaviour
 
     private void NewTimeTrialGame()
     {
-        GameManager.Instance.SetCurrentGameMode(GameMode.TimeTrial);
-        GameManager.Instance.ClearCurrentGame(GameMode.TimeTrial);
-        SceneLoader.Instance.LoadInfiniteMinesweeperScene();
-        //Debug.Log($"{GameManager.Instance.CurrentGameMode}");
+        if (PlayerProgress.Instance.CheckAwardCount(GameManager.Instance.HardcoreTimeModeCost))
+        {
+            SignalBus.Fire(new OnGameRewardSignal(0, -GameManager.Instance.HardcoreTimeModeCost));
 
-        PlayerProgress.Instance.SetFirstTimePlayed();
+            GameManager.Instance.SetCurrentGameMode(GameMode.TimeTrial);
+            GameManager.Instance.ClearCurrentGame(GameMode.TimeTrial);
+            SceneLoader.Instance.LoadInfiniteMinesweeperScene();
+            //Debug.Log($"{GameManager.Instance.CurrentGameMode}");
+
+            PlayerProgress.Instance.SetFirstTimePlayed();
+        }        
     }
 
     private void ContinuedTimeTrialGame()
@@ -360,10 +383,33 @@ public class MainMenuUI : MonoBehaviour
     private void PlayButtonInteractable(PlayerProgressLoadCompletedSignal signal)
     {
         if (PlayerProgress.Instance != null)
-        {            
+        {
             _startTutorialObject.gameObject.SetActive(!PlayerProgress.Instance.IsFirstTimePlayed);
             _containerLastSession.SetActive(PlayerProgress.Instance.IsFirstTimePlayed);
+
+
+            UpdateAwardText(new OnGameRewardSignal());              ///KOSTYLISCHE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         }        
+    }
+
+    private void UpdateAwardText(OnGameRewardSignal signal)
+    {       
+        foreach (var text in _awardTexts)
+        {
+            text.text = PlayerProgress.Instance.TotalReward.ToString();
+        }        
+    }
+
+    private void UpdateNewGameButtonsText()
+    {
+        _hardcoreNewGameText.text = $"New Game \n<sprite=0> {GameManager.Instance.HardcoreTimeModeCost}";
+        _timeTrialNewGameText.text = $"New Game \n<sprite=0> {GameManager.Instance.HardcoreTimeModeCost}";
+    }
+
+    private void CheckNewGameButtonsInteractable(OnGameRewardSignal signal)
+    {
+        _hardcoreNewGameMenuButton.interactable = PlayerProgress.Instance.CheckAwardCount(GameManager.Instance.HardcoreTimeModeCost); 
+        _timeTrialNewGameButton.interactable = PlayerProgress.Instance.CheckAwardCount(GameManager.Instance.HardcoreTimeModeCost); 
     }
 
 
@@ -377,11 +423,16 @@ public class MainMenuUI : MonoBehaviour
 
         SignalBus.Subscribe<PlayerProgressLoadCompletedSignal>(PlayButtonInteractable);
         PlayButtonInteractable(new PlayerProgressLoadCompletedSignal());
+
+        SignalBus.Subscribe<OnGameRewardSignal>(UpdateAwardText);
+        SignalBus.Subscribe<OnGameRewardSignal>(CheckNewGameButtonsInteractable);        
     }
 
-    private void OnDisable()
+    private void OnDestroy()
     {
         SignalBus.Unsubscribe<GameManagerLoadCompletedSignal>(UpdateLastSessionStatistic);
         SignalBus.Unsubscribe<PlayerProgressLoadCompletedSignal>(PlayButtonInteractable);
+        SignalBus.Unsubscribe<OnGameRewardSignal>(UpdateAwardText);
+        SignalBus.Unsubscribe<OnGameRewardSignal>(CheckNewGameButtonsInteractable);
     }
 }

@@ -263,3 +263,7 @@ MonoBehaviour:
     RandomizationCoefficient: 74
     MaxReward: 154
     MinReward: 139
+  RewardMultipliers:
+  - 1
+  - 1.5
+  - 1.2

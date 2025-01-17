@@ -44,6 +44,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e02a27fff34d51a40a698d2ee2844641, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _cameraController: {fileID: 0}
   _board: {fileID: 0}
-  _levels:
-  - {fileID: 11400000, guid: b42f224e639d57e4c969f205ad3f4b74, type: 2}
+  _flagPlaceParticle: {fileID: 3503042423861992223, guid: 35e832249f1901243a3190aca1dfaff8, type: 3}
+  _flagRemoveParticle: {fileID: 158378317010694987, guid: b433b4a65b1cbb14a901eeada7ef80fa, type: 3}
+  IsFirstClick: 0

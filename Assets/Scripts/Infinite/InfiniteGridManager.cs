@@ -23,7 +23,7 @@ public class InfiniteGridManager : MonoBehaviour
     [SerializeField] private GameObject _targetRewardUIElement;
     [SerializeField] private GameObject _awardSpritePrefab;
     [SerializeField] private SectorBuyoutCostConfig _sectorBuyoutCostConfig;
-    [SerializeField] private SectorRewardConfig sectorRewardConfig;
+    [SerializeField] private SectorRewardConfig _sectorRewardConfig;
     [SerializeField] private MinesConfig _minesConfig;
 
     public bool IsFirstClick;
@@ -70,16 +70,21 @@ public class InfiniteGridManager : MonoBehaviour
         CheckGameStart();        
         SetCurrentRewardLevel();
         SetCurrentSectorBuyoutLevel();
-        CenterCameraOnSector();        
+        CenterCameraOnSector();
     }
 
     private void Update()
     {
+        if (Input.GetKeyDown(KeyCode.R))
+        {
+            //DebugFirstTenRewards();
+        }
+
         UpdateVisibleSectors();
-        
+
         if (_cameraController.IsCameraInteracting)
         {
-            IsInputLocked = true;                       
+            IsInputLocked = true;
             _isHolding = false;
             return;
         }
@@ -91,7 +96,7 @@ public class InfiniteGridManager : MonoBehaviour
             {
                 IsInputLocked = false;
             }
-            
+
         }
 
         if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject())
@@ -109,6 +114,32 @@ public class InfiniteGridManager : MonoBehaviour
         if (!IsInputLocked)
         {
             HandleGameInput();
+        }
+    }
+
+    /// <summary>
+    /// 
+    /// 
+    /// TO DELETE METHOD. ONLY CHECK
+    /// 
+    /// 
+    /// </summary>
+    private void DebugFirstTenRewards()
+    {
+        if (_sectorRewardConfig == null)
+        {
+            Debug.LogError("SectorRewardConfig is not set!");
+            return;
+        }
+
+        GameMode currentGameMode = GameManager.Instance.CurrentGameMode;
+        Debug.Log($"Current Game Mode: {currentGameMode}");
+
+        // Цикл для расчёта первых 10 наград
+        for (int i = 1; i <= 10; i++)
+        {
+            int reward = CalculateCurrentReward(i);
+            Debug.Log($"Reward for level {i}: {reward}");
         }
     }
 
@@ -136,7 +167,13 @@ public class InfiniteGridManager : MonoBehaviour
 
                     if (_gameManager.HardcoreStats.ExplodedMines > 0 || _gameManager.HardcoreStats.IsGameOver)
                     {
-                        SignalBus.Fire(new GameOverSignal(GameManager.Instance.CurrentGameMode));
+                        SignalBus.Fire(
+                            new GameOverSignal(
+                                GameManager.Instance.CurrentGameMode,
+                                _gameManager.HardcoreStats.IsGameOver,
+                                _gameManager.HardcoreStats.IsGameWin
+                            )
+                        );
                     }
                 }
                 else
@@ -151,12 +188,33 @@ public class InfiniteGridManager : MonoBehaviour
                     LoadSavedGame();
                     SignalBus.Fire<LoadCompletedSignal>();
 
-                    if (_gameManager.TimeTrialStats.IsGameOver)
+                    if (!TimeModeTimerManager.Instance.IsTimerRunning && TimeModeTimerManager.Instance.IsTimeUp())
                     {
-                        SignalBus.Fire(new GameOverSignal(GameManager.Instance.CurrentGameMode));
+                        SignalBus.Fire(
+                            new GameOverSignal(
+                                GameManager.Instance.CurrentGameMode,
+                                _gameManager.TimeTrialStats.IsGameOver,
+                                _gameManager.TimeTrialStats.IsGameWin
+                            )
+                        );
+                        return;
                     }
 
-                    TimeModeTimerManager.Instance.StartModeTimer();
+                    if (_gameManager.TimeTrialStats.IsGameOver)
+                    {
+                        SignalBus.Fire(
+                            new GameOverSignal(
+                                GameManager.Instance.CurrentGameMode,
+                                _gameManager.TimeTrialStats.IsGameOver,
+                                _gameManager.TimeTrialStats.IsGameWin
+                            )
+                        );
+                    }
+
+                    else
+                    {
+                        TimeModeTimerManager.Instance.StartModeTimer();
+                    }
                 }
                 else
                 {
@@ -757,7 +815,13 @@ public class InfiniteGridManager : MonoBehaviour
 
                 SaveCurrentGame();
 
-                SignalBus.Fire(new GameOverSignal(GameMode.Hardcore));
+                SignalBus.Fire(
+                    new GameOverSignal(
+                        GameMode.Hardcore,
+                        HardcoreStatisticController.Instance.IsGameOver,
+                        HardcoreStatisticController.Instance.IsGameWin
+                    )
+                );
                 break;
 
             case GameMode.SimpleInfinite:
@@ -773,7 +837,13 @@ public class InfiniteGridManager : MonoBehaviour
 
                 if (!TimeModeTimerManager.Instance.IsTimerRunning && TimeModeTimerManager.Instance.IsTimeUp())
                 {
-                    SignalBus.Fire(new GameOverSignal(GameMode.TimeTrial));
+                    SignalBus.Fire(
+                        new GameOverSignal(
+                            GameMode.Hardcore,
+                            TimeTrialStatisticController.Instance.IsGameOver,
+                            TimeTrialStatisticController.Instance.IsGameWin
+                        )
+                    );
                     return;
                 }
 
@@ -805,15 +875,18 @@ public class InfiniteGridManager : MonoBehaviour
 
     private int CalculateCurrentReward(int collectedRewards)
     {
-        int rewardLevelIndex = Mathf.Min(collectedRewards - 1, sectorRewardConfig.RewardLevels.Count - 1);
-        RewardLevel currentRewardLevel = sectorRewardConfig.RewardLevels[rewardLevelIndex];
+        int rewardLevelIndex = Mathf.Min(collectedRewards - 1, _sectorRewardConfig.RewardLevels.Count - 1);
+        RewardLevel currentRewardLevel = _sectorRewardConfig.RewardLevels[rewardLevelIndex];
         
         float randomMultiplier = Random.Range(1f - currentRewardLevel.RandomizationCoefficient, 1f + currentRewardLevel.RandomizationCoefficient);
-        int reward = Mathf.RoundToInt(currentRewardLevel.CurrencyAmount * randomMultiplier);
+        int baseReward = Mathf.RoundToInt(currentRewardLevel.CurrencyAmount * randomMultiplier);
         
-        reward = Mathf.Clamp(reward, currentRewardLevel.MinReward, currentRewardLevel.MaxReward);
+        baseReward = Mathf.Clamp(baseReward, currentRewardLevel.MinReward, currentRewardLevel.MaxReward);
 
-        return reward;
+        float modeMultiplier = _sectorRewardConfig.GetMultiplier(GameManager.Instance.CurrentGameMode);
+        int finalReward = Mathf.FloorToInt(baseReward * modeMultiplier);
+
+        return finalReward;
     }
 
     private void MoveAwardSprite(InfiniteCell cell, GameObject targetRewardUIElement)

@@ -21,7 +21,6 @@ public class ClassicGameUI : MonoBehaviour
     [SerializeField] private Canvas _settingsScreen;
     [SerializeField] private Canvas _loseScreen;    
     [SerializeField] private Canvas _gameScreen;
-    [SerializeField] private Canvas _customGameSettingsScreen;
 
     [Header("GridManager")]
     [SerializeField] private SimpleGridManager _gridManager;
@@ -101,21 +100,13 @@ public class ClassicGameUI : MonoBehaviour
         }
     }
 
-    private void OpenGameScreen(string gameModeName)
-    {        
-        _customGameSettingsScreen.gameObject.SetActive(false);
-        _gameScreen.gameObject.SetActive(true);
-        _gameModeName.text = gameModeName;
-    }
-       
-
     private void ReturnToMainMenu()
     {
         GameManager.Instance.CurrentStatisticController.StopTimer();
         PlayerProgress.Instance.SavePlayerProgress();
 
         if (_simpleGridManager.IsFirstClick)
-        {
+        {            
             _simpleGridManager.SaveCurrentGame();
         }
 
@@ -126,7 +117,17 @@ public class ClassicGameUI : MonoBehaviour
     {
         if (signal.CurrentGameMode == GameManager.Instance.CurrentGameMode)
         {
-            _loseScreen.gameObject.SetActive(true);
+            if (signal.IsGameOver == true || signal.IsGameWin == true)
+            {
+                _loseScreen.gameObject.SetActive(true);
+                _pauseButton.gameObject.SetActive(false);
+                _pauseMenuScreen.gameObject.SetActive(false);
+            }
+            else
+            {
+                _loseScreen.gameObject.SetActive(false);
+                _pauseButton.gameObject.SetActive(true);
+            }
         }
     }
 

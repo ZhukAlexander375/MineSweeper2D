@@ -11,6 +11,7 @@ public class ClassicModeData
     public int SectorBuyoutCostLevel;
     public float TotalPlayTime;
     public bool IsGameOver;
+    public bool IsGameWin;
 
     public ClassicModeData(ClassicModeStatisticController controller = null)
     {
@@ -25,6 +26,7 @@ public class ClassicModeData
             SectorBuyoutCostLevel = controller.SectorBuyoutCostLevel;
             TotalPlayTime = controller.TotalPlayTime;
             IsGameOver = controller.IsGameOver;
+            IsGameWin = controller.IsGameWin;
         }
     }
 }

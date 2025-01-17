@@ -21,6 +21,7 @@ public class WinLoseScreenUI : MonoBehaviour
     [SerializeField] private TMP_Text _resultValueText2Text;
     [SerializeField] private TMP_Text _resultValueText3Text;
     [SerializeField] private TMP_Text _resultValueText4Text;
+    [SerializeField] private TMP_Text _replayLevelText;
 
     [Header("Objects")]
     [SerializeField] private GameObject _loseMenuObject;
@@ -38,6 +39,7 @@ public class WinLoseScreenUI : MonoBehaviour
     {
         _infiniteGridManager = FindObjectOfType<InfiniteGridManager>();
         _simpleGridManager = FindObjectOfType<SimpleGridManager>();
+        SignalBus.Subscribe<OnGameRewardSignal>(CheckReplayLevelButtonInteractable);
     }
 
 
@@ -46,7 +48,7 @@ public class WinLoseScreenUI : MonoBehaviour
         _replayLevelButton.onClick.AddListener(ReplayGame);
         _goHomeButton.onClick.AddListener(ReturnToMainMenu);
         _fieldOverviewButton.onClick.AddListener(HideLoseMenu);
-        _backButton.onClick.AddListener(ShowLoseMenu);
+        _backButton.onClick.AddListener(ShowLoseMenu);        
     }
 
     private void ReplayGame()
@@ -70,7 +72,11 @@ public class WinLoseScreenUI : MonoBehaviour
         {
             case GameMode.Hardcore:
             case GameMode.TimeTrial:
-                SceneLoader.Instance.LoadInfiniteMinesweeperScene();
+                if (PlayerProgress.Instance.CheckAwardCount(GameManager.Instance.HardcoreTimeModeCost))
+                {
+                    SignalBus.Fire(new OnGameRewardSignal(0, -GameManager.Instance.HardcoreTimeModeCost));
+                    SceneLoader.Instance.LoadInfiniteMinesweeperScene();
+                }
                 break;
 
             case GameMode.ClassicEasy:
@@ -100,6 +106,7 @@ public class WinLoseScreenUI : MonoBehaviour
             case GameMode.ClassicEasy:
             case GameMode.ClassicMedium:
             case GameMode.ClassicHard:
+            case GameMode.Custom:
                 if (_simpleGridManager != null && _simpleGridManager.IsFirstClick)
                 {
                     _simpleGridManager.SaveCurrentGame();
@@ -126,7 +133,7 @@ public class WinLoseScreenUI : MonoBehaviour
         SetTitleIconAndText();
         SetModeNameText();
         SetResultTexts();
-        SetResultValueTexts();
+        SetResultValueTexts();        
     }
 
     private void SetTitleIconAndText()
@@ -142,12 +149,13 @@ public class WinLoseScreenUI : MonoBehaviour
             case GameMode.ClassicEasy:
             case GameMode.ClassicMedium:
             case GameMode.ClassicHard:
+            case GameMode.Custom:
                 if (GameManager.Instance.CurrentStatisticController.IsGameOver)
                 {
                     _titleImage.sprite = _loseSprite;
                     _titleText.text = "Try again";
                 }
-                else
+                else if (GameManager.Instance.CurrentStatisticController.IsGameWin)
                 {
                     _titleImage.sprite = _winSprite;
                     _titleText.text = "You win";
@@ -261,8 +269,48 @@ public class WinLoseScreenUI : MonoBehaviour
         }
     }
 
+    private void SetReplayButton()
+    {
+        switch (GameManager.Instance.CurrentGameMode)
+        {
+            case (GameMode.Hardcore):
+            case (GameMode.TimeTrial):
+                _replayLevelText.text = $"Replay level \n<sprite=0> {GameManager.Instance.HardcoreTimeModeCost}";
+                break;
+
+            default:
+                _replayLevelText.text = $"Replay level";
+                break;
+        } 
+    }
+
+    private void CheckReplayLevelButtonInteractable(OnGameRewardSignal signal)
+    {
+        switch (GameManager.Instance.CurrentGameMode)
+        {
+            case (GameMode.Hardcore):
+            case (GameMode.TimeTrial):
+                _replayLevelButton.interactable = PlayerProgress.Instance.CheckAwardCount(GameManager.Instance.HardcoreTimeModeCost);
+                break;
+
+            default:
+                _replayLevelButton.interactable = true;
+                break;
+        }
+
+        SignalBus.Fire(new ThemeChangeSignal(ThemeManager.Instance.CurrentTheme, ThemeManager.Instance.CurrentThemeIndex));
+    }
+
     private void OnEnable()
     {
         UpdateStatisticTexts();
+        SetReplayButton();
+
+        CheckReplayLevelButtonInteractable(new OnGameRewardSignal());
+    }
+
+    private void OnDestroy()
+    {
+        SignalBus.Unsubscribe<OnGameRewardSignal>(CheckReplayLevelButtonInteractable);
     }
 }

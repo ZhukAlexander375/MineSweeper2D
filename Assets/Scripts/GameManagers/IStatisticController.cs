@@ -12,6 +12,7 @@ public interface IStatisticController
     public int SectorBuyoutCostLevel { get; set; }
     float TotalPlayTime { get; set; }
     bool IsGameOver { get; set; }
+    bool IsGameWin {  get; set; }
     Vector3 LastClickPosition { get; set; }
 
     void IncrementOpenedCells();

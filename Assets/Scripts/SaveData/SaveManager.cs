@@ -74,6 +74,7 @@ public class SaveManager : MonoBehaviour
                 SectorBuyoutCostLevel = simpleInfiniteStats.SectorBuyoutCostLevel,
                 TotalPlayTime = simpleInfiniteStats.TotalPlayTime,
                 IsGameOver = simpleInfiniteStats.IsGameOver,
+                IsGameWin = simpleInfiniteStats.IsGameWin,
                 LastClickPosition = simpleInfiniteStats.LastClickPosition,
             }
         };
@@ -98,6 +99,7 @@ public class SaveManager : MonoBehaviour
                 SectorBuyoutCostLevel = hardcoreStats.SectorBuyoutCostLevel,
                 TotalPlayTime = hardcoreStats.TotalPlayTime,
                 IsGameOver = hardcoreStats.IsGameOver,
+                IsGameWin = hardcoreStats.IsGameWin,
                 LastClickPosition = hardcoreStats.LastClickPosition,
             }
         };
@@ -122,6 +124,7 @@ public class SaveManager : MonoBehaviour
                 SectorBuyoutCostLevel = timeTrialStats.SectorBuyoutCostLevel,
                 TotalPlayTime = timeTrialStats.TotalPlayTime,
                 IsGameOver = timeTrialStats.IsGameOver,
+                IsGameWin = timeTrialStats.IsGameWin,
                 LastClickPosition = timeTrialStats.LastClickPosition
             }
         };
@@ -161,6 +164,7 @@ public class SaveManager : MonoBehaviour
                 SectorBuyoutCostLevel = classicStats.SectorBuyoutCostLevel,
                 TotalPlayTime = classicStats.TotalPlayTime,
                 IsGameOver = classicStats.IsGameOver,
+                IsGameWin = classicStats.IsGameWin,
             }
         };
         string json = JsonUtility.ToJson(saveData, true);

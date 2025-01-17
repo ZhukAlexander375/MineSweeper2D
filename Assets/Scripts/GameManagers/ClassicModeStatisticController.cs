@@ -11,6 +11,7 @@ public class ClassicModeStatisticController : MonoBehaviour, IStatisticControlle
     public int ExplodedMines { get; set; }
     public float TotalPlayTime { get; set; }
     public bool IsGameOver { get; set; }
+    public bool IsGameWin { get; set;} 
     public int CompletedSectors { get; set; }       // interface
     public int RewardLevel { get; set; }            // interface
     public int SectorBuyoutCostLevel { get; set; }  // interface
@@ -42,6 +43,7 @@ public class ClassicModeStatisticController : MonoBehaviour, IStatisticControlle
         SectorBuyoutCostLevel = data.SectorBuyoutCostLevel;
         TotalPlayTime = data.TotalPlayTime;
         IsGameOver = data.IsGameOver;
+        IsGameWin = data.IsGameWin;
     }
 
     public void ResetStatistic()
@@ -55,6 +57,7 @@ public class ClassicModeStatisticController : MonoBehaviour, IStatisticControlle
         _isTimerRunning = false;
         _sessionStartTime = 0;
         IsGameOver = false;
+        IsGameWin = false;
     }
 
     public void StartTimer()
@@ -106,28 +109,9 @@ public class ClassicModeStatisticController : MonoBehaviour, IStatisticControlle
         ExplodedMines++;
     }
 
-    private void GameOver(GameOverSignal signal)
-    {
-        var gameMode = signal.CurrentGameMode;
-
-        if (gameMode == GameMode.TimeTrial)
-        {
-            IsGameOver = true;
-        }
-    }
     public void SetLastClickPosition(Vector3 position)
     {
         LastClickPosition = position;
-    }
-
-    private void OnEnable()
-    {
-        SignalBus.Subscribe<GameOverSignal>(GameOver);
-    }
-
-    private void OnDisable()
-    {
-        SignalBus.Unsubscribe<GameOverSignal>(GameOver);
     }
 
     public void IncrementCompletedSectors()

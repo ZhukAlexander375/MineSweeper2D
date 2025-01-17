@@ -15,6 +15,7 @@ public class TimeTrialStatisticController : MonoBehaviour, IStatisticController
     public int SectorBuyoutCostLevel { get; set; }
     public float TotalPlayTime { get; set; }
     public bool IsGameOver { get; set; }
+    public bool IsGameWin { get; set; }
     public Vector3 LastClickPosition { get; set; }
 
     private float _sessionStartTime;
@@ -44,6 +45,7 @@ public class TimeTrialStatisticController : MonoBehaviour, IStatisticController
         SectorBuyoutCostLevel = data.SectorBuyoutCostLevel;
         TotalPlayTime = data.TotalPlayTime;
         IsGameOver = data.IsGameOver;
+        IsGameWin = data.IsGameWin;
         LastClickPosition = data.LastClickPosition;
     }
 
@@ -62,6 +64,7 @@ public class TimeTrialStatisticController : MonoBehaviour, IStatisticController
         _isTimerRunning = false;
         _sessionStartTime = 0;
         IsGameOver = false;
+        IsGameWin = false;
     }
 
     public void StartTimer()
@@ -130,25 +133,5 @@ public class TimeTrialStatisticController : MonoBehaviour, IStatisticController
     public void SetLastClickPosition(Vector3 position)
     {
         LastClickPosition = position;
-    }
-
-    private void GameOver(GameOverSignal signal)
-    {
-        var gameMode = signal.CurrentGameMode;
-
-        if (gameMode == GameMode.TimeTrial)
-        {
-            IsGameOver = true;
-        }
-    }
-
-    private void OnEnable()
-    {
-        SignalBus.Subscribe<GameOverSignal>(GameOver);
-    }
-
-    private void OnDisable()
-    {
-        SignalBus.Unsubscribe<GameOverSignal>(GameOver);
     }
 }

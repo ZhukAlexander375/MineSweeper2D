@@ -143,9 +143,15 @@ public class SimpleGridManager : MonoBehaviour
                     LoadSavedGame();
                     SignalBus.Fire<LoadCompletedSignal>();
 
-                    if (_gameManager.ClassicStats.IsGameOver)
+                    if (_gameManager.ClassicStats.IsGameOver || _gameManager.ClassicStats.IsGameWin)
                     {
-                        SignalBus.Fire(new GameOverSignal(GameManager.Instance.CurrentGameMode));
+                        SignalBus.Fire(
+                            new GameOverSignal(
+                                GameManager.Instance.CurrentGameMode,
+                                _gameManager.ClassicStats.IsGameOver,
+                                _gameManager.ClassicStats.IsGameWin
+                            )
+                        );
                     }
                 }
                 else
@@ -158,9 +164,15 @@ public class SimpleGridManager : MonoBehaviour
                 if (_gameManager.ClassicStats.IsGameStarted)
                 {
                     LoadSavedGame();
-                    if (_gameManager.ClassicStats.IsGameOver)
+                    if (_gameManager.ClassicStats.IsGameOver || _gameManager.ClassicStats.IsGameWin)
                     {
-                        SignalBus.Fire(new GameOverSignal(GameManager.Instance.CurrentGameMode));
+                        SignalBus.Fire(
+                            new GameOverSignal(
+                                GameManager.Instance.CurrentGameMode,
+                                _gameManager.ClassicStats.IsGameOver,
+                                _gameManager.ClassicStats.IsGameWin
+                            )
+                        );
                     }
                 }
                 else
@@ -173,9 +185,15 @@ public class SimpleGridManager : MonoBehaviour
                 if (_gameManager.ClassicStats.IsGameStarted)
                 {
                     LoadSavedGame();
-                    if (_gameManager.ClassicStats.IsGameOver)
+                    if (_gameManager.ClassicStats.IsGameOver || _gameManager.ClassicStats.IsGameWin)
                     {
-                        SignalBus.Fire(new GameOverSignal(GameManager.Instance.CurrentGameMode));
+                        SignalBus.Fire(
+                            new GameOverSignal(
+                                GameManager.Instance.CurrentGameMode,
+                                _gameManager.ClassicStats.IsGameOver,
+                                _gameManager.ClassicStats.IsGameWin
+                            )
+                        );
                     }
                 }
                 else
@@ -188,9 +206,15 @@ public class SimpleGridManager : MonoBehaviour
                 if (_gameManager.ClassicStats.IsGameStarted)
                 {
                     LoadSavedGame();
-                    if (_gameManager.ClassicStats.IsGameOver)
+                    if (_gameManager.ClassicStats.IsGameOver || _gameManager.ClassicStats.IsGameWin)
                     {
-                        SignalBus.Fire(new GameOverSignal(GameManager.Instance.CurrentGameMode));
+                        SignalBus.Fire(
+                            new GameOverSignal(
+                                GameManager.Instance.CurrentGameMode,
+                                _gameManager.ClassicStats.IsGameOver,
+                                _gameManager.ClassicStats.IsGameWin
+                            )
+                        );
                     }
                 }
                 else
@@ -202,7 +226,7 @@ public class SimpleGridManager : MonoBehaviour
     }
 
     private void StartLevel(int levelIndex)
-    {
+    {        
         var levels = GameManager.Instance.PredefinedLevels;
 
         if (levelIndex >= 0 && levelIndex < levels.Count)
@@ -234,6 +258,7 @@ public class SimpleGridManager : MonoBehaviour
     }
     private void NewGame()
     {
+        _gameManager.ResetCurrentModeStatistic();
         StopAllCoroutines();
 
         _cellGrid = new CellGrid(_width, _height);
@@ -391,6 +416,7 @@ public class SimpleGridManager : MonoBehaviour
         }
 
         _board.Draw(_cellGrid);
+        CheckWinCondition();
     }
 
     private void InstantiateParticleAtCell(GameObject particlePrefab, BaseCell cell)
@@ -470,7 +496,15 @@ public class SimpleGridManager : MonoBehaviour
     {
         _statisticController.StopTimer();
         _statisticController.IsGameOver = true;
-        SignalBus.Fire(new GameOverSignal(GameManager.Instance.CurrentGameMode));
+        _statisticController.IsGameWin = false;
+
+        SignalBus.Fire(
+            new GameOverSignal(
+                GameManager.Instance.CurrentGameMode,
+                _gameManager.ClassicStats.IsGameOver,
+                _gameManager.ClassicStats.IsGameWin
+            )
+        );
 
         cell.IsExploded = true;
         cell.IsRevealed = true;
@@ -517,9 +551,9 @@ public class SimpleGridManager : MonoBehaviour
                 BaseCell cell = _cellGrid[x, y];
 
                 // All non-mine cells must be revealed to have won
-                if (cell.CellState != CellState.Mine && !cell.IsRevealed)
+                if (!cell.IsRevealed && cell.CellState != CellState.Mine)
                 {
-                    allNonMinesRevealed = false; // no win
+                    allNonMinesRevealed = false;
                 }
 
                 if (cell.CellState == CellState.Mine && !cell.IsFlagged)
@@ -541,10 +575,17 @@ public class SimpleGridManager : MonoBehaviour
     private void HandleWinCondition()
     {
         _statisticController.StopTimer();
+        _statisticController.IsGameOver = false;
+        _statisticController.IsGameWin = true;
 
-        SignalBus.Fire(new GameOverSignal(GameManager.Instance.CurrentGameMode));
-
-        // Флагируем все мины (для визуализации)
+        SignalBus.Fire(
+            new GameOverSignal(
+                GameManager.Instance.CurrentGameMode,
+                _gameManager.ClassicStats.IsGameOver,
+                _gameManager.ClassicStats.IsGameWin
+            )
+        );
+         
         for (int x = 0; x < _width; x++)
         {
             for (int y = 0; y < _height; y++)

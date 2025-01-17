@@ -135,6 +135,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _tileSets:
   - {fileID: 11400000, guid: 4c75a55d96038614d8aed41b4b7a69c1, type: 2}
+  - {fileID: 11400000, guid: 62285a932d4535a42a968d2a8e354c58, type: 2}
 --- !u!1 &5251337527785770960
 GameObject:
   m_ObjectHideFlags: 0

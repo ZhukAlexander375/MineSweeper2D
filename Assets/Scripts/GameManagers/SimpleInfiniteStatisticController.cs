@@ -13,6 +13,7 @@ public class SimpleInfiniteStatisticController : MonoBehaviour, IStatisticContro
     public int SectorBuyoutCostLevel { get; set; }
     public float TotalPlayTime { get; set; }
     public bool IsGameOver { get; set; }
+    public bool IsGameWin { get; set; }
     public Vector3 LastClickPosition { get; set; }
 
     private float _sessionStartTime;
@@ -41,6 +42,7 @@ public class SimpleInfiniteStatisticController : MonoBehaviour, IStatisticContro
         SectorBuyoutCostLevel = data.SectorBuyoutCostLevel;
         TotalPlayTime = data.TotalPlayTime;
         IsGameOver = data.IsGameOver;
+        IsGameWin = data.IsGameWin;
         LastClickPosition = data.LastClickPosition;
     }
 
@@ -59,6 +61,7 @@ public class SimpleInfiniteStatisticController : MonoBehaviour, IStatisticContro
         _isTimerRunning = false;
         _sessionStartTime = 0;
         IsGameOver = false;
+        IsGameWin = false;
     }
 
     public void StartTimer()
