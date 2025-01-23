@@ -811,7 +811,9 @@ public class InfiniteGridManager : MonoBehaviour
                 UpdateExplodedMinesCount();
 
                 _statisticController.StopTimer();
-                _statisticController.IsGameOver = true;                
+                _statisticController.IsGameOver = true;
+                cell.IsExploded = true;
+                cell.IsRevealed = true;
 
                 SaveCurrentGame();
 
@@ -831,6 +833,8 @@ public class InfiniteGridManager : MonoBehaviour
 
                 currentSector.SetBuyoutCost(_sectorBuyoutCostConfig, _currentSectorBuyoutLevel);
                 currentSector.ExplodeSector(cell);
+
+                SaveCurrentGame();
                 break;
 
             case GameMode.TimeTrial:
@@ -852,6 +856,8 @@ public class InfiniteGridManager : MonoBehaviour
 
                 currentSector.SetBuyoutCost(_sectorBuyoutCostConfig, _currentSectorBuyoutLevel);
                 currentSector.ExplodeSector(cell);
+
+                SaveCurrentGame();
                 break;
         }
         

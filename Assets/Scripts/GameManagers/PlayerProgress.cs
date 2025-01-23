@@ -87,11 +87,12 @@ public class PlayerProgress : MonoBehaviour
     {
         switch (signal.RewardId)
         {
-            case 0:
-                TotalReward += signal.Count;
+            case 0:                
+                TotalReward += signal.Count;                
                 break;
         }
-        //Debug.Log(StarAward);
+
+        SavePlayerProgress();
     }
 
     private void UpdateCellsCount(CellRevealedSignal signal)
@@ -134,7 +135,7 @@ public class PlayerProgress : MonoBehaviour
 
     private void OnEnable()
     {
-        SignalBus.Subscribe<OnGameRewardSignal>(ChangePlayersReward);
+        SignalBus.Subscribe<OnGameRewardSignal>(ChangePlayersReward);        
     }
 
     private void OnDestroy()
@@ -142,5 +143,10 @@ public class PlayerProgress : MonoBehaviour
         SignalBus.Unsubscribe<OnGameRewardSignal>(ChangePlayersReward);
         //SignalBus.Unsubscribe<FlagPlacingSignal>(UpdateFlagsCount);
         //SignalBus.Unsubscribe<CellRevealedSignal>(UpdateCellsCount);
+    }
+
+    private void OnApplicationQuit()
+    {
+        SavePlayerProgress();
     }
 }

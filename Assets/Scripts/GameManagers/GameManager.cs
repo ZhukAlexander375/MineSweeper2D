@@ -218,8 +218,7 @@ public class GameManager : MonoBehaviour
         SignalBus.Subscribe<PlayerProgressLoadCompletedSignal>(OnPlayerProgressLoaded);
     }
     private void OnDestroy()
-    {
-        
+    {        
         SignalBus.Unsubscribe<PlayerProgressLoadCompletedSignal>(OnPlayerProgressLoaded);
     }
 }

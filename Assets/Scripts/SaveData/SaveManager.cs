@@ -18,6 +18,7 @@ public class SaveManager : MonoBehaviour
     private const string SaveClassicGameFileName = "ClassicGameSave.json";
 
     private const string SaveTimerFileName = "TimerSave.json";
+    private const string RewardSaveFileName = "RewardData.json";
 
     private void Awake()
     {
@@ -179,9 +180,11 @@ public class SaveManager : MonoBehaviour
     public SimpleInfiniteModeData LoadSimpleInfiniteModeStats()
     {
         var filePath = Path.Combine(Application.persistentDataPath, SaveSimpleInfiniteGameFileName);
+        //Debug.Log($"Путь к файлу сохранения: {filePath}");
 
         if (!File.Exists(filePath))
         {
+
             return new SimpleInfiniteModeData();           
         }
 
@@ -504,5 +507,35 @@ public class SaveManager : MonoBehaviour
         string json = File.ReadAllText(filePath);
         TimerManagerWrapper wrapper = JsonUtility.FromJson<TimerManagerWrapper>(json);
         return wrapper.TimerManagerData;
+    }
+
+    public void SaveRewardData(RewardData rewardData)
+    {
+        RewardManagerWrapper wrapper = new RewardManagerWrapper
+        {
+            RewardData = rewardData
+        };
+
+        string json = JsonUtility.ToJson(wrapper, true);
+        string filePath = Path.Combine(Application.persistentDataPath, RewardSaveFileName);
+        File.WriteAllText(filePath, json);
+
+        //Debug.Log($"Reward data saved: {json}");
+    }
+
+    public RewardData LoadRewardData()
+    {
+        string filePath = Path.Combine(Application.persistentDataPath, RewardSaveFileName);
+        if (!File.Exists(filePath))
+        {
+            //Debug.Log("No reward save file found. Returning default reward data.");
+            return new RewardData();
+        }
+
+        string json = File.ReadAllText(filePath);
+        RewardManagerWrapper wrapper = JsonUtility.FromJson<RewardManagerWrapper>(json);
+
+        //Debug.Log($"Loaded reward data: {json}");
+        return wrapper.RewardData;
     }
 }

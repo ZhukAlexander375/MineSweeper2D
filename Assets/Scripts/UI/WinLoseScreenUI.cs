@@ -70,6 +70,10 @@ public class WinLoseScreenUI : MonoBehaviour
         
         switch (GameManager.Instance.CurrentGameMode)
         {
+            case GameMode.SimpleInfinite:
+                SceneLoader.Instance.LoadInfiniteMinesweeperScene();
+                break;
+
             case GameMode.Hardcore:
             case GameMode.TimeTrial:
                 if (PlayerProgress.Instance.CheckAwardCount(GameManager.Instance.HardcoreTimeModeCost))

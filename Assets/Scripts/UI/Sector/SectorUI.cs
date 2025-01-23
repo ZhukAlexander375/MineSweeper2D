@@ -14,6 +14,7 @@ public class SectorUI : MonoBehaviour
     [SerializeField] private Button _openSectorForAdButton;
     [SerializeField] private Button _replayLevelButton;
     [SerializeField] private TMP_Text _prizeCountText;
+    [SerializeField] private TMP_Text _replayLevelText;
 
     [Header("HOW MUCH PRIZE??????")]
     [SerializeField] private int _prizeCount;
@@ -85,11 +86,27 @@ public class SectorUI : MonoBehaviour
 
     private void ReplayLevel()
     {
-        PlayerProgress.Instance.ResetSessionStatistic();
-        //GameManager.Instance.IsDownloadedInfiniteGame = false;
-        //GameManager.Instance.IsNewInfiniteGame = true;
-        // GameManager.Instance.SaveGameModes();
-        SceneLoader.Instance.LoadInfiniteMinesweeperScene();
+        GameManager.Instance.CurrentStatisticController.ResetStatistic();
+        GameManager.Instance.ResetCurrentModeStatistic();
+        GameManager.Instance.ClearCurrentGame(GameManager.Instance.CurrentGameMode);
+        GameManager.Instance.SetCurrentGameMode(GameManager.Instance.CurrentGameMode);
+
+        switch (GameManager.Instance.CurrentGameMode)
+        {
+            case GameMode.SimpleInfinite:
+                SceneLoader.Instance.LoadInfiniteMinesweeperScene();
+                break;
+
+            case GameMode.Hardcore:
+            case GameMode.TimeTrial:
+
+                if (PlayerProgress.Instance.CheckAwardCount(GameManager.Instance.HardcoreTimeModeCost))
+                {
+                    SignalBus.Fire(new OnGameRewardSignal(0, -GameManager.Instance.HardcoreTimeModeCost));
+                    SceneLoader.Instance.LoadInfiniteMinesweeperScene();
+                }
+                break;
+        }
     }
 
     private void UpdatePrizeCountText()
@@ -97,14 +114,51 @@ public class SectorUI : MonoBehaviour
         _prizeCountText.text = _sector.CurrentBuyoutCost.ToString();
     }
 
+    private void SetReplayButton()
+    {
+        switch (GameManager.Instance.CurrentGameMode)
+        {
+            case (GameMode.Hardcore):
+            case (GameMode.TimeTrial):
+                _replayLevelText.text = $"Replay level <sprite=0> {GameManager.Instance.HardcoreTimeModeCost}";
+                break;
+
+            default:
+                _replayLevelText.text = $"Replay level";
+                break;
+        }
+    }
+
     private void CheckRewardButtonInteractable(OnGameRewardSignal signal)
     {
         _openSectorForAwardButton.interactable = PlayerProgress.Instance.CheckAwardCount(_sector.CurrentBuyoutCost);
+
+        SignalBus.Fire(new ThemeChangeSignal(ThemeManager.Instance.CurrentTheme, ThemeManager.Instance.CurrentThemeIndex));
+    }
+
+    private void CheckReplayLevelButtonInteractable(OnGameRewardSignal signal)
+    {
+        switch (GameManager.Instance.CurrentGameMode)
+        {
+            case (GameMode.Hardcore):
+            case (GameMode.TimeTrial):
+                _replayLevelButton.interactable = PlayerProgress.Instance.CheckAwardCount(GameManager.Instance.HardcoreTimeModeCost);
+                break;
+
+            default:
+                _replayLevelButton.interactable = true;
+                break;
+        }
+
+        SignalBus.Fire(new ThemeChangeSignal(ThemeManager.Instance.CurrentTheme, ThemeManager.Instance.CurrentThemeIndex));
     }
 
     private void OnEnable()
     {
+        SetReplayButton();
+
         CheckRewardButtonInteractable(new OnGameRewardSignal());
+        CheckReplayLevelButtonInteractable(new OnGameRewardSignal());
     }
 
     private void OnDestroy()

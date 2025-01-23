@@ -3012,7 +3012,7 @@ GameObject:
   - component: {fileID: 2613540746544669959}
   - component: {fileID: 609835357918280024}
   - component: {fileID: 7328117117298116573}
-  - component: {fileID: 962016985435330131}
+  - component: {fileID: 1674550462056887047}
   m_Layer: 5
   m_Name: Settings_Screen_MiniForBuild
   m_TagString: Untagged
@@ -3155,7 +3155,9 @@ MonoBehaviour:
   _mainMenuTexts: []
   _navigationPanelImage: {fileID: 0}
   _menuTitleImage: {fileID: 0}
---- !u!114 &962016985435330131
+  _startTutorialImage: {fileID: 0}
+  _fieldImage: {fileID: 0}
+--- !u!114 &1674550462056887047
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}

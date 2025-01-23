@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Numerics;
 using TMPro;
 using UnityEngine;
@@ -29,6 +30,7 @@ public class MainMenuUI : MonoBehaviour
     [SerializeField] private Button _settingsButton;
     [SerializeField] private Button _continueGameButton;
     [SerializeField] private Button _playButton;
+    [SerializeField] private Button _bonusButton;
 
     [Header("Texts")]
     [SerializeField] private TMP_Text[] _awardTexts;
@@ -41,7 +43,7 @@ public class MainMenuUI : MonoBehaviour
     [SerializeField] private Canvas _infinityModeMenuScreen;
     [SerializeField] private Canvas _classicModeMenuScreen;
     [SerializeField] private Canvas _customGameSettingsScreen;
-
+    [SerializeField] private Canvas _bonusScreen;
 
     [Header("Home Mode Screen Texts")]
     [SerializeField] private TMP_Text _lastModeText;
@@ -61,7 +63,7 @@ public class MainMenuUI : MonoBehaviour
     [SerializeField] private GameObject _startTutorialObject;
 
     private void Awake()
-    {    
+    {
         //SignalBus.Subscribe<GameManagerLoadCompletedSignal>(UpdateLastSessionStatistic);
         //SignalBus.Subscribe<GameManagerLoadCompletedSignal>(UpdateLastClassicSessionStatistic);
         //SignalBus.Subscribe<PlayerProgressLoadCompletedSignal>(PlayButtonInteractable);
@@ -69,6 +71,9 @@ public class MainMenuUI : MonoBehaviour
         //SignalBus.Subscribe<OnGameRewardSignal>(UpdateAwardText);
         //SignalBus.Subscribe<OnGameRewardSignal>(CheckNewGameButtonsInteractable);    
         //_sceneLoader = SceneLoader.Instance;
+
+        SignalBus.Subscribe<GameManagerLoadCompletedSignal>(UpdateLastSessionStatistic);
+        SignalBus.Subscribe<GameManagerLoadCompletedSignal>(UpdateLastClassicSessionStatistic);
     }
 
     private void Start()
@@ -89,7 +94,7 @@ public class MainMenuUI : MonoBehaviour
         _settingsButton.onClick.AddListener(OpenSettingsScreen);
         _continueGameButton.onClick.AddListener(ContinueLastSession);
         _continueClassicGameButton.onClick.AddListener(ContinueLastClassicSession);
-
+        _bonusButton.onClick.AddListener(OpenBonusScreen);
 
         _chooseInfinitymodeButton.onClick.AddListener(OpenInfinityModeMenuScreen);
         _newClassicGameButton.onClick.AddListener(OpenClassicModeMenuScreen);
@@ -97,6 +102,8 @@ public class MainMenuUI : MonoBehaviour
         UpdateNewGameButtonsText();
         ContinueClassicButtonInteractable();        
         CheckNewGameButtonsInteractable(new OnGameRewardSignal());
+        UpdateLastSessionStatistic(new GameManagerLoadCompletedSignal());
+        UpdateLastClassicSessionStatistic(new GameManagerLoadCompletedSignal());
         //UpdateLastSessionStatistic(new LoadCompletedSignal());        
     }       
 
@@ -261,6 +268,10 @@ public class MainMenuUI : MonoBehaviour
         ContinueClassicButtonInteractable();
     }
 
+    private void OpenBonusScreen()
+    {
+        _bonusScreen.gameObject.SetActive(true);
+    }
 
     private void OpenEpisodeGame()
     {
@@ -274,7 +285,14 @@ public class MainMenuUI : MonoBehaviour
 
 
     private void UpdateLastSessionStatistic(GameManagerLoadCompletedSignal signal)
-    {        
+    {
+        StartCoroutine(UpdateLastSession(signal));
+    }
+
+    private IEnumerator UpdateLastSession(GameManagerLoadCompletedSignal signal)
+    {
+        yield return null;
+        
         if (GameManager.Instance != null && GameManager.Instance.CurrentStatisticController != null)
         {
             _lastModeText.text = GetGameModeName(GameManager.Instance.LastSessionGameMode);
@@ -389,15 +407,21 @@ public class MainMenuUI : MonoBehaviour
 
 
             UpdateAwardText(new OnGameRewardSignal());              ///KOSTYLISCHE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        }        
+        }
     }
 
     private void UpdateAwardText(OnGameRewardSignal signal)
-    {       
+    {
+        StartCoroutine(UpdateAwardTextDelayed(signal));        
+    }
+
+    private IEnumerator UpdateAwardTextDelayed(OnGameRewardSignal signal)
+    {
+        yield return null;
         foreach (var text in _awardTexts)
         {
             text.text = PlayerProgress.Instance.TotalReward.ToString();
-        }        
+        }
     }
 
     private void UpdateNewGameButtonsText()
@@ -415,11 +439,11 @@ public class MainMenuUI : MonoBehaviour
 
     private void OnEnable()
     {
-        SignalBus.Subscribe<GameManagerLoadCompletedSignal>(UpdateLastSessionStatistic);        
-        UpdateLastSessionStatistic(new GameManagerLoadCompletedSignal());
+        //SignalBus.Subscribe<GameManagerLoadCompletedSignal>(UpdateLastSessionStatistic);        
+        //UpdateLastSessionStatistic(new GameManagerLoadCompletedSignal());
 
-        SignalBus.Subscribe<GameManagerLoadCompletedSignal>(UpdateLastClassicSessionStatistic);
-        UpdateLastClassicSessionStatistic(new GameManagerLoadCompletedSignal());
+        //SignalBus.Subscribe<GameManagerLoadCompletedSignal>(UpdateLastClassicSessionStatistic);
+        //UpdateLastClassicSessionStatistic(new GameManagerLoadCompletedSignal());
 
         SignalBus.Subscribe<PlayerProgressLoadCompletedSignal>(PlayButtonInteractable);
         PlayButtonInteractable(new PlayerProgressLoadCompletedSignal());

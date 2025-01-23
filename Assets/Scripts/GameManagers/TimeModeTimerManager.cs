@@ -141,7 +141,7 @@ public class TimeModeTimerManager : MonoBehaviour
         }
     }
 
-    private long GetUnixTimeNow()
+    public long GetUnixTimeNow()
     {
         return (long)(DateTime.UtcNow - new DateTime(1970, 1, 1)).TotalSeconds;
     }
