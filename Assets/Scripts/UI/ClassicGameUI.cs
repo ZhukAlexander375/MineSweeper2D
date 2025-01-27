@@ -56,16 +56,19 @@ public class ClassicGameUI : MonoBehaviour
     private void OpenPauseMenu()
     {
         _pauseMenuScreen.gameObject.SetActive(true);
+        GameManager.Instance.CurrentStatisticController.StopTimer();
     }
 
     private void ClosePauseMenu()
     {
         _pauseMenuScreen.gameObject.SetActive(false);
+        GameManager.Instance.CurrentStatisticController.StartTimer();
     }
 
     private void OpenSettings()
     {
         _settingsScreen.gameObject.SetActive(true);
+        GameManager.Instance.CurrentStatisticController.StopTimer();
     }
 
     private void ReplayGame()

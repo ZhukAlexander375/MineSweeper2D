@@ -13,7 +13,11 @@ public class SettingsScreenUI : MonoBehaviour
     [SerializeField] private Image _musicOffImage;
     [SerializeField] private Button _vibrationButton;
     [SerializeField] private Image _vibrationOnImage;
-    [SerializeField] private Image _vibrationOffImage;
+    [SerializeField] private Image _vibrationOffImage;    
+    [SerializeField] private Button _supportEmailButton;
+    [SerializeField] private Button _discordButton;
+    [SerializeField] private Button _privacyPolicyButton;
+
 
     [Header("Sliders")]
     [SerializeField] private Slider _holdDurationSlider;
@@ -22,6 +26,8 @@ public class SettingsScreenUI : MonoBehaviour
     [Header("Texts")]
     [SerializeField] private TMP_Text _holdDurationText;
     [SerializeField] private TMP_Text _cameraZoomText;
+
+    [Header("Supports ")]
 
     private GameSettingsManager _settingsManager;
 
@@ -54,7 +60,11 @@ public class SettingsScreenUI : MonoBehaviour
         });
 
         _cameraZoomSlider.onValueChanged.AddListener(OnZoomValueChanged);
-        _holdDurationSlider.onValueChanged.AddListener(OnHoldDurationChanged);        
+        _holdDurationSlider.onValueChanged.AddListener(OnHoldDurationChanged);
+                
+        _supportEmailButton.onClick.AddListener(OpenSupportEmailURL);
+        _discordButton.onClick.AddListener(OpenDiscordURL);
+        _privacyPolicyButton.onClick.AddListener(OpenPrivacyPolicyURL);
     }
 
     public void UpdateSettingsScreen()
@@ -128,6 +138,22 @@ public class SettingsScreenUI : MonoBehaviour
     {
         _holdDurationText.text = "Hold Duration: " + value.ToString("F2") + "s";
     }
+
+    private void OpenSupportEmailURL()
+    {
+        Application.OpenURL("https://extgamemo.github.io/");
+    }
+
+    private void OpenDiscordURL()
+    {
+        Application.OpenURL("https://discord.gg/gEf2FqrvAj");
+    }
+
+    private void OpenPrivacyPolicyURL()
+    {
+        Application.OpenURL("https://extgamemo.github.io/PrivacyPolicy/"); 
+    }
+        
 
     private void OnDestroy()
     {

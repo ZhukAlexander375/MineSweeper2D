@@ -907,6 +907,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 7775743190375435120, guid: 21674685f4d1d5141a78e5eee6c98f75, type: 3}
+      propertyPath: _closeSettingsButton
+      value: 
+      objectReference: {fileID: 2280231688101725175}
     - target: {fileID: 8373877726171085701, guid: 21674685f4d1d5141a78e5eee6c98f75, type: 3}
       propertyPath: m_Name
       value: InfiniteGameCanvas
@@ -916,6 +920,17 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 21674685f4d1d5141a78e5eee6c98f75, type: 3}
+--- !u!114 &2280231688101725175 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 8266030309431358687, guid: 21674685f4d1d5141a78e5eee6c98f75, type: 3}
+  m_PrefabInstance: {fileID: 2280231688101725174}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &3869234871166336805 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 3032974504718040275, guid: 21674685f4d1d5141a78e5eee6c98f75, type: 3}

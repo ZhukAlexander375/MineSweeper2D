@@ -9,7 +9,6 @@ public class InfiniteGameUI : MonoBehaviour
     [SerializeField] private Button _pauseButton;
     [SerializeField] private Button _continueButton;
     [SerializeField] private Button _settingsButton;
-    [SerializeField] private Button _closeSettingsButton;
     [SerializeField] private Button _replayLevelButton;    
     [SerializeField] private Button _goHomeButton;
     [SerializeField] private Button _backLastClickButton;
@@ -42,8 +41,7 @@ public class InfiniteGameUI : MonoBehaviour
     {
         _pauseButton.onClick.AddListener(OpenPauseMenu);
         _continueButton.onClick.AddListener(ClosePauseMenu);
-        _settingsButton.onClick.AddListener(OpenSettings);
-        _closeSettingsButton.onClick.AddListener(CloseSettings);
+        _settingsButton.onClick.AddListener(OpenSettings);        
         _replayLevelButton.onClick.AddListener(ReplayGame);        
         _goHomeButton.onClick.AddListener(ReturnToMainMenu);
         _backLastClickButton.onClick.AddListener(BackToLastClickButton);
@@ -136,13 +134,7 @@ public class InfiniteGameUI : MonoBehaviour
     {
         _settingsScreen.gameObject.SetActive(true);
         GameManager.Instance.CurrentStatisticController.StopTimer();
-    }
-
-    private void CloseSettings()
-    {
-        _settingsScreen.gameObject.SetActive(false);
-        GameManager.Instance.CurrentStatisticController.StartTimer();
-    }
+    }    
 
     private void OpenLoseScreen(GameOverSignal signal)
     {

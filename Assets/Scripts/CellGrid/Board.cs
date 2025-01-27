@@ -16,7 +16,7 @@ public class Board : MonoBehaviour
 
     private void Awake()
     {
-        Tilemap = GetComponent<Tilemap>();
+        Tilemap = GetComponent<Tilemap>();        
     }
 
     private void Start()
@@ -54,6 +54,11 @@ public class Board : MonoBehaviour
 
     public void Draw(CellGrid grid)
     {
+        if (ThemeManager.Instance != null)
+        {
+            _currentTileSetIndex = ThemeManager.Instance.CurrentThemeIndex;
+        }        
+
         // Œ◊»Ÿ≈Õ»≈!!!!!!!!!!!!!!!!!!!!!!!! ◊≈  œ–» —Œ’–¿Õ≈Õ»» ◊“Œ ƒ≈À¿“‹???????????
         ClearGrid();
 
@@ -119,7 +124,7 @@ public class Board : MonoBehaviour
         }
     }
 
-    private void TryApplyTheme(int themeIndex)
+    public void TryApplyTheme(int themeIndex)
     {
         if (themeIndex < 0 || themeIndex >= _tileSets.Count)
         {
@@ -128,14 +133,14 @@ public class Board : MonoBehaviour
         }
         
         _currentTileSet = _tileSets[themeIndex];
-        _currentTileSetIndex = themeIndex;
+        _currentTileSetIndex = themeIndex;       
                 
         RedrawGrid();
     }
 
     private void RedrawGrid()
     {
-        if (Tilemap != null)
+        if (Tilemap == null) return;
         {
             Tilemap.RefreshAllTiles();
         }
