@@ -125,7 +125,7 @@ public class PlayerProgress : MonoBehaviour
 
         if (_memoryHackDetector.IsRunning())
         {
-            Debug.Log("проверка?");
+            //Debug.Log("проверка?");
         }
 
         SavePlayerProgress();

@@ -820,8 +820,8 @@ public class InfiniteGridManager : MonoBehaviour
                 SignalBus.Fire(
                     new GameOverSignal(
                         GameMode.Hardcore,
-                        HardcoreStatisticController.Instance.IsGameOver,
-                        HardcoreStatisticController.Instance.IsGameWin
+                        GameManager.Instance.HardcoreStats.IsGameOver,
+                        GameManager.Instance.HardcoreStats.IsGameWin
                     )
                 );
                 break;
@@ -844,8 +844,8 @@ public class InfiniteGridManager : MonoBehaviour
                     SignalBus.Fire(
                         new GameOverSignal(
                             GameMode.Hardcore,
-                            TimeTrialStatisticController.Instance.IsGameOver,
-                            TimeTrialStatisticController.Instance.IsGameWin
+                            GameManager.Instance.TimeTrialStats.IsGameOver,
+                            GameManager.Instance.TimeTrialStats.IsGameWin
                         )
                     );
                     return;

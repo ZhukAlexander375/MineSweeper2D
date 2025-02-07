@@ -48,6 +48,7 @@ public class InfiniteGameUI : MonoBehaviour
 
         CheckGameMode();
         UpdateTexts();
+        CheckReplayLevelButtonInteractable(new OnGameRewardSignal());
     }
 
     private void Update()
@@ -255,7 +256,7 @@ public class InfiniteGameUI : MonoBehaviour
         SignalBus.Subscribe<GameOverSignal>(OpenLoseScreen);
 
         SetReplayButton();
-        CheckReplayLevelButtonInteractable(new OnGameRewardSignal());
+        
     }
     private void OnDisable()
     {
