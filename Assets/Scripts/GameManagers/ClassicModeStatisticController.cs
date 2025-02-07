@@ -3,8 +3,6 @@ using UnityEngine;
 
 public class ClassicModeStatisticController : MonoBehaviour, IStatisticController
 {
-    public ClassicModeStatisticController Instance { get; private set; }
-
     public bool IsGameStarted { get; set; }
     public int OpenedCells { get; set; }
     public int PlacedFlags { get; set; }
@@ -20,18 +18,7 @@ public class ClassicModeStatisticController : MonoBehaviour, IStatisticControlle
     private float _sessionStartTime;
     private bool _isTimerRunning;
 
-    private void Awake()
-    {
-        if (Instance != null && Instance != this)
-        {
-            Destroy(gameObject);
-            return;
-        }
-
-        Instance = this;
-        DontDestroyOnLoad(gameObject);
-    }
-
+    
     public void InitializeFromData(ClassicModeData data)
     {
         IsGameStarted = data.IsGameStarted;

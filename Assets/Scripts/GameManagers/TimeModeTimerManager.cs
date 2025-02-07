@@ -36,8 +36,8 @@ public class TimeModeTimerManager : MonoBehaviour
             SignalBus.Fire(
                 new GameOverSignal(
                     GameManager.Instance.CurrentGameMode,
-                    TimeTrialStatisticController.Instance.IsGameOver,
-                    TimeTrialStatisticController.Instance.IsGameWin
+                    GameManager.Instance.TimeTrialStats.IsGameOver,
+                    GameManager.Instance.TimeTrialStats.IsGameWin
                 )
             );
         }
@@ -71,13 +71,13 @@ public class TimeModeTimerManager : MonoBehaviour
             IsTimerRunning = false;
             IsTimerOver = true;
 
-            TimeTrialStatisticController.Instance.IsGameOver = true;
+            GameManager.Instance.TimeTrialStats.IsGameOver = true;
 
             SignalBus.Fire(
                 new GameOverSignal(
                     GameManager.Instance.CurrentGameMode,
-                    TimeTrialStatisticController.Instance.IsGameOver,
-                    TimeTrialStatisticController.Instance.IsGameWin
+                    GameManager.Instance.TimeTrialStats.IsGameOver,
+                    GameManager.Instance.TimeTrialStats.IsGameWin
                 )
             );
 

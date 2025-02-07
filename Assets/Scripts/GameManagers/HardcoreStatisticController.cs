@@ -2,8 +2,6 @@ using UnityEngine;
 
 public class HardcoreStatisticController : MonoBehaviour, IStatisticController
 {
-    public static HardcoreStatisticController Instance { get; private set; }
-
     public bool IsGameStarted { get; set; }
     public int OpenedCells { get; set; }
     public int PlacedFlags { get; set; }
@@ -19,17 +17,6 @@ public class HardcoreStatisticController : MonoBehaviour, IStatisticController
     private float _sessionStartTime;
     private bool _isTimerRunning;
 
-    private void Awake()
-    {
-        if (Instance != null && Instance != this)
-        {
-            Destroy(gameObject);
-            return;
-        }
-
-        Instance = this;
-        DontDestroyOnLoad(gameObject);
-    }
 
     public void InitializeFromData(HardcoreModeData data)
     {

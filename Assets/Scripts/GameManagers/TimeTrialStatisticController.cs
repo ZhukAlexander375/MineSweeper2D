@@ -3,9 +3,7 @@ using UnityEngine;
 
 public class TimeTrialStatisticController : MonoBehaviour, IStatisticController
 {
-    public static TimeTrialStatisticController Instance { get; private set; }
-
-    [SerializeField] private TimeTrialSettings _timeTrialSettings;
+    [SerializeField] private TimeTrialSettings _timeTrialSettings;       
     public bool IsGameStarted { get; set; }
     public int OpenedCells { get; set; }
     public int PlacedFlags { get; set; }
@@ -20,19 +18,7 @@ public class TimeTrialStatisticController : MonoBehaviour, IStatisticController
 
     private float _sessionStartTime;
     private bool _isTimerRunning;
-
-    private void Awake()
-    {
-        if (Instance != null && Instance != this)
-        {
-            Destroy(gameObject);
-            return;
-        }
-
-        Instance = this;
-        DontDestroyOnLoad(gameObject);
-    }
-        
+              
 
     public void InitializeFromData(TimeTrialModeData data)
     {

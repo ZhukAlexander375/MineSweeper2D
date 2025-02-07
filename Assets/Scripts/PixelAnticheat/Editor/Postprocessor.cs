@@ -78,9 +78,10 @@ namespace PixelAnticheat.Editor
 	    
 	    // called by Unity
 	    [DidReloadScripts]
-	    private static void ScriptsWereReloaded()
+        [Obsolete]
+        private static void ScriptsWereReloaded()
 	    {
-		    EditorUserBuildSettings.activeBuildTargetChanged += OnBuildTargetChanged;
+            EditorUserBuildSettings.activeBuildTargetChanged += OnBuildTargetChanged;
 		    if (EditorPrefs.GetBool(EditorGlobalStuff.PREFS_INJECTION_GLOBAL))
 		    {
 			    InjectionAssembliesScan();
