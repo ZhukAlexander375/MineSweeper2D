@@ -1,9 +1,11 @@
 
+using PixelAnticheat.SecuredTypes;
+
 [System.Serializable]
 
 public class PlayerProgressData
 {
-    public int TotalReward;
+    public SecuredInt TotalReward;
     public GameMode LastSessionGameMode;
     public GameMode LastClassicSessionMode;
     public bool IsFirstTimePlayed;

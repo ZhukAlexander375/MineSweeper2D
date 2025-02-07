@@ -1,12 +1,18 @@
+using PixelAnticheat.Detectors;
+using PixelAnticheat.SecuredTypes;
 using UnityEngine;
+using PixelAnticheat.Models;
+using PixelAnticheat;
 
 public class PlayerProgress : MonoBehaviour
 {
     public static PlayerProgress Instance { get; private set; }
-    public int TotalReward { get; private set; }
+    public SecuredInt TotalReward { get; private set; }
     public GameMode LastSessionGameMode { get; private set; }
     public GameMode LastClassicSessionMode { get; private set; }
     public bool IsFirstTimePlayed { get; private set; }
+
+    private MemoryHackDetector _memoryHackDetector;
 
     //public int TotalPlacedFlags { get; private set; }
     //public int TotalOpenedCells { get; private set; }
@@ -28,6 +34,8 @@ public class PlayerProgress : MonoBehaviour
     private void Start()
     {
         LoadProgress();
+
+        MemoryAntiCheat();
         //SignalBus.Subscribe<FlagPlacingSignal>(UpdateFlagsCount);
         //SignalBus.Subscribe<CellRevealedSignal>(UpdateCellsCount);
 
@@ -80,7 +88,30 @@ public class PlayerProgress : MonoBehaviour
         if (!IsFirstTimePlayed)
         {
             IsFirstTimePlayed = true;
-        }        
+        }
+    }
+
+    private void MemoryAntiCheat()
+    {
+        AntiCheat.Instance()
+                .AddDetector<MemoryHackDetector>(new MemoryHackDetectorConfig());
+
+        _memoryHackDetector = (MemoryHackDetector)AntiCheat.Instance().GetDetector<MemoryHackDetector>();
+             
+        _memoryHackDetector.OnCheatingDetected.AddListener(OnPlayerProgressHackDetected);
+        _memoryHackDetector.StartDetector();
+       
+        if (_memoryHackDetector != null)
+        {
+            //Debug.Log("MemoryHackDetector Started");
+        }
+    }
+
+    private void OnPlayerProgressHackDetected(string messege)
+    {        
+        TotalReward = 0;
+        SignalBus.Fire(new OnGameRewardSignal(0, TotalReward));
+        Debug.Log(messege);
     }
 
     private void ChangePlayersReward(OnGameRewardSignal signal)
@@ -90,6 +121,11 @@ public class PlayerProgress : MonoBehaviour
             case 0:                
                 TotalReward += signal.Count;                
                 break;
+        }
+
+        if (_memoryHackDetector.IsRunning())
+        {
+            Debug.Log("проверка?");
         }
 
         SavePlayerProgress();

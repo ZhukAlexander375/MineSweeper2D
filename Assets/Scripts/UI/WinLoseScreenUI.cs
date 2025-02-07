@@ -173,8 +173,8 @@ public class WinLoseScreenUI : MonoBehaviour
     {
         switch (GameManager.Instance.CurrentGameMode)
         {
-            case (GameMode.Hardcore):                
-                _modeNameText.text = "Hardcore";                
+            case (GameMode.Hardcore):
+                _modeNameText.text = "Hardcore";
                 break;
 
             case (GameMode.TimeTrial):
@@ -191,6 +191,10 @@ public class WinLoseScreenUI : MonoBehaviour
 
             case (GameMode.ClassicHard):
                 _modeNameText.text = "Hard";
+                break;
+
+            case (GameMode.Custom):
+                _modeNameText.text = "Custom";
                 break;
         }
     }
@@ -216,6 +220,7 @@ public class WinLoseScreenUI : MonoBehaviour
             case (GameMode.ClassicEasy):
             case (GameMode.ClassicMedium):
             case (GameMode.ClassicHard):
+            case (GameMode.Custom):
                 _resultText1Text.text = "Time in mode:";
                 _resultText2Text.text = "Opened cells:";
                 _resultText3Text.text = "Checkboxes placed:";
@@ -245,6 +250,7 @@ public class WinLoseScreenUI : MonoBehaviour
             case (GameMode.ClassicEasy):
             case (GameMode.ClassicMedium):
             case (GameMode.ClassicHard):
+            case (GameMode.Custom):
                 _resultValueText1Text.text = FormatTime(GameManager.Instance.CurrentStatisticController.TotalPlayTime);
                 _resultValueText2Text.text = GameManager.Instance.CurrentStatisticController.OpenedCells.ToString();
                 _resultValueText3Text.text = GameManager.Instance.CurrentStatisticController.PlacedFlags.ToString();

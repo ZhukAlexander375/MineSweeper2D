@@ -22,7 +22,7 @@ public class ClassicGameUI : MonoBehaviour
     [SerializeField] private Canvas _loseScreen;    
     [SerializeField] private Canvas _gameScreen;
 
-    [Header("GridManager")]
+    /*[Header("GridManager")]
     [SerializeField] private SimpleGridManager _gridManager;
     [SerializeField] private GameObject _sampleGrid;
 
@@ -30,7 +30,7 @@ public class ClassicGameUI : MonoBehaviour
     [SerializeField] private int _minSize = 2;
     [SerializeField] private int _maxSize = 100;
     [SerializeField] private int _minMines = 1;
-    [SerializeField] private int _maxMines = 5000;
+    [SerializeField] private int _maxMines = 5000;*/
     
 
     private SimpleGridManager _simpleGridManager;

@@ -72,7 +72,7 @@ public class ThemeUIController : MonoBehaviour
     {
         if (ThemeManager.Instance == null)
         {
-            Debug.Log("ThemeManager.Instance не инициализирован!");
+            //Debug.Log("ThemeManager.Instance не инициализирован!");
             return;
         }
 

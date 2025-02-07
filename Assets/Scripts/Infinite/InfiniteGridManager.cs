@@ -637,7 +637,7 @@ public class InfiniteGridManager : MonoBehaviour
         cell.IsFlagged = !cell.IsFlagged;
 
         UpdateFlagsCount(isPlacingFlag);
-        SignalBus.Fire(new FlagPlacingSignal(isPlacingFlag));
+        //SignalBus.Fire(new FlagPlacingSignal(isPlacingFlag));
 
         if (isPlacingFlag && cell.IsAward)
         {
@@ -761,7 +761,7 @@ public class InfiniteGridManager : MonoBehaviour
         if (cell.IsRevealed)
         {
             UpdateOpenedCells();
-            SignalBus.Fire<CellRevealedSignal>();
+            //SignalBus.Fire<CellRevealedSignal>();
         }
 
         affectedSectors.Add(currentSector);

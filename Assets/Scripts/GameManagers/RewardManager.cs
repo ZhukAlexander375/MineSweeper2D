@@ -3,6 +3,9 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using PixelAnticheat.Detectors;
+using PixelAnticheat.Models;
+using PixelAnticheat;
 
 public class RewardManager : MonoBehaviour
 {
@@ -12,8 +15,10 @@ public class RewardManager : MonoBehaviour
     [SerializeField] private int _rewardAmount;
     [SerializeField] private int[] _rewardHours = { 8, 12, 16, 20 };
     [SerializeField] private int _maxMissedRewards = 2;
-
+    
     private RewardData _rewardData;
+    private TimeHackDetector _timeHackDetector;
+
 
     private void Awake()
     {
@@ -34,7 +39,8 @@ public class RewardManager : MonoBehaviour
         CalculateCurrentReward();
 
         StartCoroutine(RewardTimerCoroutine());
-    }
+        //TimeAntiCheat();  ------- without server's time don't working
+    }        
 
     public TimeSpan GetTimeUntilNextReward()
     {
@@ -74,6 +80,41 @@ public class RewardManager : MonoBehaviour
         }
 
         SaveRewardData();
+    }
+
+    public void TimeCheatDetected()
+    {
+        Debug.Log("AAAAAALLLLLO!!!!");
+    }
+
+    private void TimeAntiCheat()
+    {
+        // Initialize All Detectors
+        AntiCheat.Instance()
+            .AddDetector<TimeHackDetector>(new TimeHackDetectorConfig()
+            {                
+                availableTolerance = 30,
+                networkCompare = false,
+                timeCheckInterval = 10f
+            });
+
+        _timeHackDetector = (TimeHackDetector)AntiCheat.Instance().GetDetector<TimeHackDetector>();
+
+        // Add Detectors Handlers       
+        _timeHackDetector.OnCheatingDetected.AddListener(OnTimeHackDetected);
+
+        //_timeHackDetector.OnCheatingDetected.AddListener(OnTimeHackDetected);
+        _timeHackDetector.StartDetector();               
+
+        if (_timeHackDetector != null)
+        {
+            Debug.Log("TimeHackDetector started.");           
+        }
+    }
+
+    private void OnTimeHackDetected(string messege)
+    {
+        Debug.Log($"Cheating detected: {messege}");
     }
 
     private void UpdateRewardState()
@@ -184,6 +225,13 @@ public class RewardManager : MonoBehaviour
     {
         SaveManager.Instance.SaveRewardData(_rewardData);
     }
+
+    /*
+    private void OnDestroy()
+    {
+        _timeHackDetector.StopDetector();
+    }
+    */
 }
 
 
