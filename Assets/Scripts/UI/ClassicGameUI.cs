@@ -75,7 +75,7 @@ public class ClassicGameUI : MonoBehaviour
     {
         _loseScreen.gameObject.SetActive(false);
         GameManager.Instance.ResetCurrentModeStatistic();
-        // GameManager.Instance.ClearCurrentGame(GameManager.Instance.CurrentGameMode);
+        GameManager.Instance.ClearCurrentGame(GameManager.Instance.CurrentGameMode);
         GameManager.Instance.SetCurrentGameMode(GameManager.Instance.CurrentGameMode);
         SceneLoader.Instance.LoadClassicMinesweeperScene();
     }

@@ -22,6 +22,7 @@ public class BonusScreen : MonoBehaviour
     }
     private void Start()
     {
+        OnBonusCredited(new OnBonusGrantSignal());
         _getBonusButton.onClick.AddListener(GetBonus);
     }
 
@@ -98,7 +99,7 @@ public class BonusScreen : MonoBehaviour
     private void OnEnable()
     {
         SignalBus.Subscribe<OnBonusGrantSignal>(OnBonusCredited);
-        OnBonusCredited(new OnBonusGrantSignal());
+        //OnBonusCredited(new OnBonusGrantSignal());
     }
 
     private void OnDestroy()

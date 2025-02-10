@@ -107,8 +107,7 @@ public class CustomGameSettingsScreen : MonoBehaviour
     }
 
     public void StartCustomGame()
-    {
-       
+    {       
         int width = GetClampedValue(_inputWidth.InputField.text, ClassicGameMinSize.MinWidth, ClassicGameMinSize.MaxWidth);
         int height = GetClampedValue(_inputHeight.InputField.text, ClassicGameMinSize.MinHeight, ClassicGameMinSize.MaxHeight);
         int maxMines = ClassicGameMinSize.MaxMines(width, height);

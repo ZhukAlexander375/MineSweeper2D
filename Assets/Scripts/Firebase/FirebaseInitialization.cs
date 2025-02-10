@@ -1,4 +1,6 @@
+using Firebase.Crashlytics;
 using Firebase.Extensions;
+using System;
 using UnityEngine;
 
 public class FirebaseInitializer : MonoBehaviour
@@ -23,4 +25,27 @@ public class FirebaseInitializer : MonoBehaviour
             }
         });
     }
+
+
+    /*public void CraushMeButton()
+    {
+        throw new System.Exception("Test Crush Ignore Default");
+    }
+
+    public void CrushMeButtonCustom()
+    {
+        TryCatchError();
+    }
+
+    private void TryCatchError()
+    {
+        try
+        {
+            throw new System.Exception("Test Crush Ignore Default");
+        }
+        catch (Exception e)
+        {
+            Crashlytics.LogException(e);
+        }
+    }*/
 }

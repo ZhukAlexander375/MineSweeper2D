@@ -249,6 +249,7 @@ public class SimpleGridManager : MonoBehaviour
 
     private void SetLevelSettings(LevelConfig level)
     {
+        Debug.Log($"{level}, W: {level.Width}, H: {level.Height}");
         _width = level.Width;
         _height = level.Height;        
         _mineCount = Mathf.Clamp(level.MineCount, 0, _width * _height);
