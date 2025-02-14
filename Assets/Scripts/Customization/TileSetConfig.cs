@@ -20,4 +20,7 @@ public class TileSetConfig : ScriptableObject
     public Tile TileNum8;
     public Tile TileInactivePrize;
     public Tile TileActivePrize;
+
+    //FOR TESTS
+    public Tile TileMineVisible;
 }

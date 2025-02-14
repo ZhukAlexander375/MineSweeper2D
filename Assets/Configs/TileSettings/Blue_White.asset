@@ -28,3 +28,4 @@ MonoBehaviour:
   TileNum8: {fileID: 11400000, guid: ddf57290ce5e3af40a282c037acc3962, type: 2}
   TileInactivePrize: {fileID: 11400000, guid: 53568cd32ed566248ac68613e37c2cbd, type: 2}
   TileActivePrize: {fileID: 11400000, guid: b249f2916f2ff52499039368f481a87d, type: 2}
+  TileMineVisible: {fileID: 11400000, guid: 4e89115ab76c68a489d779d8a2873d8b, type: 2}

@@ -9,9 +9,10 @@ public class GameManager : MonoBehaviour
     [SerializeField] private HardcoreStatisticController _hardcoreStatisticController;
     [SerializeField] private TimeTrialStatisticController _timeTrialStatisticController;
     [SerializeField] private ClassicModeStatisticController _classicStatisticController;
-    [SerializeField] public List<LevelConfig> PredefinedLevels;
-    public LevelConfig CustomLevel;
+    [SerializeField] public List<LevelConfig> PredefinedLevels;    
     [SerializeField] private int _hardcoreTimeModeCost;
+
+    public LevelConfig CustomLevel;
     public SimpleInfiniteStatisticController SimpleInfiniteStats => _simpleInfiniteStatisticController;
     public HardcoreStatisticController HardcoreStats => _hardcoreStatisticController;
     public TimeTrialStatisticController TimeTrialStats => _timeTrialStatisticController;
@@ -42,11 +43,13 @@ public class GameManager : MonoBehaviour
     private void Start()
     {
         LoadGameState();
+        LoadCustomLevelData();        
     }
 
     public void SetCustomLevelSettings(LevelConfig customLevel)
     {
         CustomLevel = customLevel;
+        SaveManager.Instance.SaveCustomLevel(customLevel);
     }
 
 
@@ -164,13 +167,18 @@ public class GameManager : MonoBehaviour
                 break;
         }
     }
-
+    
     private void LoadGameState()
     {
         _simpleInfiniteStatisticController.InitializeFromData(SaveManager.Instance.LoadSimpleInfiniteModeStats());
         _hardcoreStatisticController.InitializeFromData(SaveManager.Instance.LoadHardcoreModeStats());
         _timeTrialStatisticController.InitializeFromData(SaveManager.Instance.LoadTimeTrialModeStats());
         _classicStatisticController.InitializeFromData(SaveManager.Instance.LoadClassicModeStats());       
+    }
+
+    private void LoadCustomLevelData()
+    {
+        CustomLevel = SaveManager.Instance.LoadCustomLevel();
     }
 
     private void OnPlayerProgressLoaded(PlayerProgressLoadCompletedSignal signal)

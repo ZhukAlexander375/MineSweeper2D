@@ -424,19 +424,30 @@ public class InfiniteGridManager : MonoBehaviour
 
     private int CalculateDynamicMinesCount(int activeSectorCount)
     {
-        int minMines = _minesConfig.MinMinesCount;
-        int maxMines = _minesConfig.MaxMinesCount;
+        int absoluteMin = _minesConfig.AbsoluteMin; // 6
+        int absoluteMax = _minesConfig.AbsoluteMax; // 37
+        float difficultyStepCoef = _minesConfig.DifficultyStepCoef; // 1.25
 
-        // ¬ычисл€ем, сколько раз по 2 активных секторов открыто
-        int incrementSteps = activeSectorCount / _minesConfig.DifficultyStepCoef;
-        int stepsInt = Mathf.FloorToInt(incrementSteps);
+        // ѕоследовательность шагов (+1, +1, -1)
+        int[] stepPattern = { 1, 1, -1 };
+        int patternLength = stepPattern.Length;
 
-        // ќбновл€ем пороги с учетом каждого шага
-        minMines = Mathf.Min(minMines + stepsInt, _minesConfig.AbsoluteMin); // нижний порог не превышает 15
-        maxMines = Mathf.Min((int)(maxMines + stepsInt * _minesConfig.IncrementMaxCoef), _minesConfig.AbsoluteMax); // верхний порог не превышает 25
-         
-        int mines = Random.Range(minMines, maxMines);
-        //Debug.Log($"—ектор: {activeSectorCount}. ћин в нем: {mines}");
+        // Ќачинаем с абсолютного минимума
+        int stepSum = 0;
+
+        for (int i = 0; i < activeSectorCount - 1; i++)
+        {
+            stepSum += stepPattern[i % patternLength];
+        }
+
+        // ¬ычисл€ем границы мин
+        int minMines = Mathf.Clamp(absoluteMin + stepSum, absoluteMin, absoluteMax);
+        int maxMines = Mathf.Clamp((int)((absoluteMin + stepSum) * difficultyStepCoef), absoluteMin, absoluteMax);
+
+        // ¬ыбираем случайное количество мин в диапазоне
+        int mines = Random.Range(minMines, maxMines + 1);
+
+        Debug.Log($"Sector: {activeSectorCount} | min: {minMines}, max: {maxMines} | mines: {mines}");
         return mines;
     }
 

@@ -9,6 +9,7 @@ public class FirebaseInitializer : MonoBehaviour
     {
         Firebase.FirebaseApp.CheckAndFixDependenciesAsync().ContinueWithOnMainThread(task => {
             var dependencyStatus = task.Result;
+
             if (dependencyStatus == Firebase.DependencyStatus.Available)
             {
                 // Create and hold a reference to your FirebaseApp,
@@ -27,7 +28,7 @@ public class FirebaseInitializer : MonoBehaviour
     }
 
 
-    /*public void CraushMeButton()
+    public void CraushMeButton()
     {
         throw new System.Exception("Test Crush Ignore Default");
     }
@@ -47,5 +48,5 @@ public class FirebaseInitializer : MonoBehaviour
         {
             Crashlytics.LogException(e);
         }
-    }*/
+    }
 }

@@ -7,7 +7,7 @@ using UnityEngine;
 public class SaveManager : MonoBehaviour
 {
     public static SaveManager Instance { get; private set; }
-        
+
     private const string SaveThemeFileName = "Theme.json";
     private const string SaveSettingsFileName = "GameSettings.json";
     private const string SavePlayerProgressFileName = "PlayerProgress.json";
@@ -16,6 +16,7 @@ public class SaveManager : MonoBehaviour
     private const string SaveHardcoreGameFileName = "HardcoreInfiniteGameSave.json";
     private const string SaveTimeTrialGameFileName = "TimeTrialInfiniteGameSave.json";
     private const string SaveClassicGameFileName = "ClassicGameSave.json";
+    private const string SaveCustomLevelFileName = "CustomLevelData.json";
 
     private const string SaveTimerFileName = "TimerSave.json";
     private const string RewardSaveFileName = "RewardData.json";
@@ -86,8 +87,8 @@ public class SaveManager : MonoBehaviour
 
     public void SaveHardcoreGame(List<SectorData> sectors, HardcoreStatisticController hardcoreStats)
     {
-        HardcoreGameSaveWrapper saveData = new HardcoreGameSaveWrapper 
-        { 
+        HardcoreGameSaveWrapper saveData = new HardcoreGameSaveWrapper
+        {
             Sectors = sectors,
             HardcoreModeData = new HardcoreModeData(hardcoreStats)
             {
@@ -111,7 +112,7 @@ public class SaveManager : MonoBehaviour
 
     public void SaveTimeTrialGame(List<SectorData> sectors, TimeTrialStatisticController timeTrialStats)
     {
-        TimeTrialGameSaveWrapper saveData = new TimeTrialGameSaveWrapper 
+        TimeTrialGameSaveWrapper saveData = new TimeTrialGameSaveWrapper
         {
             Sectors = sectors,
             TimeTrialModeData = new TimeTrialModeData(timeTrialStats)
@@ -145,7 +146,7 @@ public class SaveManager : MonoBehaviour
                 Cells = cellGrid.GetAllCells().Select(cell => new CellData
                 {
                     GlobalCellPosition = cell.GlobalCellPosition,
-                    CellState = cell.CellState,                    
+                    CellState = cell.CellState,
                     IsRevealed = cell.IsRevealed,
                     IsFlagged = cell.IsFlagged,
                     IsExploded = cell.IsExploded,
@@ -153,7 +154,7 @@ public class SaveManager : MonoBehaviour
                     CellNumber = cell.CellNumber
                 }).ToList()
             },
-            
+
             ClassicModeData = new ClassicModeData(classicStats)
             {
                 IsGameStarted = classicStats.IsGameStarted,
@@ -176,7 +177,7 @@ public class SaveManager : MonoBehaviour
     /// <summary>
     /// FOR LOAD ONLY MODES STATISTICS 
     /// </summary>
-    
+
     public SimpleInfiniteModeData LoadSimpleInfiniteModeStats()
     {
         var filePath = Path.Combine(Application.persistentDataPath, SaveSimpleInfiniteGameFileName);
@@ -185,7 +186,7 @@ public class SaveManager : MonoBehaviour
         if (!File.Exists(filePath))
         {
 
-            return new SimpleInfiniteModeData();           
+            return new SimpleInfiniteModeData();
         }
 
         string json = File.ReadAllText(filePath);
@@ -206,7 +207,7 @@ public class SaveManager : MonoBehaviour
 
         string json = File.ReadAllText(filePath);
         HardcoreGameSaveWrapper saveData = JsonUtility.FromJson<HardcoreGameSaveWrapper>(json);
-        
+
         //Debug.Log($"Hardcore Game stats loaded successfully from {saveData.HardcoreModeData.OpenedCells}");
         return saveData.HardcoreModeData;
     }
@@ -222,7 +223,7 @@ public class SaveManager : MonoBehaviour
 
         string json = File.ReadAllText(filePath);
         TimeTrialGameSaveWrapper saveData = JsonUtility.FromJson<TimeTrialGameSaveWrapper>(json);
-        
+
         //Debug.Log($"Simple Infinite Game stats loaded successfully from {filePath}");
         return saveData.TimeTrialModeData;
     }
@@ -257,7 +258,7 @@ public class SaveManager : MonoBehaviour
 
         string json = File.ReadAllText(filePath);
         SimpleInfiniteGameSaveWrapper saveData = JsonUtility.FromJson<SimpleInfiniteGameSaveWrapper>(json);
-        
+
         return saveData.Sectors;
     }
 
@@ -272,7 +273,7 @@ public class SaveManager : MonoBehaviour
 
         string json = File.ReadAllText(filePath);
         HardcoreGameSaveWrapper saveData = JsonUtility.FromJson<HardcoreGameSaveWrapper>(json);
-        
+
         return saveData.Sectors;
     }
 
@@ -485,7 +486,7 @@ public class SaveManager : MonoBehaviour
         PlayerProgressWrapper wrapper = JsonUtility.FromJson<PlayerProgressWrapper>(json);
         return wrapper.PlayerData;
     }
-    
+
     public void SaveTimer(TimerManagerData timerData)
     {
         TimerManagerWrapper wrapper = new TimerManagerWrapper();
@@ -537,5 +538,33 @@ public class SaveManager : MonoBehaviour
 
         //Debug.Log($"Loaded reward data: {json}");
         return wrapper.RewardData;
+    }
+
+    public void SaveCustomLevel(LevelConfig customLevel)
+    {
+        CustomLevelData wrapper = new CustomLevelData(customLevel);
+        string json = JsonUtility.ToJson(wrapper, true);
+        var filePath = Path.Combine(Application.persistentDataPath, SaveCustomLevelFileName);
+        File.WriteAllText(filePath, json);
+    }
+
+    public LevelConfig LoadCustomLevel()
+    {
+        var filePath = Path.Combine(Application.persistentDataPath, SaveCustomLevelFileName);
+
+        if (!File.Exists(filePath))
+        {
+            return null;
+        }
+
+        string json = File.ReadAllText(filePath);
+        CustomLevelData wrapper = JsonUtility.FromJson<CustomLevelData>(json);
+
+        LevelConfig loadedLevel = ScriptableObject.CreateInstance<LevelConfig>();
+        loadedLevel.Width = wrapper.Width;
+        loadedLevel.Height = wrapper.Height;
+        loadedLevel.MineCount = wrapper.MineCount;
+
+        return loadedLevel;
     }
 }

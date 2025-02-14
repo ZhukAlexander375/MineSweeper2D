@@ -49,6 +49,7 @@ public class Sector : MonoBehaviour
 
         SignalBus.Subscribe<OnCellActiveSignal>(SectorActivate);
         SignalBus.Subscribe<ThemeChangeSignal>(OnThemeChanged);
+        SignalBus.Subscribe<OnVisibleMinesSignal>(ShowMines);
         TryApplyTheme(ThemeManager.Instance.CurrentThemeIndex);       
     }    
 
@@ -467,15 +468,43 @@ public class Sector : MonoBehaviour
     {
         SignalBus.Unsubscribe<OnCellActiveSignal>(SectorActivate);
         SignalBus.Unsubscribe<ThemeChangeSignal>(OnThemeChanged);
+        SignalBus.Unsubscribe<OnVisibleMinesSignal>(ShowMines);
     }
 
 
+    /// <summary>
+    /// DELETE!!!!!!!!!!!!!!!!!!!!!11 It's for tests
+    /// </summary>
 
-        
+    private bool _minesVisible = false;
 
+    public void ShowMines(OnVisibleMinesSignal signal)
+    {
+        _minesVisible = signal.IsVisible;
+        DrawMinesOfSector(_minesVisible);
+    }
 
+    private void DrawMinesOfSector(bool visible)
+    {
+        if (_tilemap == null)
+        {
+            Debug.LogError("Tilemap не установлен для сектора!");
+            return;
+        }
 
+        foreach (var cellEntry in _cells)
+        {
+            InfiniteCell cell = cellEntry.Value;
+            Vector3Int pos = cellEntry.Key;
 
+            if (cell.CellState == CellState.Mine)
+            {
+                _tilemap.SetTile(pos, visible ? _tileSets[_currentTileSetIndex].TileMineVisible : GetTile(cell));
+            }
+        }
+
+        _tilemap.RefreshAllTiles();
+    }    
 
 
     [ContextMenu("Test")]

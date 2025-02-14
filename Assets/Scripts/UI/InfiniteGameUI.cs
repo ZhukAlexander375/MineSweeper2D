@@ -1,5 +1,5 @@
+using Google.MiniJSON;
 using TMPro;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -27,6 +27,9 @@ public class InfiniteGameUI : MonoBehaviour
 
     [Header("Objects")]
     [SerializeField] private GameObject _timerObject;
+
+    [Header("Toggle")]
+    [SerializeField] private Toggle _testToggle;
         
     private InfiniteGridManager _infiniteGridManager;    
 
@@ -49,6 +52,8 @@ public class InfiniteGameUI : MonoBehaviour
         CheckGameMode();
         UpdateTexts();
         CheckReplayLevelButtonInteractable(new OnGameRewardSignal());
+
+        _testToggle.onValueChanged.AddListener(OnToggleChanged);
     }
 
     private void Update()
@@ -246,6 +251,12 @@ public class InfiniteGameUI : MonoBehaviour
         }
 
         SignalBus.Fire(new ThemeChangeSignal(ThemeManager.Instance.CurrentTheme, ThemeManager.Instance.CurrentThemeIndex));
+    }
+
+    private void OnToggleChanged(bool isOn)
+    {
+        //Debug.Log(isOn ? "ON" : "OFF");
+        SignalBus.Fire(new OnVisibleMinesSignal(isOn));
     }
 
     private void OnEnable()
