@@ -1,9 +1,11 @@
+using DG.Tweening;
 using System;
 using System.Collections;
 using System.Numerics;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using Vector3 = UnityEngine.Vector3;
 
 public class MainMenuUI : MonoBehaviour
 {
@@ -61,6 +63,8 @@ public class MainMenuUI : MonoBehaviour
     [Header("Objects")]
     [SerializeField] private GameObject _containerLastSession;
     [SerializeField] private GameObject _startTutorialObject;
+
+    private Tween _bonusButtonTween;
 
     private void Awake()
     {
@@ -433,7 +437,57 @@ public class MainMenuUI : MonoBehaviour
     private void CheckNewGameButtonsInteractable(OnGameRewardSignal signal)
     {
         _hardcoreNewGameMenuButton.interactable = PlayerProgress.Instance.CheckAwardCount(GameManager.Instance.HardcoreTimeModeCost); 
-        _timeTrialNewGameButton.interactable = PlayerProgress.Instance.CheckAwardCount(GameManager.Instance.HardcoreTimeModeCost); 
+        _timeTrialNewGameButton.interactable = PlayerProgress.Instance.CheckAwardCount(GameManager.Instance.HardcoreTimeModeCost);
+    }
+
+    private void OnBonusAvailable(OnBonusGrantSignal signal)
+    {
+        if (signal.RewardAmount > 0)
+        {
+            StartBonusButtonAnimation();
+        }
+        else
+        {
+            StopBonusButtonAnimation();
+        }
+    }
+
+    private void OnBonusCollected(OnGameRewardSignal signal)
+    {
+        StopBonusButtonAnimation();
+    }
+
+    private void StartBonusButtonAnimation()
+    {
+        if (_bonusButtonTween != null) _bonusButtonTween.Kill(); // Убиваем старую анимацию
+
+        _bonusButtonTween = _bonusButton.transform.DOScale(1.25f, 0.75f)
+            .SetLoops(-1, LoopType.Yoyo)
+            .SetEase(Ease.InOutQuad);
+
+        /*if (_bonusButton.TryGetComponent(out Image buttonImage))
+        {
+            Color targetColor;
+            if (ColorUtility.TryParseHtmlString("#D31C64", out targetColor))
+            {
+                buttonImage.DOColor(targetColor, 0.75f)
+                    .SetLoops(-1, LoopType.Yoyo)
+                    .SetEase(Ease.InOutQuad);
+            }
+        }*/
+        //.DOShakePosition(2f, strength: new UnityEngine.Vector3(10f, 10f, 0), vibrato: 5, randomness: 90)
+        //.SetLoops(-1)
+        //.SetEase(Ease.Linear);
+    }
+
+    private void StopBonusButtonAnimation()
+    {
+        if (_bonusButtonTween != null)
+        {
+            _bonusButtonTween.Kill();
+            _bonusButton.transform.localScale = Vector3.one;
+            _bonusButtonTween = null;
+        }
     }
 
 
@@ -449,7 +503,12 @@ public class MainMenuUI : MonoBehaviour
         PlayButtonInteractable(new PlayerProgressLoadCompletedSignal());
 
         SignalBus.Subscribe<OnGameRewardSignal>(UpdateAwardText);
-        SignalBus.Subscribe<OnGameRewardSignal>(CheckNewGameButtonsInteractable);        
+        SignalBus.Subscribe<OnGameRewardSignal>(CheckNewGameButtonsInteractable);
+
+        SignalBus.Subscribe<OnBonusGrantSignal>(OnBonusAvailable);
+        SignalBus.Subscribe<OnGameRewardSignal>(OnBonusCollected);
+
+        //OnBonusAvailable(new OnBonusGrantSignal(RewardManager.Instance.CurrentReward));
     }
 
     private void OnDestroy()
@@ -458,5 +517,10 @@ public class MainMenuUI : MonoBehaviour
         SignalBus.Unsubscribe<PlayerProgressLoadCompletedSignal>(PlayButtonInteractable);
         SignalBus.Unsubscribe<OnGameRewardSignal>(UpdateAwardText);
         SignalBus.Unsubscribe<OnGameRewardSignal>(CheckNewGameButtonsInteractable);
+
+        SignalBus.Unsubscribe<OnBonusGrantSignal>(OnBonusAvailable);
+        SignalBus.Unsubscribe<OnGameRewardSignal>(OnBonusCollected);
+
+        StopBonusButtonAnimation();
     }
 }

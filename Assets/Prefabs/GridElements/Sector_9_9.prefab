@@ -250,7 +250,7 @@ LineRenderer:
   - {x: 0, y: 0, z: 1}
   m_Parameters:
     serializedVersion: 3
-    widthMultiplier: 1
+    widthMultiplier: 1.034512
     widthCurve:
       serializedVersion: 2
       m_Curve:
@@ -268,8 +268,8 @@ LineRenderer:
       m_RotationOrder: 4
     colorGradient:
       serializedVersion: 2
-      key0: {r: 1, g: 0, b: 0, a: 1}
-      key1: {r: 1, g: 0, b: 0, a: 1}
+      key0: {r: 0.827451, g: 0.10980392, b: 0.39215687, a: 1}
+      key1: {r: 0.827451, g: 0.10980392, b: 0.39215687, a: 1}
       key2: {r: 0, g: 0, b: 0, a: 0}
       key3: {r: 0, g: 0, b: 0, a: 0}
       key4: {r: 0, g: 0, b: 0, a: 0}
@@ -769,7 +769,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 1, g: 0, b: 0, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -1804,7 +1804,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &5521448340385759358
 RectTransform:
   m_ObjectHideFlags: 0
@@ -1903,7 +1903,6 @@ MonoBehaviour:
   _sectorCanvas: {fileID: 1223001316258348085}
   _background: {fileID: 2143243940541402842}
   _containerForHideObjects: {fileID: 2487125462901161444}
-  _text: {fileID: 5049457223409398722}
   _viewSectorButton: {fileID: 598938027107830058}
   _closeButton: {fileID: 5882796339113903993}
   _openSectorForAwardButton: {fileID: 2196018032469555057}
@@ -1911,7 +1910,6 @@ MonoBehaviour:
   _replayLevelButton: {fileID: 699030510098060004}
   _prizeCountText: {fileID: 6053819142287901417}
   _replayLevelText: {fileID: 517881217415908095}
-  _prizeCount: 1
 --- !u!114 &1534689922929006351
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1996,8 +1994,8 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 5521448340385759358}
   - {fileID: 3790720534505675955}
+  - {fileID: 5521448340385759358}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1839735485 &9221489435694033697

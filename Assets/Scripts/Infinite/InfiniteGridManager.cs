@@ -25,6 +25,7 @@ public class InfiniteGridManager : MonoBehaviour
     [SerializeField] private SectorBuyoutCostConfig _sectorBuyoutCostConfig;
     [SerializeField] private SectorRewardConfig _sectorRewardConfig;
     [SerializeField] private MinesConfig _minesConfig;
+    [SerializeField] private bool OnDoubleClick = true;
 
     public bool IsFirstClick;
     public bool IsGenerateEnabled;    
@@ -75,11 +76,6 @@ public class InfiniteGridManager : MonoBehaviour
 
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.R))
-        {
-            //DebugFirstTenRewards();
-        }
-
         UpdateVisibleSectors();
 
         if (_cameraController.IsCameraInteracting)
@@ -116,33 +112,7 @@ public class InfiniteGridManager : MonoBehaviour
             HandleGameInput();
         }
     }
-
-    /// <summary>
-    /// 
-    /// 
-    /// TO DELETE METHOD. ONLY CHECK
-    /// 
-    /// 
-    /// </summary>
-    private void DebugFirstTenRewards()
-    {
-        if (_sectorRewardConfig == null)
-        {
-            Debug.LogError("SectorRewardConfig is not set!");
-            return;
-        }
-
-        GameMode currentGameMode = GameManager.Instance.CurrentGameMode;
-        Debug.Log($"Current Game Mode: {currentGameMode}");
-
-        // Цикл для расчёта первых 10 наград
-        for (int i = 1; i <= 10; i++)
-        {
-            int reward = CalculateCurrentReward(i);
-            Debug.Log($"Reward for level {i}: {reward}");
-        }
-    }
-
+       
     private void CheckGameStart()
     {        
         switch (GameManager.Instance.CurrentGameMode)
@@ -257,33 +227,26 @@ public class InfiniteGridManager : MonoBehaviour
             return;
         }
 
+        float currentTime = Time.time;
+
         if (Input.GetMouseButtonDown(0))
         {
-            float currentTime = Time.time;
-
             // Проверка на двойной клик
-            if (currentTime - _lastClickTime <= DoubleClickThreshold)
+            if (GameSettingsManager.Instance.OnDoubleClick)
             {
-                GetSectorAtDoubleClick();
-                _lastClickTime = -1f; // Сброс времени клика
+                if (currentTime - _lastClickTime <= DoubleClickThreshold)
+                {
+                    GetSectorAtDoubleClick();
+                    _lastClickTime = 0; // Сброс времени клика
+                    return;
+                }
             }
-            else
-            {
-                _clickStartTime = currentTime;
-                _isHolding = true;
-                _flagSet = false;
-                _lastClickTime = currentTime; // Обновляем время последнего клика
-            }
-        }
 
-        /*if (Input.GetMouseButtonUp(0))
-        {
-            if (!_flagSet && _isHolding && _cameraController.IsCameraMoving() && _isOneTouch)
-            {
-                GetSectorAtClick();
-            }
-            _isHolding = false;
-        }*/
+            _clickStartTime = currentTime;
+            _isHolding = true;
+            _flagSet = false;
+            _lastClickTime = currentTime; // Обновляем время последнего клика
+        }
 
 
         if (Input.GetMouseButtonUp(0))
@@ -293,11 +256,16 @@ public class InfiniteGridManager : MonoBehaviour
                 GetSectorAtClick();
             }
             _isHolding = false;
+
+            if (!GameSettingsManager.Instance.OnDoubleClick)
+            {
+                GetSectorAtDoubleClick();
+            }
         }
 
         if (_isHolding && !_flagSet && Time.time - _clickStartTime >= GameSettingsManager.Instance.HoldTime)
         {
-            SetSectorForFlagAtClick();
+            GetSectorForFlagAtClick();
             _flagSet = true;
         }
     }
@@ -447,7 +415,7 @@ public class InfiniteGridManager : MonoBehaviour
         // Выбираем случайное количество мин в диапазоне
         int mines = Random.Range(minMines, maxMines + 1);
 
-        Debug.Log($"Sector: {activeSectorCount} | min: {minMines}, max: {maxMines} | mines: {mines}");
+        //Debug.Log($"Sector: {activeSectorCount} | min: {minMines}, max: {maxMines} | mines: {mines}");
         return mines;
     }
 
@@ -554,7 +522,7 @@ public class InfiniteGridManager : MonoBehaviour
         }
     }
 
-    private void SetSectorForFlagAtClick()
+    private void GetSectorForFlagAtClick()
     {
         Vector3 worldPosition = mainCamera.ScreenToWorldPoint(Input.mousePosition);
         worldPosition.z = 0;
@@ -648,7 +616,7 @@ public class InfiniteGridManager : MonoBehaviour
         cell.IsFlagged = !cell.IsFlagged;
 
         UpdateFlagsCount(isPlacingFlag);
-        //SignalBus.Fire(new FlagPlacingSignal(isPlacingFlag));
+        SignalBus.Fire(new FlagPlacingSignal(isPlacingFlag));
 
         if (isPlacingFlag && cell.IsAward)
         {

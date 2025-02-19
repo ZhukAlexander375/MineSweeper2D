@@ -1,4 +1,5 @@
-using Google.MiniJSON;
+using DG.Tweening;
+using System.Collections;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -17,6 +18,7 @@ public class InfiniteGameUI : MonoBehaviour
     [SerializeField] private Canvas _pauseMenuScreen;
     [SerializeField] private Canvas _settingsScreen;
     [SerializeField] private Canvas _loseScreen;
+    [SerializeField] private Canvas _wrongClickPopupScreen;
 
     [Header("Texts")]
     [SerializeField] private TMP_Text _awardText;
@@ -28,10 +30,12 @@ public class InfiniteGameUI : MonoBehaviour
     [Header("Objects")]
     [SerializeField] private GameObject _timerObject;
 
-    [Header("Toggle")]
-    [SerializeField] private Toggle _testToggle;
-        
-    private InfiniteGridManager _infiniteGridManager;    
+    //[Header("Toggle")]
+    //[SerializeField] private Toggle _testToggle;
+
+    private InfiniteGridManager _infiniteGridManager;
+    private Tween _fadeTween;
+    private bool _isShowing;    
 
     private void Awake()
     {       
@@ -53,7 +57,7 @@ public class InfiniteGameUI : MonoBehaviour
         UpdateTexts();
         CheckReplayLevelButtonInteractable(new OnGameRewardSignal());
 
-        _testToggle.onValueChanged.AddListener(OnToggleChanged);
+        //_testToggle.onValueChanged.AddListener(OnToggleChanged);
     }
 
     private void Update()
@@ -170,7 +174,7 @@ public class InfiniteGameUI : MonoBehaviour
         _awardText.text = PlayerProgress.Instance.TotalReward.ToString();
     }
 
-    private void UpdateFlagUI(FlagPlacingSignal signal)
+    private void UpdateFlagText(FlagPlacingSignal signal)
     {
         if (GameManager.Instance.CurrentStatisticController != null)
         {
@@ -253,18 +257,36 @@ public class InfiniteGameUI : MonoBehaviour
         SignalBus.Fire(new ThemeChangeSignal(ThemeManager.Instance.CurrentTheme, ThemeManager.Instance.CurrentThemeIndex));
     }
 
-    private void OnToggleChanged(bool isOn)
+    /*private void OnToggleChanged(bool isOn)
     {
         //Debug.Log(isOn ? "ON" : "OFF");
         SignalBus.Fire(new OnVisibleMinesSignal(isOn));
+    }*/
+
+    public void ShowPopup(WrongÑlickSignal signal)
+    {
+        if (_isShowing) return; // Åñëè popup óæå àêòèâåí, èãíîðèðóåì âûçîâ
+
+        _isShowing = true;
+        _wrongClickPopupScreen.gameObject.SetActive(true);
+        StartCoroutine(HidePopupAfterDelay(3f));
+    }
+
+    private IEnumerator HidePopupAfterDelay(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+
+       _wrongClickPopupScreen.gameObject.SetActive(false);
+       _isShowing = false;
     }
 
     private void OnEnable()
     {
         SignalBus.Subscribe<OnGameRewardSignal>(UpdateAwardUI);
-        SignalBus.Subscribe<FlagPlacingSignal>(UpdateFlagUI);
+        SignalBus.Subscribe<FlagPlacingSignal>(UpdateFlagText);
         SignalBus.Subscribe<LoadCompletedSignal>(UpdateTexts);
         SignalBus.Subscribe<GameOverSignal>(OpenLoseScreen);
+        SignalBus.Subscribe<WrongÑlickSignal>(ShowPopup);
 
         SetReplayButton();
         
@@ -272,10 +294,11 @@ public class InfiniteGameUI : MonoBehaviour
     private void OnDisable()
     {
         SignalBus.Unsubscribe<OnGameRewardSignal>(UpdateAwardUI);
-        SignalBus.Unsubscribe<FlagPlacingSignal>(UpdateFlagUI);
+        SignalBus.Unsubscribe<FlagPlacingSignal>(UpdateFlagText);
         SignalBus.Unsubscribe<LoadCompletedSignal>(UpdateTexts);
         SignalBus.Unsubscribe<GameOverSignal>(OpenLoseScreen);
         SignalBus.Unsubscribe<OnGameRewardSignal>(CheckReplayLevelButtonInteractable);
+        SignalBus.Unsubscribe<WrongÑlickSignal>(ShowPopup);
     }
 
 }

@@ -45,5 +45,5 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _mainMenuScene: Minesweeper
-  _infiniteMinesweeperScene: InfiniteMineSweeper
+  _infiniteMinesweeperScene: InfiniteMinesweeper
   _classicMinesweeperScene: ClassicMinesweeper

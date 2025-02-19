@@ -49,7 +49,7 @@ public class Sector : MonoBehaviour
 
         SignalBus.Subscribe<OnCellActiveSignal>(SectorActivate);
         SignalBus.Subscribe<ThemeChangeSignal>(OnThemeChanged);
-        SignalBus.Subscribe<OnVisibleMinesSignal>(ShowMines);
+        //SignalBus.Subscribe<OnVisibleMinesSignal>(ShowMines);
         TryApplyTheme(ThemeManager.Instance.CurrentThemeIndex);       
     }    
 
@@ -116,7 +116,7 @@ public class Sector : MonoBehaviour
         cellX %= 9;
         cellY %= 9;
 
-        if (cellX >= 0 && cellX < 9 && cellY >= 0 && cellY < 9) ///8 - hard
+        if (cellX >= 0 && cellX < 9 && cellY >= 0 && cellY < 9) ///9 - hard
         {
             if (IsExploded)
             {
@@ -138,6 +138,11 @@ public class Sector : MonoBehaviour
             else if (clickedCell.IsActive)
             {
                 _infiniteGridManager.Reveal(this, clickedCell);
+            }
+
+            else if (!clickedCell.IsActive)
+            {
+                SignalBus.Fire(new WrongСlickSignal());
             }
 
             //_gridManager.Reveal(this, clickedCell);
@@ -176,7 +181,7 @@ public class Sector : MonoBehaviour
         cellX %= 9;
         cellY %= 9;
         
-        if (cellX >= 0 && cellX < 9 && cellY >= 0 && cellY < 9) // 8 - размер сектора
+        if (cellX >= 0 && cellX < 9 && cellY >= 0 && cellY < 9) // 9 - размер сектора
         {
             if (IsExploded)
             {
@@ -191,8 +196,7 @@ public class Sector : MonoBehaviour
             }
 
             if (clickedCell.IsRevealed && clickedCell.CellState == CellState.Number)
-            {                
-                // Проверяем, правильно ли расставлены флаги вокруг ячейки
+            {
                 int adjacentFlags = _infiniteGridManager.CountAdjacentFlags(clickedCell);
                 if (adjacentFlags >= clickedCell.CellNumber)
                 {                    
@@ -468,7 +472,7 @@ public class Sector : MonoBehaviour
     {
         SignalBus.Unsubscribe<OnCellActiveSignal>(SectorActivate);
         SignalBus.Unsubscribe<ThemeChangeSignal>(OnThemeChanged);
-        SignalBus.Unsubscribe<OnVisibleMinesSignal>(ShowMines);
+        //SignalBus.Unsubscribe<OnVisibleMinesSignal>(ShowMines);
     }
 
 
@@ -476,15 +480,15 @@ public class Sector : MonoBehaviour
     /// DELETE!!!!!!!!!!!!!!!!!!!!!11 It's for tests
     /// </summary>
 
-    private bool _minesVisible = false;
+    //private bool _minesVisible = false;
 
-    public void ShowMines(OnVisibleMinesSignal signal)
+    /*public void ShowMines(OnVisibleMinesSignal signal)
     {
         _minesVisible = signal.IsVisible;
         DrawMinesOfSector(_minesVisible);
-    }
+    }*/
 
-    private void DrawMinesOfSector(bool visible)
+    /*private void DrawMinesOfSector(bool visible)
     {
         if (_tilemap == null)
         {
@@ -504,7 +508,7 @@ public class Sector : MonoBehaviour
         }
 
         _tilemap.RefreshAllTiles();
-    }    
+    }    */
 
 
     [ContextMenu("Test")]

@@ -18,10 +18,12 @@ public class SettingsScreenUI : MonoBehaviour
     [SerializeField] private Button _discordButton;
     [SerializeField] private Button _privacyPolicyButton;
 
-
     [Header("Sliders")]
     [SerializeField] private Slider _holdDurationSlider;
     [SerializeField] private Slider _cameraZoomSlider;
+
+    [Header("Toggles")]
+    [SerializeField] private Toggle _doubleClickToggle;
 
     [Header("Texts")]
     [SerializeField] private TMP_Text _holdDurationText;
@@ -37,8 +39,8 @@ public class SettingsScreenUI : MonoBehaviour
         _settingsManager = GameSettingsManager.Instance;
 
     }
-    private void Start()        
-    {        
+    private void Start()
+    {
         UpdateSettingsScreen();
 
         _soundButton.onClick.AddListener(() =>
@@ -59,12 +61,17 @@ public class SettingsScreenUI : MonoBehaviour
             UpdateVibrationButtonSprite();
         });
 
+        _doubleClickToggle.isOn = _settingsManager.OnDoubleClick;
+
         _cameraZoomSlider.onValueChanged.AddListener(OnZoomValueChanged);
         _holdDurationSlider.onValueChanged.AddListener(OnHoldDurationChanged);
-                
+
         _supportEmailButton.onClick.AddListener(OpenSupportEmailURL);
         _discordButton.onClick.AddListener(OpenDiscordURL);
         _privacyPolicyButton.onClick.AddListener(OpenPrivacyPolicyURL);
+
+        _doubleClickToggle.onValueChanged.AddListener(OnDoubleClickToggled);
+
     }
 
     public void UpdateSettingsScreen()
@@ -127,6 +134,12 @@ public class SettingsScreenUI : MonoBehaviour
         GameSettingsManager.Instance.HoldTime = value;
         UpdateHoldDurationText(value);
         GameSettingsManager.Instance.SaveSettings();
+    }
+
+    private void OnDoubleClickToggled(bool isOn)
+    {
+        _settingsManager.OnDoubleClick = isOn;
+        _settingsManager.SaveSettings();
     }
 
     private void UpdateCameraZoomText(float value)

@@ -6,8 +6,7 @@ public class SectorUI : MonoBehaviour
 {
     [SerializeField] private Canvas _sectorCanvas;
     [SerializeField] private Image _background;
-    [SerializeField] private GameObject _containerForHideObjects;
-    [SerializeField] private TMP_Text _text;        /////////??????????
+    [SerializeField] private GameObject _containerForHideObjects;    
     [SerializeField] private Button _viewSectorButton;
     [SerializeField] private Button _closeButton;
     [SerializeField] private Button _openSectorForAwardButton;
@@ -15,9 +14,6 @@ public class SectorUI : MonoBehaviour
     [SerializeField] private Button _replayLevelButton;
     [SerializeField] private TMP_Text _prizeCountText;
     [SerializeField] private TMP_Text _replayLevelText;
-
-    [Header("HOW MUCH PRIZE??????")]
-    [SerializeField] private int _prizeCount;
 
     private Sector _sector;
 

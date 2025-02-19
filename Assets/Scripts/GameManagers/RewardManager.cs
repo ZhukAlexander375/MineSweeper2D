@@ -84,7 +84,7 @@ public class RewardManager : MonoBehaviour
 
     public void TimeCheatDetected()
     {
-        Debug.Log("AAAAAALLLLLO!!!!");
+        //Debug.Log("AAAAAALLLLLO!!!!");
     }
 
     private void TimeAntiCheat()
@@ -178,6 +178,7 @@ public class RewardManager : MonoBehaviour
 
     private void CalculateCurrentReward()
     {
+        int previousReward = CurrentReward;
         CurrentReward = 0;
 
         for (int i = 0; i < _rewardData.AvailableRewards.Length; i++)
@@ -188,7 +189,10 @@ public class RewardManager : MonoBehaviour
             }
         }
 
-        SignalBus.Fire(new OnBonusGrantSignal());
+        if (CurrentReward > 0 || previousReward > 0)
+        {
+            SignalBus.Fire(new OnBonusGrantSignal(CurrentReward));
+        }        
     }
 
     private IEnumerator RewardTimerCoroutine()

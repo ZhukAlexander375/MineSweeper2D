@@ -14,7 +14,10 @@ public class GameSettingsManager : MonoBehaviour
     [Header("Camera Settings")]
     [SerializeField] public float _cameraZoomMin = 0.05f;
     [SerializeField] public float _cameraZoomMax = 2f;
-    [SerializeField] private float _cameraZoom = 0.1f;      
+    [SerializeField] private float _cameraZoom = 0.1f;
+
+    [Header("Input Settings")]
+    [SerializeField] public bool OnDoubleClick = true;
 
     [Header("Hold Duration")]
     [SerializeField] public float _holdTimeMin = 0.15f;
@@ -30,13 +33,15 @@ public class GameSettingsManager : MonoBehaviour
         }
 
         Instance = this;
-        DontDestroyOnLoad(gameObject);        
+        DontDestroyOnLoad(gameObject);
     }
 
     void Start()
     {
         LoadSettings();
         QualitySettings.vSyncCount = 0;
+
+        Application.targetFrameRate = 60;
     }
 
     public void ToggleSound()
@@ -88,7 +93,8 @@ public class GameSettingsManager : MonoBehaviour
             IsMusicEnabled = IsMusicEnabled,
             IsVibrationEnabled = IsVibrationEnabled,
             CameraZoom = _cameraZoom,
-            HoldTime = _holdTime
+            HoldTime = _holdTime,
+            OnDoubleClick = OnDoubleClick
         };
 
         SaveManager.Instance.SaveSettings(settings);
@@ -104,12 +110,18 @@ public class GameSettingsManager : MonoBehaviour
             IsVibrationEnabled = settings.IsVibrationEnabled;
             _cameraZoom = settings.CameraZoom;
             _holdTime = settings.HoldTime;
-
+            OnDoubleClick = settings.OnDoubleClick;
             //Debug.Log("Settings Loaded Successfully");
         }
         else
         {
             Debug.LogWarning("Failed to load settings, applying default values.");
         }
+    }
+
+    public void ToogleDoubleClick()
+    {
+        OnDoubleClick = !OnDoubleClick;
+        SaveSettings();
     }
 }

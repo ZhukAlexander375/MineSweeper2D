@@ -122,11 +122,6 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
---- !u!1 &97035673 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 5251337527785770960, guid: 3042a28274a24f243a174df449f6ae74, type: 3}
-  m_PrefabInstance: {fileID: 1142920222}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &998027366
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -646,7 +641,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &1457523208
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -905,7 +900,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   moveSpeed: 0.029
   zoomSpeed: 0.02
-  minZoom: 5
+  minZoom: 8
   maxZoom: 35
   deadZoneThrashhold: 10
 --- !u!114 &2063490924 stripped
@@ -1011,14 +1006,6 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 4454402736467532439, guid: b0c6144c9e64e724eb102662d4834c31, type: 3}
-      propertyPath: _sampleGrid
-      value: 
-      objectReference: {fileID: 97035673}
-    - target: {fileID: 4454402736467532439, guid: b0c6144c9e64e724eb102662d4834c31, type: 3}
-      propertyPath: _gridManager
-      value: 
-      objectReference: {fileID: 1123650384}
     - target: {fileID: 6728940931585832074, guid: b0c6144c9e64e724eb102662d4834c31, type: 3}
       propertyPath: m_Name
       value: ClassicGameCanvas

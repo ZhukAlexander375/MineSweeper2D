@@ -164,6 +164,8 @@ public class SimpleGridManager : MonoBehaviour
                 if (_gameManager.ClassicStats.IsGameStarted)
                 {
                     LoadSavedGame();
+                    SignalBus.Fire<LoadCompletedSignal>();
+
                     if (_gameManager.ClassicStats.IsGameOver || _gameManager.ClassicStats.IsGameWin)
                     {
                         SignalBus.Fire(
@@ -185,6 +187,8 @@ public class SimpleGridManager : MonoBehaviour
                 if (_gameManager.ClassicStats.IsGameStarted)
                 {
                     LoadSavedGame();
+                    SignalBus.Fire<LoadCompletedSignal>();
+
                     if (_gameManager.ClassicStats.IsGameOver || _gameManager.ClassicStats.IsGameWin)
                     {
                         SignalBus.Fire(
@@ -206,6 +210,8 @@ public class SimpleGridManager : MonoBehaviour
                 if (_gameManager.ClassicStats.IsGameStarted)
                 {
                     LoadSavedGame();
+                    SignalBus.Fire<LoadCompletedSignal>();
+
                     if (_gameManager.ClassicStats.IsGameOver || _gameManager.ClassicStats.IsGameWin)
                     {
                         SignalBus.Fire(
@@ -408,6 +414,8 @@ public class SimpleGridManager : MonoBehaviour
         cell.IsFlagged = !cell.IsFlagged;
 
         UpdateFlagsCount(isPlacingFlag);
+        SignalBus.Fire(new FlagPlacingSignal(isPlacingFlag));
+
         InstantiateParticleAtCell(isPlacingFlag ? _flagPlaceParticle : _flagRemoveParticle, cell);
 
         if (GameSettingsManager.Instance.IsVibrationEnabled)

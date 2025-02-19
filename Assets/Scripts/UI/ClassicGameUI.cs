@@ -15,6 +15,8 @@ public class ClassicGameUI : MonoBehaviour
     
     [Header("Texts")]
     [SerializeField] private TMP_Text _gameModeName;
+    [SerializeField] private TMP_Text _minesCountText;
+    [SerializeField] private TMP_Text _flagsText;
 
     [Header("Screens")]
     [SerializeField] private Canvas _pauseMenuScreen;
@@ -134,20 +136,88 @@ public class ClassicGameUI : MonoBehaviour
         }
     }
 
+    private void UpdateFlagText(FlagPlacingSignal signal)
+    {
+        if (GameManager.Instance.CurrentStatisticController != null)
+        {
+            _flagsText.text = GameManager.Instance.CurrentStatisticController.PlacedFlags.ToString();
+        }
+        else
+        {
+            _flagsText.text = "0";
+        }
+    }
+
+    private void UpdateBombText()
+    {
+        switch (GameManager.Instance.CurrentGameMode)
+        {
+            case GameMode.ClassicEasy:
+                SetMinesCount(0);
+                break;
+
+            case GameMode.ClassicMedium:
+                SetMinesCount(1);
+                break;
+
+            case GameMode.ClassicHard:
+                SetMinesCount(2);
+                break;
+
+            case GameMode.Custom:
+                SetMinesCount(GameManager.Instance.CustomLevel);
+                break;
+        }
+    }
+
+    private void SetMinesCount(int levelIndex)
+    {
+        var levels = GameManager.Instance.PredefinedLevels;
+
+        if (levelIndex >= 0 && levelIndex < levels.Count)
+        {
+            _minesCountText.text = levels[levelIndex].MineCount.ToString();
+            //Debug.Log($"{levels[levelIndex].MineCount}");
+        }
+        else
+        {
+            Debug.LogError("Level index out of range");
+        }
+    }
+
+    private void SetMinesCount(LevelConfig customLevel)
+    {
+        _minesCountText.text = customLevel.MineCount.ToString();
+        //Debug.Log($"{customLevel.MineCount}");
+    }
+
+    private void UpdateTexts(LoadCompletedSignal signal)
+    {
+        UpdateTexts();
+    }
+
+    private void UpdateTexts()
+    {
+        UpdateBombText();
+        
+        _flagsText.text = GameManager.Instance.CurrentStatisticController.PlacedFlags.ToString();
+
+    }
+
 
     private void OnEnable()
-    {
-        //SignalBus.Subscribe<OnGameRewardSignal>(UpdateAwardUI);
-        //SignalBus.Subscribe<FlagPlacingSignal>(UpdateFlagUI);
-        //SignalBus.Subscribe<LoadCompletedSignal>(UpdateTexts);
+    {        
+        SignalBus.Subscribe<LoadCompletedSignal>(UpdateTexts);
         SignalBus.Subscribe<GameOverSignal>(OpenLoseScreen);
+        SignalBus.Subscribe<FlagPlacingSignal>(UpdateFlagText);        
+
+        UpdateBombText();
     }
 
     private void OnDisable()
-    {
-        //SignalBus.Unsubscribe<OnGameRewardSignal>(UpdateAwardUI);
-        //SignalBus.Unsubscribe<FlagPlacingSignal>(UpdateFlagUI);
-        //SignalBus.Unsubscribe<LoadCompletedSignal>(UpdateTexts);
+    {          
+        SignalBus.Unsubscribe<LoadCompletedSignal>(UpdateTexts);
         SignalBus.Unsubscribe<GameOverSignal>(OpenLoseScreen);
+        SignalBus.Unsubscribe<FlagPlacingSignal>(UpdateFlagText);
     }
 }

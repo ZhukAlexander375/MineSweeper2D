@@ -24,7 +24,6 @@ public class CameraController : MonoBehaviour
 
     private void Start()
     {
-        Application.targetFrameRate = 240;
         mainCamera = Camera.main;
         SignalBus.Subscribe<ThemeChangeSignal>(OnThemeChanged);
         TryApplyTheme(ThemeManager.Instance.CurrentTheme);
