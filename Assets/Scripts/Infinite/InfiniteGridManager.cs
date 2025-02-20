@@ -24,8 +24,7 @@ public class InfiniteGridManager : MonoBehaviour
     [SerializeField] private GameObject _awardSpritePrefab;
     [SerializeField] private SectorBuyoutCostConfig _sectorBuyoutCostConfig;
     [SerializeField] private SectorRewardConfig _sectorRewardConfig;
-    [SerializeField] private MinesConfig _minesConfig;
-    [SerializeField] private bool OnDoubleClick = true;
+    [SerializeField] private MinesConfig _minesConfig;    
 
     public bool IsFirstClick;
     public bool IsGenerateEnabled;    

@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Tilemaps;
-using UnityEngine.UI;
+using Cysharp.Threading.Tasks;
 
 public class Sector : MonoBehaviour
 {
@@ -118,9 +118,9 @@ public class Sector : MonoBehaviour
 
         if (cellX >= 0 && cellX < 9 && cellY >= 0 && cellY < 9) ///9 - hard
         {
-            if (IsExploded)
+            if (IsExploded || IsSectorCompleted)
             {
-                Debug.Log("This sector is exploded and cannot be interacted with.");
+                //Debug.Log("This sector is exploded and cannot be interacted with.");
                 return;
             }
 
@@ -157,7 +157,7 @@ public class Sector : MonoBehaviour
 
         if (cellX >= 0 && cellX < 9 && cellY >= 0 && cellY < 9) ///8 - hard
         {
-            if (IsExploded)
+            if (IsExploded || IsSectorCompleted)
             {                
                 return;
             }
@@ -444,11 +444,14 @@ public class Sector : MonoBehaviour
         //Debug.Log(CurrentBuyoutCost);
     }
 
-    public void CloseSector()
+    public async void CloseSector()
     {
         IsExploded = true;
+
+        await UniTask.Delay(1000);
+
         _sectorUi.gameObject.SetActive(true);
-        _sectorUi.HideSector();
+        _sectorUi.HideLostSector();
     }
 
     public void OpenSector(int priseCount)

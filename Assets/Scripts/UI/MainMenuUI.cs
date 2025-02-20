@@ -301,15 +301,15 @@ public class MainMenuUI : MonoBehaviour
         {
             _lastModeText.text = GetGameModeName(GameManager.Instance.LastSessionGameMode);
             _timeSpentText.text = "Time spent: " + FormatTime(GameManager.Instance.CurrentStatisticController.TotalPlayTime);
-            _flagsPlacedText.text = "Flags Placed: " + GameManager.Instance.CurrentStatisticController.PlacedFlags.ToString();
-            _cellsOpenText.text = "Cells Open: " + GameManager.Instance.CurrentStatisticController.OpenedCells.ToString();
+            _flagsPlacedText.text = "Flags placed: " + GameManager.Instance.CurrentStatisticController.PlacedFlags.ToString();
+            _cellsOpenText.text = "Cells open: " + GameManager.Instance.CurrentStatisticController.OpenedCells.ToString();
         }
         else
         {
             _lastModeText.text = "Choose mode";
             _timeSpentText.text = "Time spent: 0";
-            _flagsPlacedText.text = "Flags Placed: 0";
-            _cellsOpenText.text = "Cells Open: 0";
+            _flagsPlacedText.text = "Flags placed: 0";
+            _cellsOpenText.text = "Cells open: 0";
         }
     }
 
@@ -319,8 +319,8 @@ public class MainMenuUI : MonoBehaviour
         {
             //_lastClassicSessionText.text = "Last session " + GetGameModeName(GameManager.Instance.LastClassicSessionMode);
             _difficultyLevelText.text = "Difficulty level: " + GetGameModeDifficulty(GameManager.Instance.LastClassicSessionMode);            
-            _classicSessionCellsOpenText.text = "Cells Open: " + GameManager.Instance.ClassicStats.OpenedCells.ToString();
-            _classicSessionFlagsPlacedText.text = "Flags Placed: " + GameManager.Instance.ClassicStats.PlacedFlags.ToString();
+            _classicSessionCellsOpenText.text = "Cells open: " + GameManager.Instance.ClassicStats.OpenedCells.ToString();
+            _classicSessionFlagsPlacedText.text = "Flags placed: " + GameManager.Instance.ClassicStats.PlacedFlags.ToString();
             _classicSessionTimeSpentText.text = "Time spent: " + FormatTime(GameManager.Instance.ClassicStats.TotalPlayTime);            
         }
     }
@@ -430,8 +430,8 @@ public class MainMenuUI : MonoBehaviour
 
     private void UpdateNewGameButtonsText()
     {
-        _hardcoreNewGameText.text = $"New Game \n<sprite=0> {GameManager.Instance.HardcoreTimeModeCost}";
-        _timeTrialNewGameText.text = $"New Game \n<sprite=0> {GameManager.Instance.HardcoreTimeModeCost}";
+        _hardcoreNewGameText.text = $"New game \n<sprite=0> {GameManager.Instance.HardcoreTimeModeCost}";
+        _timeTrialNewGameText.text = $"New game \n<sprite=0> {GameManager.Instance.HardcoreTimeModeCost}";
     }
 
     private void CheckNewGameButtonsInteractable(OnGameRewardSignal signal)

@@ -4,16 +4,21 @@ using UnityEngine.UI;
 
 public class SectorUI : MonoBehaviour
 {
-    [SerializeField] private Canvas _sectorCanvas;
-    [SerializeField] private Image _background;
+    [Header("Lose Sector UI")]
+    [SerializeField] private Image _loseSectorBackground;
     [SerializeField] private GameObject _containerForHideObjects;    
-    [SerializeField] private Button _viewSectorButton;
-    [SerializeField] private Button _closeButton;
+    [SerializeField] private Button _viewLostSectorButton;
+    [SerializeField] private Button _hideLostSectorButton;
     [SerializeField] private Button _openSectorForAwardButton;
     [SerializeField] private Button _openSectorForAdButton;
     [SerializeField] private Button _replayLevelButton;
     [SerializeField] private TMP_Text _prizeCountText;
     [SerializeField] private TMP_Text _replayLevelText;
+
+    [Header("Win Sector UI")]
+    [SerializeField] private Image _completeSectorBackground;
+    [SerializeField] private Button _viewCompleteSectorButton;
+    [SerializeField] private Button _hideCompleteSectorButton;
 
     private Sector _sector;
 
@@ -24,11 +29,14 @@ public class SectorUI : MonoBehaviour
 
     private void Start()
     {
-        _viewSectorButton.onClick.AddListener(ShowSector);
-        _closeButton.onClick.AddListener(HideSector);
+        _viewLostSectorButton.onClick.AddListener(ShowLostSector);
+        _hideLostSectorButton.onClick.AddListener(HideLostSector);
         _openSectorForAwardButton.onClick.AddListener(OpenSectorForAward);
         _openSectorForAdButton.onClick.AddListener(OpenSectorForAd);
         _replayLevelButton.onClick.AddListener(ReplayLevel);
+
+        _viewCompleteSectorButton.onClick.AddListener(ShowCompleteSector);
+        _hideCompleteSectorButton.onClick.AddListener(CompletedSector);
         //gameObject.SetActive(false);
         UpdatePrizeCountText();        
     }
@@ -38,36 +46,44 @@ public class SectorUI : MonoBehaviour
         _sector = sector;
     }
 
-    private void ShowSector()
+    private void ShowLostSector()
     {
-        Color currentColor = _background.color;
+        Color currentColor = _loseSectorBackground.color;
         currentColor.a = 0.5f;
-        _background.color = currentColor;
+        _loseSectorBackground.color = currentColor;
         //UpdatePrizeCountText();
 
         _containerForHideObjects.SetActive(false);
-        _closeButton.gameObject.SetActive(true);
+        _hideLostSectorButton.gameObject.SetActive(true);
     }
 
-    public void HideSector()
+    public void HideLostSector()
     {
-        Color currentColor = _background.color;
+        Color currentColor = _loseSectorBackground.color;
         currentColor.a = 0.99f;
-        _background.color = currentColor;
+        _loseSectorBackground.color = currentColor;
         UpdatePrizeCountText();
 
-        _closeButton.gameObject.SetActive(false);
+        _loseSectorBackground.gameObject.SetActive(true);
+        _hideLostSectorButton.gameObject.SetActive(false);
         _containerForHideObjects.gameObject.SetActive(true);
     }
 
     public void CompletedSector()
     {
         Color currentColor = Color.white;
-        currentColor.a = 0.25f;
-        _background.color = currentColor;
+        currentColor.a = 0.20f;
+        _loseSectorBackground.color = currentColor;
 
-        _closeButton.gameObject.SetActive(false);
-        _containerForHideObjects.gameObject.SetActive(false);
+        _completeSectorBackground.gameObject.SetActive(true);
+        _loseSectorBackground.gameObject.SetActive(false);
+        _hideCompleteSectorButton.gameObject.SetActive(false);
+    }
+
+    private void ShowCompleteSector()
+    {
+        _completeSectorBackground.gameObject.SetActive(false);
+        _hideCompleteSectorButton.gameObject.SetActive(true);        
     }
 
     private void OpenSectorForAward()

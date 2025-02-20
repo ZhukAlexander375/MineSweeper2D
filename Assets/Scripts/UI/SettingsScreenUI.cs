@@ -144,12 +144,12 @@ public class SettingsScreenUI : MonoBehaviour
 
     private void UpdateCameraZoomText(float value)
     {
-        _cameraZoomText.text = "Zoom Speed: " + value.ToString("F2");
+        _cameraZoomText.text = "Zoom speed: " + value.ToString("F2");
     }
 
     private void UpdateHoldDurationText(float value)
     {
-        _holdDurationText.text = "Hold Duration: " + value.ToString("F2") + "s";
+        _holdDurationText.text = "Hold duration: " + value.ToString("F2") + "s";
     }
 
     private void OpenSupportEmailURL()

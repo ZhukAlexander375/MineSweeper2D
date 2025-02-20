@@ -1,3 +1,4 @@
+using Cysharp.Threading.Tasks;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -500,19 +501,11 @@ public class SimpleGridManager : MonoBehaviour
         _board.Draw(_cellGrid);
     }
 
-    private void Explode(BaseCell cell)
+    private async void Explode(BaseCell cell)
     {
         _statisticController.StopTimer();
         _statisticController.IsGameOver = true;
         _statisticController.IsGameWin = false;
-
-        SignalBus.Fire(
-            new GameOverSignal(
-                GameManager.Instance.CurrentGameMode,
-                _gameManager.ClassicStats.IsGameOver,
-                _gameManager.ClassicStats.IsGameWin
-            )
-        );
 
         cell.IsExploded = true;
         cell.IsRevealed = true;
@@ -529,6 +522,18 @@ public class SimpleGridManager : MonoBehaviour
                 }
             }
         }
+
+        _board.Draw(_cellGrid);
+
+        await UniTask.Delay(1500);
+
+        SignalBus.Fire(
+            new GameOverSignal(
+                GameManager.Instance.CurrentGameMode,
+                _gameManager.ClassicStats.IsGameOver,
+                _gameManager.ClassicStats.IsGameWin
+            )
+        );
     }
 
     private void UpdateOpenedCells()
@@ -580,20 +585,12 @@ public class SimpleGridManager : MonoBehaviour
         HandleWinCondition();
     }
 
-    private void HandleWinCondition()
+    public async void HandleWinCondition()
     {
         _statisticController.StopTimer();
         _statisticController.IsGameOver = false;
         _statisticController.IsGameWin = true;
 
-        SignalBus.Fire(
-            new GameOverSignal(
-                GameManager.Instance.CurrentGameMode,
-                _gameManager.ClassicStats.IsGameOver,
-                _gameManager.ClassicStats.IsGameWin
-            )
-        );
-         
         for (int x = 0; x < _width; x++)
         {
             for (int y = 0; y < _height; y++)
@@ -608,6 +605,17 @@ public class SimpleGridManager : MonoBehaviour
         }
 
         _board.Draw(_cellGrid);
+
+        await UniTask.Delay(1500);
+
+        SignalBus.Fire(
+            new GameOverSignal(
+                GameManager.Instance.CurrentGameMode,
+                _gameManager.ClassicStats.IsGameOver,
+                _gameManager.ClassicStats.IsGameWin
+            )
+        );
+
     }
 
     public void SaveCurrentGame()
