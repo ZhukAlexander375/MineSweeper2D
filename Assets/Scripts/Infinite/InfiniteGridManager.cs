@@ -24,7 +24,8 @@ public class InfiniteGridManager : MonoBehaviour
     [SerializeField] private GameObject _awardSpritePrefab;
     [SerializeField] private SectorBuyoutCostConfig _sectorBuyoutCostConfig;
     [SerializeField] private SectorRewardConfig _sectorRewardConfig;
-    [SerializeField] private MinesConfig _minesConfig;    
+    [SerializeField] private MinesConfig _minesConfig;
+    
 
     public bool IsFirstClick;
     public bool IsGenerateEnabled;    
@@ -343,7 +344,7 @@ public class InfiniteGridManager : MonoBehaviour
             }
         }
 
-        RedrawSectors();
+        //RedrawSectors();
     }
 
 
@@ -577,8 +578,8 @@ public class InfiniteGridManager : MonoBehaviour
                 if (!cell.IsExploded)
                 {
                     CheckLoseConditions(cell.Sector, cell);     //check sector of this cell
-                }                
-                
+                }
+
                 break;
 
             case CellState.Empty:
@@ -604,7 +605,8 @@ public class InfiniteGridManager : MonoBehaviour
         _lastClickPosition = cell.GlobalCellPosition;
         _statisticController.SetLastClickPosition(_lastClickPosition);
 
-        RedrawSectors();
+        cell.Sector.UpdateTile(cell.GlobalCellPosition, cell);
+        //RedrawSectors();
     }
 
     public void Flag(Sector currentSector, InfiniteCell cell)
@@ -613,6 +615,8 @@ public class InfiniteGridManager : MonoBehaviour
 
         bool isPlacingFlag = !cell.IsFlagged;
         cell.IsFlagged = !cell.IsFlagged;
+
+        cell.Sector.UpdateTile(cell.GlobalCellPosition, cell);
 
         UpdateFlagsCount(isPlacingFlag);
         SignalBus.Fire(new FlagPlacingSignal(isPlacingFlag));
@@ -633,7 +637,7 @@ public class InfiniteGridManager : MonoBehaviour
             VibrateOnAction();
         }
         
-        RedrawSectors();
+        //RedrawSectors();
 
         SectorCompletionCheck(cell.Sector);             //check sector of this cell
     }
@@ -696,8 +700,12 @@ public class InfiniteGridManager : MonoBehaviour
         {
             Reveal(currentSector, cell);
         }
-
-        RedrawSectors();
+        /*foreach (var cell in cellsToReveal)
+        {
+            
+            cell.Sector.UpdateTile(cell.GlobalCellPosition, cell);
+        }*/
+        //RedrawSectors();
     }
 
 
@@ -746,6 +754,8 @@ public class InfiniteGridManager : MonoBehaviour
 
         SectorCompletionCheck(cell.Sector);             //check sector of this cell
 
+        cell.Sector.UpdateTile(cell.GlobalCellPosition, cell);
+
         yield return null;
 
         if (cell.CellState == CellState.Empty)
@@ -760,7 +770,7 @@ public class InfiniteGridManager : MonoBehaviour
 
         if (_activeFloodCoroutines == 0)
         {
-            RedrawSectors();
+            //RedrawSectors();
         }
     }
 
@@ -915,8 +925,9 @@ public class InfiniteGridManager : MonoBehaviour
 
                 if (TryGetCell(x, y, out InfiniteCell adjacent) && !adjacent.IsRevealed && !adjacent.IsActive)
                 {
-
                     adjacent.IsActive = true;
+
+                    adjacent.Sector.UpdateTile(adjacent.GlobalCellPosition, adjacent);
                 }
             }
         }
@@ -1124,7 +1135,7 @@ public class InfiniteGridManager : MonoBehaviour
                 sector.InitializeCellsFromData(sectorData.Cells, this);
                 AddCellsToAllCells(sector);
 
-                sector.IsLOADED = false;
+                sector.IsLoaded = false;
             } 
         }
 
@@ -1167,7 +1178,7 @@ public class InfiniteGridManager : MonoBehaviour
         sector.IsFirstCellActivated = sectorData.IsFirstCellActivated;
         sector.IsExploded = sectorData.IsExploded;
         sector.IsPrizePlaced = sectorData.IsPrizePlaced;
-        sector.IsLOADED = true;
+        sector.IsLoaded = true;
         sector.IsSectorCompleted = sectorData.IsSectorCompleted;
         sector.CurrentBuyoutCost = sectorData.CurrentBuyoutCost;
 

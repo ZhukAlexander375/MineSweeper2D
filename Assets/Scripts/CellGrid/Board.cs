@@ -146,6 +146,7 @@ public class Board : MonoBehaviour
         }
     }
 
+
     private void OnThemeChanged(ThemeChangeSignal signal)
     {
         TryApplyTheme(signal.ThemeIndex);

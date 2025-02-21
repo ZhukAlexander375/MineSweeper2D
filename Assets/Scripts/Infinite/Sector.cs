@@ -21,7 +21,7 @@ public class Sector : MonoBehaviour
     public int CurrentBuyoutCost { get; set; }
 
     public Dictionary<Vector3Int, InfiniteCell> Cells => _cells;
-    public bool IsLOADED;
+    public bool IsLoaded;
        
 
     private InfiniteGridManager _infiniteGridManager;
@@ -50,8 +50,8 @@ public class Sector : MonoBehaviour
         SignalBus.Subscribe<OnCellActiveSignal>(SectorActivate);
         SignalBus.Subscribe<ThemeChangeSignal>(OnThemeChanged);
         //SignalBus.Subscribe<OnVisibleMinesSignal>(ShowMines);
-        TryApplyTheme(ThemeManager.Instance.CurrentThemeIndex);       
-    }    
+        TryApplyTheme(ThemeManager.Instance.CurrentThemeIndex);
+    }
 
     private void DrawBorders()      //FOR CHANGE COLOR MB
     {        
@@ -144,7 +144,7 @@ public class Sector : MonoBehaviour
             {
                 SignalBus.Fire(new WrongСlickSignal());
             }
-
+            
             //_gridManager.Reveal(this, clickedCell);
         }
     }
@@ -220,7 +220,8 @@ public class Sector : MonoBehaviour
             cell.IsAward = true;
             IsPrizePlaced = true;
 
-            DrawSector();
+            UpdateTile(cell.GlobalCellPosition, cell);
+            //DrawSector();
         }
     }
 
@@ -230,7 +231,7 @@ public class Sector : MonoBehaviour
         {
             Debug.LogError("Tilemap не установлен для сектора!");
             return;
-        }        
+        }
 
         int width = _infiniteGridManager.SectorSize;
         int height = _infiniteGridManager.SectorSize;
@@ -239,12 +240,22 @@ public class Sector : MonoBehaviour
         {
             for (int y = 0; y < height; y++)
             {
-                InfiniteCell cell = _cells[new Vector3Int(x, y, 0)]; 
-                _tilemap.SetTile(new Vector3Int(x, y, 0), GetTile(cell));               
+                InfiniteCell cell = _cells[new Vector3Int(x, y, 0)];
+                _tilemap.SetTile(new Vector3Int(x, y, 0), GetTile(cell));
             }
         }
 
         _tilemap.RefreshAllTiles();
+    }
+
+    public void UpdateTile(Vector3Int globalPosition, InfiniteCell cell)
+    {
+        if (_tilemap == null) return;
+
+        Vector3Int localPosition = GetLocalPosition(globalPosition);
+        _tilemap.SetTile(localPosition, GetTile(cell));
+        _tilemap.RefreshTile(localPosition);
+        //Debug.Log("Tile");
     }
 
     public void GenerateNumbersInSector()
@@ -252,7 +263,7 @@ public class Sector : MonoBehaviour
         _infiniteGridManager.GenerateNumbers(this);
     }
 
-    private Tile GetTile(InfiniteCell cell)
+    private TileBase GetTile(InfiniteCell cell)
     { 
         if (cell.IsRevealed)
         {
@@ -338,15 +349,62 @@ public class Sector : MonoBehaviour
         //Debug.Log($"Сектор завершён: {name}");        
     }
 
-    private Tile GetRevealedTile(InfiniteCell cell)
+    private TileBase GetRevealedTile(InfiniteCell cell)
     {
         switch (cell.CellState)
         {
-            case CellState.Empty: return _tileSets[_currentTileSetIndex].TileEmpty;
-            case CellState.Mine: return cell.IsExploded ? _tileSets[_currentTileSetIndex].TileExploded : _tileSets[_currentTileSetIndex].TileMine;
-            case CellState.Number: return GetNumberTile(cell);
+            case CellState.Empty:
+                //AnimateTileFlip(GetLocalPosition(cell.GlobalCellPosition)).Forget();
+                return _tileSets[_currentTileSetIndex].TileEmpty;
+
+            case CellState.Mine: 
+                return cell.IsExploded ? _tileSets[_currentTileSetIndex].TileExploded : _tileSets[_currentTileSetIndex].TileMine;
+
+            case CellState.Number:
+                //AnimateTileFlip(GetLocalPosition(cell.GlobalCellPosition)).Forget();
+                //Debug.Log($"Устанавливаем обычный тайл");
+                return GetNumberTile(cell);
+
             default: return null;
         }
+    }
+
+    private Vector3Int GetLocalPosition(Vector3Int globalPosition)
+    {
+        Vector2Int sectorPosition = new Vector2Int(
+            Mathf.FloorToInt(transform.position.x / _infiniteGridManager.SectorSize),
+            Mathf.FloorToInt(transform.position.y / _infiniteGridManager.SectorSize)
+        );
+
+        Vector3Int sectorOrigin = new Vector3Int(
+            sectorPosition.x * _infiniteGridManager.SectorSize,
+            sectorPosition.y * _infiniteGridManager.SectorSize,
+            0
+        );
+
+        return globalPosition - sectorOrigin;
+    }
+
+    private async UniTaskVoid AnimateTileFlip(Vector3Int position)
+    {
+        var animatedTile = _tileSets[_currentTileSetIndex].AnimatedFlipToEmpty;
+
+        if (animatedTile == null)
+        { 
+            return;
+        }
+
+        int frameCount = animatedTile.m_AnimatedSprites.Length; // Количество спрайтов в анимации
+        float animationSpeed = animatedTile.m_MaxSpeed; // FPS (кадров в секунду)
+        int animationTimeMs = (int)((frameCount / animationSpeed) * 1000); // Переводим в миллисекунды
+
+        int textTime = 2000;
+        _tilemap.SetTile(position, animatedTile);
+        Debug.Log($"Устанавливаем анимированный тайл на {position}, время анимации: {textTime} мс");
+        await UniTask.Delay(textTime, cancellationToken: this.GetCancellationTokenOnDestroy());
+
+        Debug.Log($"Анимация завершена для {position}");
+
     }
 
     private Tile GetNumberTile(InfiniteCell cell)
@@ -397,7 +455,7 @@ public class Sector : MonoBehaviour
             {
                 return;
             }
-        }        
+        }
     }
 
     public void TryApplyTheme(int themeIndex)
@@ -541,7 +599,7 @@ public class Sector : MonoBehaviour
             IsFirstCellActivated = IsFirstCellActivated,
             IsExploded = IsExploded,
             IsPrizePlaced = IsPrizePlaced,
-            IsLOADED = IsLOADED,            ///DELETE    
+            IsLOADED = IsLoaded,            ///DELETE    
             IsCellsInitialized = IsCellsInitialized,
             IsSectorCompleted = IsSectorCompleted,
             CurrentBuyoutCost = CurrentBuyoutCost,            
@@ -607,6 +665,7 @@ public class Sector : MonoBehaviour
                     cell.IsAward = cellData.IsAward;
                     cell.CellNumber = cellData.CellNumber;
 
+                    UpdateTile(cell.GlobalCellPosition, cell);
                     //Debug.Log($"Cell position {cell.GlobalCellPosition} CellState {cell.CellState} cell.IsRevealed {cell.IsRevealed}, IsFlagged {cell.IsFlagged}, IsAward {cell.IsAward}");
                 }
                 else
@@ -620,7 +679,7 @@ public class Sector : MonoBehaviour
             }
         }        
         //LogAllCellKeys();
-        DrawSector();
+        //DrawSector();
     }
 
     public void LogAllCellKeys()

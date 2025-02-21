@@ -28,4 +28,5 @@ MonoBehaviour:
   TileNum8: {fileID: 11400000, guid: 0c07570006d59964caf5cfef51e45086, type: 2}
   TileInactivePrize: {fileID: 11400000, guid: 8eadb381bf9b363429aeac8c0b118b72, type: 2}
   TileActivePrize: {fileID: 11400000, guid: 53ff15b7f5f77c3448a067804d16f99d, type: 2}
+  AnimatedFlipToEmpty: {fileID: 11400000, guid: 9d54bb8ee4282894a87c8535c7ddb9e1, type: 2}
   TileMineVisible: {fileID: 11400000, guid: f1a0c79bb4ebfc249b87fe0aa0f3df7a, type: 2}

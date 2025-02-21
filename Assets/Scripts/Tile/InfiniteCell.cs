@@ -15,7 +15,7 @@ public class InfiniteCell : BaseCell
         get => _isRevealed;
         set
         {
-            if (_sector.IsLOADED)
+            if (_sector.IsLoaded)
             {
                 _isRevealed = value;
                 return;
