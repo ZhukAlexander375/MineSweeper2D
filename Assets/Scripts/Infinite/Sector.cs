@@ -417,29 +417,7 @@ public class Sector : MonoBehaviour
         );
 
         return globalPosition - sectorOrigin;
-    }
-
-    private async UniTaskVoid AnimateTileFlip(Vector3Int position)
-    {
-        var animatedTile = _tileSets[_currentTileSetIndex].AnimatedFlipToEmpty;
-
-        if (animatedTile == null)
-        { 
-            return;
-        }
-
-        int frameCount = animatedTile.m_AnimatedSprites.Length; // Количество спрайтов в анимации
-        float animationSpeed = animatedTile.m_MaxSpeed; // FPS (кадров в секунду)
-        int animationTimeMs = (int)((frameCount / animationSpeed) * 1000); // Переводим в миллисекунды
-
-        int textTime = 2000;
-        _tilemap.SetTile(position, animatedTile);
-        Debug.Log($"Устанавливаем анимированный тайл на {position}, время анимации: {textTime} мс");
-        await UniTask.Delay(textTime, cancellationToken: this.GetCancellationTokenOnDestroy());
-
-        Debug.Log($"Анимация завершена для {position}");
-
-    }
+    }    
 
     private Tile GetNumberTile(InfiniteCell cell)
     {

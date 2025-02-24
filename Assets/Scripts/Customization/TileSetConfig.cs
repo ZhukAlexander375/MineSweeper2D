@@ -21,7 +21,7 @@ public class TileSetConfig : ScriptableObject
     public Tile TileInactivePrize;
     public Tile TileActivePrize;
 
-    public AnimatedTile AnimatedFlipToEmpty;
+    //public AnimatedTile AnimatedFlipToEmpty;
 
 
     //FOR TESTS
