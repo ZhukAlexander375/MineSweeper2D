@@ -1,4 +1,6 @@
+using DG.Tweening;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 public class CameraController : MonoBehaviour
 {
@@ -26,6 +28,7 @@ public class CameraController : MonoBehaviour
     {
         mainCamera = Camera.main;
         SignalBus.Subscribe<ThemeChangeSignal>(OnThemeChanged);
+        SignalBus.Subscribe<OnMineRevealedSignal>(ShakeCameraAndChangeBackground);
         TryApplyTheme(ThemeManager.Instance.CurrentTheme);
 
         zoomSpeed = GameSettingsManager.Instance.CameraZoom;        
@@ -209,8 +212,35 @@ public class CameraController : MonoBehaviour
         mainCamera.backgroundColor = theme.CameraBackground;
     }
 
+
+    private void ShakeCameraAndChangeBackground(OnMineRevealedSignal signal)
+    {
+        var originalCamPosition = transform.position;
+        var originalBgColor = mainCamera.backgroundColor;
+        var shakeColor = Color.red;
+
+        var shakeDuration = 0.75f;
+        var shakeStrength = 0.5f;
+        var vibrato = 15;
+        var randomness = 90f;
+
+        // Мгновенно установить фон в красный
+        mainCamera.backgroundColor = shakeColor;
+
+        // Тряска камеры
+        transform.DOShakePosition(shakeDuration, shakeStrength, vibrato, randomness)
+        .OnComplete(() =>
+        {
+            transform.position = originalCamPosition;
+        });
+
+        // Плавный возврат к исходному цвету
+        DOTween.To(() => mainCamera.backgroundColor, x => mainCamera.backgroundColor = x, originalBgColor, shakeDuration);
+    }
+
     private void OnDestroy()
     {
         SignalBus.Unsubscribe<ThemeChangeSignal>(OnThemeChanged);
+        SignalBus.Unsubscribe<OnMineRevealedSignal>(ShakeCameraAndChangeBackground);
     }
 }

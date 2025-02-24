@@ -253,9 +253,43 @@ public class Sector : MonoBehaviour
         if (_tilemap == null) return;
 
         Vector3Int localPosition = GetLocalPosition(globalPosition);
+
         _tilemap.SetTile(localPosition, GetTile(cell));
         _tilemap.RefreshTile(localPosition);
-        //Debug.Log("Tile");
+
+        /*if (cell.IsRevealed && (cell.CellState == CellState.Empty || cell.CellState == CellState.Number) && !cell.HasAnimated)
+        {
+            cell.HasAnimated = true;
+            if (cell.GlobalCellPosition == new Vector3Int(0, 0, 0))
+            {
+                Debug.Log("вызов анимации");
+            }
+            _tilemap.SetTile(localPosition, _tileSets[_currentTileSetIndex].AnimatedFlipToEmpty);
+            _tilemap.RefreshTile(localPosition);
+            //Debug.Log($"Устанавливаем анимированный тайл на {localPosition}");
+                        
+            var animatedTile = _tileSets[_currentTileSetIndex].AnimatedFlipToEmpty;
+            int frameCount = animatedTile.m_AnimatedSprites.Length; // Количество кадров
+            float animationSpeed = animatedTile.m_MaxSpeed; // FPS
+
+            int animationTimeMs = (int)((frameCount / animationSpeed) * 1000);
+
+            //Debug.Log($"{animationTimeMs}");
+            // Ждём время анимации
+            await UniTask.Delay(animationTimeMs, cancellationToken: this.GetCancellationTokenOnDestroy());
+
+            // После анимации ставим обычный тайл в зависимости от типа ячейки
+            TileBase staticTile = GetFinalTile(cell);
+            _tilemap.SetTile(localPosition, staticTile);
+            _tilemap.RefreshTile(localPosition);
+            //Debug.Log($"Устанавливаем статичный тайл на {localPosition}");
+        }
+        else
+        {
+            // Для остальных случаев просто ставим обычный тайл
+            _tilemap.SetTile(localPosition, GetTile(cell));
+            _tilemap.RefreshTile(localPosition);
+        }    */
     }
 
     public void GenerateNumbersInSector()
@@ -268,7 +302,7 @@ public class Sector : MonoBehaviour
         if (cell.IsRevealed)
         {
             //SectorCompletionCheck();
-            return GetRevealedTile(cell);            
+            return GetFinalTile(cell);            
         }
 
         else if (cell.IsFlagged)
@@ -349,7 +383,7 @@ public class Sector : MonoBehaviour
         //Debug.Log($"Сектор завершён: {name}");        
     }
 
-    private TileBase GetRevealedTile(InfiniteCell cell)
+    private TileBase GetFinalTile(InfiniteCell cell)
     {
         switch (cell.CellState)
         {

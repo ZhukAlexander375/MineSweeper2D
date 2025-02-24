@@ -8,5 +8,6 @@ public class BaseCell
     public bool IsRevealed;
     public bool IsFlagged;
     public bool IsExploded;
-    public bool Chorded;    
+    public bool Chorded;
+    public bool HasAnimated;
 }

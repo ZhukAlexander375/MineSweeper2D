@@ -1,5 +1,4 @@
 using UnityEngine;
-using System.Collections;
 
 
 namespace TMPro.Examples
@@ -285,8 +284,6 @@ namespace TMPro.Examples
                 // Limit FollowDistance between min & max values.
                 FollowDistance = Mathf.Clamp(FollowDistance, MinFollowDistance, MaxFollowDistance);
             }
-
-
         }
     }
 }

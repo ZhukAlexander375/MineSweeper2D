@@ -2,6 +2,7 @@ using DG.Tweening;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using Random = UnityEngine.Random;
@@ -577,6 +578,7 @@ public class InfiniteGridManager : MonoBehaviour
             case CellState.Mine:
                 if (!cell.IsExploded)
                 {
+                    SignalBus.Fire<OnMineRevealedSignal>();
                     CheckLoseConditions(cell.Sector, cell);     //check sector of this cell
                 }
 
@@ -755,8 +757,9 @@ public class InfiniteGridManager : MonoBehaviour
         SectorCompletionCheck(cell.Sector);             //check sector of this cell
 
         cell.Sector.UpdateTile(cell.GlobalCellPosition, cell);
+        //float delay = Vector3Int.Distance(cell.GlobalCellPosition, origin) * 0.02f;
 
-        yield return null;
+        yield return new WaitForSeconds(0.05f);
 
         if (cell.CellState == CellState.Empty)
         {
@@ -847,8 +850,7 @@ public class InfiniteGridManager : MonoBehaviour
 
                 SaveCurrentGame();
                 break;
-        }
-        
+        }        
     }
 
     private void RewardBonus(InfiniteCell cell)
@@ -933,7 +935,7 @@ public class InfiniteGridManager : MonoBehaviour
         }
     }
 
-    private void RedrawSectors()
+    /*private void RedrawSectors()
     {
         foreach (var sector in _sectors.Values)
         {
@@ -942,7 +944,7 @@ public class InfiniteGridManager : MonoBehaviour
                 sector.RedrawSector();
             }
         }
-    }
+    }*/
 
     public bool TryGetCell(int x, int y, out InfiniteCell cell)
     {
