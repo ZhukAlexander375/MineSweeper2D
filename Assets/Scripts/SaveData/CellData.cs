@@ -12,4 +12,5 @@ public class CellData
     public bool IsExploded;
     public bool Chorded;
     public int CellNumber;
+    public bool HasAnimated;
 }

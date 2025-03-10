@@ -12,6 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4d747dcb14595c048ab8f2dedaaa3961, type: 3}
   m_Name: SimpleInfiniteMines
   m_EditorClassIdentifier: 
-  AbsoluteMax: 50
-  AbsoluteMin: 12
+  AbsoluteMax: 37
+  AbsoluteMin: 6
   DifficultyStepCoef: 1.25

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 using Cysharp.Threading.Tasks;
+using DG.Tweening;
 
 public class Sector : MonoBehaviour
 {
@@ -248,48 +249,87 @@ public class Sector : MonoBehaviour
         _tilemap.RefreshAllTiles();
     }
 
-    public void UpdateTile(Vector3Int globalPosition, InfiniteCell cell)
+    public async void UpdateTile(Vector3Int globalPosition, InfiniteCell cell)
     {
         if (_tilemap == null) return;
-
         Vector3Int localPosition = GetLocalPosition(globalPosition);
 
+        // Обновляем тайл обычной логикой (если требуется)
         _tilemap.SetTile(localPosition, GetTile(cell));
         _tilemap.RefreshTile(localPosition);
 
-        /*if (cell.IsRevealed && (cell.CellState == CellState.Empty || cell.CellState == CellState.Number) && !cell.HasAnimated)
+        if (cell.IsRevealed && cell.CellState == CellState.Mine && !cell.HasAnimated)
         {
             cell.HasAnimated = true;
-            if (cell.GlobalCellPosition == new Vector3Int(0, 0, 0))
+
+            float duration = 0.7f; // Длительность тряски
+            float shakeStrength = 0.2f; // Сила тряски
+
+            await DOTween.To(() => 0f, x =>
             {
-                Debug.Log("вызов анимации");
-            }
-            _tilemap.SetTile(localPosition, _tileSets[_currentTileSetIndex].AnimatedFlipToEmpty);
+                // Генерируем случайные смещения (эмуляция DOShakePosition)
+                float shakeX = Random.Range(-shakeStrength, shakeStrength);
+                float shakeY = Random.Range(-shakeStrength, shakeStrength);
+                Matrix4x4 shakeMatrix = Matrix4x4.TRS(new Vector3(shakeX, shakeY, 0), Quaternion.identity, Vector3.one);
+                _tilemap.SetTransformMatrix(localPosition, shakeMatrix);
+                _tilemap.RefreshTile(localPosition);
+            }, 1f, duration).SetEase(Ease.Linear).AsyncWaitForCompletion();
+
+            // Анимация увеличения (взрыв)
+            //await DOTween.To(() => 1f, x => {
+            //    Matrix4x4 explodeMatrix = Matrix4x4.TRS(Vector3.zero, Quaternion.identity, new Vector3(x * 3f, x * 3f, 1f));
+            //    _tilemap.SetTransformMatrix(localPosition, explodeMatrix);
+            //    _tilemap.RefreshTile(localPosition);
+            //}, 1f, 0.15f).SetEase(Ease.InOutExpo).AsyncWaitForCompletion();
+
+            // **Ставим мину статичным тайлом**
+            TileBase mineTile = GetFinalTile(cell);
+            _tilemap.SetTile(localPosition, mineTile);
+            _tilemap.SetTransformMatrix(localPosition, Matrix4x4.identity);
             _tilemap.RefreshTile(localPosition);
-            //Debug.Log($"Устанавливаем анимированный тайл на {localPosition}");
-                        
-            var animatedTile = _tileSets[_currentTileSetIndex].AnimatedFlipToEmpty;
-            int frameCount = animatedTile.m_AnimatedSprites.Length; // Количество кадров
-            float animationSpeed = animatedTile.m_MaxSpeed; // FPS
 
-            int animationTimeMs = (int)((frameCount / animationSpeed) * 1000);
+            return;
+        }
 
-            //Debug.Log($"{animationTimeMs}");
-            // Ждём время анимации
-            await UniTask.Delay(animationTimeMs, cancellationToken: this.GetCancellationTokenOnDestroy());
+        // Если ячейка раскрыта и требует анимации, и анимация ещё не была проиграна:
+        if (cell.IsRevealed && (cell.CellState == CellState.Empty || cell.CellState == CellState.Number) && !cell.HasAnimated)
+        {
+            cell.HasAnimated = true; // Помечаем, что анимация уже была
+                                     // Начинаем анимацию увеличения тайла из нулевого масштаба до нормального
 
-            // После анимации ставим обычный тайл в зависимости от типа ячейки
+            // Начальная матрица: масштаб 0 (тайл "невидим")
+            Matrix4x4 startMatrix = Matrix4x4.TRS(Vector3.zero, Quaternion.identity, Vector3.zero);
+            // Конечная матрица: нормальный масштаб (Vector3.one)
+            Matrix4x4 endMatrix = Matrix4x4.TRS(Vector3.zero, Quaternion.identity, Vector3.one);
+
+            // Устанавливаем начальную матрицу
+            _tilemap.SetTransformMatrix(localPosition, startMatrix);
+            _tilemap.RefreshTile(localPosition);
+
+            float duration = 0.15f; // Длительность анимации (настраивается по желанию)
+
+            // Анимируем масштаб (поскольку DOTween напрямую не интерполирует матрицы,
+            // интерполируем скалярное значение от 0 до 1, и каждый раз пересчитываем матрицу)
+            float currentScale = 0.3f;
+            await DOTween.To(() => currentScale, x => {
+                currentScale = x;
+                Matrix4x4 currentMatrix = Matrix4x4.TRS(Vector3.zero, Quaternion.identity, new Vector3(currentScale, currentScale, 1f));
+                _tilemap.SetTransformMatrix(localPosition, currentMatrix);
+                _tilemap.RefreshTile(localPosition);
+            }, 1f, duration).AsyncWaitForCompletion();
+
+            // По окончании анимации устанавливаем финальный статичный тайл и сбрасываем матрицу в Identity
             TileBase staticTile = GetFinalTile(cell);
             _tilemap.SetTile(localPosition, staticTile);
+            _tilemap.SetTransformMatrix(localPosition, Matrix4x4.identity);
             _tilemap.RefreshTile(localPosition);
-            //Debug.Log($"Устанавливаем статичный тайл на {localPosition}");
         }
         else
         {
-            // Для остальных случаев просто ставим обычный тайл
+            // Для остальных случаев просто обновляем тайл
             _tilemap.SetTile(localPosition, GetTile(cell));
             _tilemap.RefreshTile(localPosition);
-        }    */
+        }
     }
 
     public void GenerateNumbersInSector()
@@ -630,7 +670,8 @@ public class Sector : MonoBehaviour
                 IsFlagged = cell.IsFlagged,
                 IsExploded = cell.IsExploded,
                 Chorded = cell.Chorded,
-                CellNumber = cell.CellNumber,                
+                CellNumber = cell.CellNumber,
+                HasAnimated = cell.HasAnimated,
             };
 
             //Debug.Log($"Cell position {cell.GlobalCellPosition}");
@@ -676,6 +717,7 @@ public class Sector : MonoBehaviour
                     cell.IsActive = cellData.IsActive;
                     cell.IsAward = cellData.IsAward;
                     cell.CellNumber = cellData.CellNumber;
+                    cell.HasAnimated = cellData.HasAnimated;
 
                     UpdateTile(cell.GlobalCellPosition, cell);
                     //Debug.Log($"Cell position {cell.GlobalCellPosition} CellState {cell.CellState} cell.IsRevealed {cell.IsRevealed}, IsFlagged {cell.IsFlagged}, IsAward {cell.IsAward}");
