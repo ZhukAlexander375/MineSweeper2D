@@ -1,7 +1,5 @@
 using DG.Tweening;
-using System;
 using System.Collections;
-using System.Numerics;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -65,6 +63,7 @@ public class MainMenuUI : MonoBehaviour
     [SerializeField] private GameObject _startTutorialObject;
 
     private Tween _bonusButtonTween;
+    private Tween _bonusButtonRotationTween;
 
     private void Awake()
     {
@@ -459,11 +458,17 @@ public class MainMenuUI : MonoBehaviour
 
     private void StartBonusButtonAnimation()
     {
-        if (_bonusButtonTween != null) _bonusButtonTween.Kill(); // Убиваем старую анимацию
+        StopBonusButtonAnimation();
 
-        _bonusButtonTween = _bonusButton.transform.DOScale(1.25f, 0.75f)
+        _bonusButtonTween = _bonusButton.transform.DOScale(1.33f, 0.5f)
             .SetLoops(-1, LoopType.Yoyo)
             .SetEase(Ease.InOutQuad);
+
+        _bonusButtonRotationTween = _bonusButton.transform.DORotate(new Vector3(0, 0, 10), 0.75f)
+            .From(new Vector3(0, 0, -10))
+            .SetLoops(-1, LoopType.Yoyo)
+            .SetEase(Ease.InOutQuad);
+
 
         /*if (_bonusButton.TryGetComponent(out Image buttonImage))
         {
@@ -485,8 +490,11 @@ public class MainMenuUI : MonoBehaviour
         if (_bonusButtonTween != null)
         {
             _bonusButtonTween.Kill();
+            _bonusButtonRotationTween.Kill();
             _bonusButton.transform.localScale = Vector3.one;
+            _bonusButton.transform.rotation = Quaternion.identity;
             _bonusButtonTween = null;
+            _bonusButtonRotationTween = null;
         }
     }
 
@@ -508,7 +516,7 @@ public class MainMenuUI : MonoBehaviour
         SignalBus.Subscribe<OnBonusGrantSignal>(OnBonusAvailable);
         SignalBus.Subscribe<OnGameRewardSignal>(OnBonusCollected);
 
-        //OnBonusAvailable(new OnBonusGrantSignal(RewardManager.Instance.CurrentReward));
+        OnBonusAvailable(new OnBonusGrantSignal(RewardManager.Instance.CurrentReward));
     }
 
     private void OnDestroy()

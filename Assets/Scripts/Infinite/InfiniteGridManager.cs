@@ -512,7 +512,7 @@ public class InfiniteGridManager : MonoBehaviour
             Mathf.FloorToInt(worldPosition.x / _sectorSize),
             Mathf.FloorToInt(worldPosition.y / _sectorSize)
         );
-
+                
         if (_sectors.TryGetValue(sectorPosition, out Sector clickedSector))
         {
             Vector2 localPositionInChunk = worldPosition - new Vector3(sectorPosition.x * _sectorSize, sectorPosition.y * _sectorSize, 0);
@@ -593,12 +593,9 @@ public class InfiniteGridManager : MonoBehaviour
 
             default:
                 cell.IsRevealed = true;
-
                 UpdateOpenedCells();
                 //SignalBus.Fire<CellRevealedSignal>();
-
                 cell.IsActive = true;
-
                 //CheckWinCondition();
                 SectorCompletionCheck(cell.Sector);             //check sector of this cell                
                 break;
@@ -1087,7 +1084,6 @@ public class InfiniteGridManager : MonoBehaviour
                 break;
         }
     }
-
 
     public void LoadSavedGame()
     {

@@ -13,5 +13,5 @@ MonoBehaviour:
   m_Name: SimpleInfiniteMines
   m_EditorClassIdentifier: 
   AbsoluteMax: 37
-  AbsoluteMin: 6
+  AbsoluteMin: 8
   DifficultyStepCoef: 1.25

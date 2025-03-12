@@ -1,3 +1,4 @@
+using DG.Tweening;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -52,6 +53,88 @@ public class Board : MonoBehaviour
         }
     }
 
+    public async void UpdateTile(Vector3Int localPosition, BaseCell cell)
+    {
+        if (Tilemap == null) return;
+
+        Tilemap.SetTile(localPosition, GetTile(cell));
+        Tilemap.RefreshTile(localPosition);
+
+        if (cell.IsRevealed && cell.CellState == CellState.Mine && !cell.HasAnimated)
+        {
+            cell.HasAnimated = true;
+
+            float duration = 0.7f; // Длительность тряски
+            float shakeStrength = 0.2f; // Сила тряски
+
+            await DOTween.To(() => 0f, x =>
+            {
+                // Генерируем случайные смещения (эмуляция DOShakePosition)
+                float shakeX = Random.Range(-shakeStrength, shakeStrength);
+                float shakeY = Random.Range(-shakeStrength, shakeStrength);
+                Matrix4x4 shakeMatrix = Matrix4x4.TRS(new Vector3(shakeX, shakeY, 0), Quaternion.identity, Vector3.one);
+                Tilemap.SetTransformMatrix(localPosition, shakeMatrix);
+                Tilemap.RefreshTile(localPosition);
+            }, 1f, duration).SetEase(Ease.Linear).AsyncWaitForCompletion();
+
+            // Анимация увеличения (взрыв)
+            //await DOTween.To(() => 1f, x => {
+            //    Matrix4x4 explodeMatrix = Matrix4x4.TRS(Vector3.zero, Quaternion.identity, new Vector3(x * 3f, x * 3f, 1f));
+            //    _tilemap.SetTransformMatrix(localPosition, explodeMatrix);
+            //    _tilemap.RefreshTile(localPosition);
+            //}, 1f, 0.15f).SetEase(Ease.InOutExpo).AsyncWaitForCompletion();
+
+            // **Ставим статичным тайлом**
+            TileBase mineTile = GetFinalTile(cell);
+            Tilemap.SetTile(localPosition, mineTile);
+            Tilemap.SetTransformMatrix(localPosition, Matrix4x4.identity);
+            Tilemap.RefreshTile(localPosition);
+
+            return;
+        }
+
+        if (cell.IsRevealed && (cell.CellState == CellState.Empty || cell.CellState == CellState.Number) && !cell.HasAnimated)
+        {
+            cell.HasAnimated = true;
+
+            TileBase staticTile = GetFinalTile(cell);
+            Tilemap.SetTile(localPosition, staticTile);
+
+            // Начальная матрица: масштаб 0 (тайл "невидим")
+            Matrix4x4 startMatrix = Matrix4x4.TRS(Vector3.zero, Quaternion.identity, Vector3.zero);
+
+            // Устанавливаем начальную матрицу
+            Tilemap.SetTransformMatrix(localPosition, startMatrix);
+            Tilemap.RefreshTile(localPosition);
+
+            float duration = 0.2f; // Длительность анимации (настраивается по желанию)
+
+            // Анимируем масштаб (поскольку DOTween напрямую не интерполирует матрицы,
+            // интерполируем скалярное значение от 0 до 1, и каждый раз пересчитываем матрицу)
+            float currentScale = 0.3f;
+
+            await DOTween.To(() => currentScale, x => {
+                currentScale = x;
+                Matrix4x4 currentMatrix = Matrix4x4.TRS(Vector3.zero, Quaternion.identity, new Vector3(currentScale, currentScale, 1f));
+                Tilemap.SetTransformMatrix(localPosition, currentMatrix);
+                Tilemap.RefreshTile(localPosition);
+            }, 1f, duration).AsyncWaitForCompletion();
+
+            // По окончании анимации устанавливаем финальный статичный тайл и сбрасываем матрицу в Identity
+            //TileBase staticTile = GetFinalTile(cell);
+            //_tilemap.SetTile(localPosition, staticTile);
+
+            Tilemap.SetTransformMatrix(localPosition, Matrix4x4.identity);
+            Tilemap.RefreshTile(localPosition);
+        }
+        else
+        {
+            // Для остальных случаев просто обновляем тайл
+            Tilemap.SetTile(localPosition, GetTile(cell));
+            Tilemap.RefreshTile(localPosition);
+        }
+    }
+
     public void Draw(CellGrid grid)
     {
         if (ThemeManager.Instance != null)
@@ -59,7 +142,6 @@ public class Board : MonoBehaviour
             _currentTileSetIndex = ThemeManager.Instance.CurrentThemeIndex;
         }        
 
-        // ОЧИЩЕНИЕ!!!!!!!!!!!!!!!!!!!!!!!! ЧЕК ПРИ СОХРАНЕНИИ ЧТО ДЕЛАТЬ???????????
         ClearGrid();
 
         if (grid == null)
@@ -85,7 +167,7 @@ public class Board : MonoBehaviour
     {
         if (cell.IsRevealed)
         {
-            return GetRevealedTile(cell);
+            return GetFinalTile(cell);
         }
         else if (cell.IsFlagged)
         {
@@ -97,7 +179,7 @@ public class Board : MonoBehaviour
         }
     }
 
-    private Tile GetRevealedTile(BaseCell cell)
+    private Tile GetFinalTile(BaseCell cell)
     {
         switch (cell.CellState)
         {

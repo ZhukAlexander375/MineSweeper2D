@@ -125,14 +125,20 @@ public class Sector : MonoBehaviour
                 return;
             }
 
-            var clickedCell = _cells[new Vector3Int(cellX, cellY, 0)];
+            //var clickedCell = _cells[new Vector3Int(cellX, cellY, 0)];
+
+            Vector3Int cellKey = new Vector3Int(cellX, cellY, 0);
+                        
+            if (!_cells.TryGetValue(cellKey, out var clickedCell))
+            {
+                Debug.LogWarning($"Attempting to click on a non-existent cell {cellKey} in sector. Total cells in the sector: {_cells.Count}");
+                return;
+            }
 
             if (!_infiniteGridManager.IsFirstClick)
             {
                 _infiniteGridManager.GenerateFirstSectors(this, clickedCell);
-
                 _infiniteGridManager.Reveal(this, clickedCell);
-
                 clickedCell.IsActive = true; // pri samom pervom click 
             }
 
@@ -226,7 +232,7 @@ public class Sector : MonoBehaviour
         }
     }
 
-    public void DrawSector()
+    /*public void DrawSector()
     {
         if (_tilemap == null)
         {
@@ -247,14 +253,13 @@ public class Sector : MonoBehaviour
         }
 
         _tilemap.RefreshAllTiles();
-    }
+    }*/
 
     public async void UpdateTile(Vector3Int globalPosition, InfiniteCell cell)
     {
         if (_tilemap == null) return;
         Vector3Int localPosition = GetLocalPosition(globalPosition);
 
-        // Обновляем тайл обычной логикой (если требуется)
         _tilemap.SetTile(localPosition, GetTile(cell));
         _tilemap.RefreshTile(localPosition);
 
@@ -282,7 +287,7 @@ public class Sector : MonoBehaviour
             //    _tilemap.RefreshTile(localPosition);
             //}, 1f, 0.15f).SetEase(Ease.InOutExpo).AsyncWaitForCompletion();
 
-            // **Ставим мину статичным тайлом**
+            // **Ставим статичным тайлом**
             TileBase mineTile = GetFinalTile(cell);
             _tilemap.SetTile(localPosition, mineTile);
             _tilemap.SetTransformMatrix(localPosition, Matrix4x4.identity);
@@ -291,26 +296,26 @@ public class Sector : MonoBehaviour
             return;
         }
 
-        // Если ячейка раскрыта и требует анимации, и анимация ещё не была проиграна:
         if (cell.IsRevealed && (cell.CellState == CellState.Empty || cell.CellState == CellState.Number) && !cell.HasAnimated)
         {
-            cell.HasAnimated = true; // Помечаем, что анимация уже была
-                                     // Начинаем анимацию увеличения тайла из нулевого масштаба до нормального
+            cell.HasAnimated = true;
+
+            TileBase staticTile = GetFinalTile(cell);
+            _tilemap.SetTile(localPosition, staticTile);
 
             // Начальная матрица: масштаб 0 (тайл "невидим")
-            Matrix4x4 startMatrix = Matrix4x4.TRS(Vector3.zero, Quaternion.identity, Vector3.zero);
-            // Конечная матрица: нормальный масштаб (Vector3.one)
-            Matrix4x4 endMatrix = Matrix4x4.TRS(Vector3.zero, Quaternion.identity, Vector3.one);
+            Matrix4x4 startMatrix = Matrix4x4.TRS(Vector3.zero, Quaternion.identity, Vector3.zero);            
 
             // Устанавливаем начальную матрицу
             _tilemap.SetTransformMatrix(localPosition, startMatrix);
             _tilemap.RefreshTile(localPosition);
 
-            float duration = 0.15f; // Длительность анимации (настраивается по желанию)
+            float duration = 0.2f; // Длительность анимации (настраивается по желанию)
 
             // Анимируем масштаб (поскольку DOTween напрямую не интерполирует матрицы,
             // интерполируем скалярное значение от 0 до 1, и каждый раз пересчитываем матрицу)
             float currentScale = 0.3f;
+
             await DOTween.To(() => currentScale, x => {
                 currentScale = x;
                 Matrix4x4 currentMatrix = Matrix4x4.TRS(Vector3.zero, Quaternion.identity, new Vector3(currentScale, currentScale, 1f));
@@ -319,8 +324,9 @@ public class Sector : MonoBehaviour
             }, 1f, duration).AsyncWaitForCompletion();
 
             // По окончании анимации устанавливаем финальный статичный тайл и сбрасываем матрицу в Identity
-            TileBase staticTile = GetFinalTile(cell);
-            _tilemap.SetTile(localPosition, staticTile);
+            //TileBase staticTile = GetFinalTile(cell);
+            //_tilemap.SetTile(localPosition, staticTile);
+
             _tilemap.SetTransformMatrix(localPosition, Matrix4x4.identity);
             _tilemap.RefreshTile(localPosition);
         }
@@ -337,7 +343,7 @@ public class Sector : MonoBehaviour
         _infiniteGridManager.GenerateNumbers(this);
     }
 
-    private TileBase GetTile(InfiniteCell cell)
+    private Tile GetTile(InfiniteCell cell)
     { 
         if (cell.IsRevealed)
         {
@@ -423,20 +429,17 @@ public class Sector : MonoBehaviour
         //Debug.Log($"Сектор завершён: {name}");        
     }
 
-    private TileBase GetFinalTile(InfiniteCell cell)
+    private Tile GetFinalTile(InfiniteCell cell)
     {
         switch (cell.CellState)
         {
-            case CellState.Empty:
-                //AnimateTileFlip(GetLocalPosition(cell.GlobalCellPosition)).Forget();
+            case CellState.Empty:                
                 return _tileSets[_currentTileSetIndex].TileEmpty;
 
             case CellState.Mine: 
                 return cell.IsExploded ? _tileSets[_currentTileSetIndex].TileExploded : _tileSets[_currentTileSetIndex].TileMine;
 
-            case CellState.Number:
-                //AnimateTileFlip(GetLocalPosition(cell.GlobalCellPosition)).Forget();
-                //Debug.Log($"Устанавливаем обычный тайл");
+            case CellState.Number:               
                 return GetNumberTile(cell);
 
             default: return null;

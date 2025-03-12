@@ -328,6 +328,7 @@ public class SimpleGridManager : MonoBehaviour
         {
             case CellState.Mine:
                 UpdateExplodedMinesCount();
+                SignalBus.Fire<OnMineRevealedSignal>();
                 Explode(cell);
                 SaveCurrentGame();
                 break;
@@ -344,7 +345,8 @@ public class SimpleGridManager : MonoBehaviour
                 break;
         }
 
-        _board.Draw(_cellGrid);
+        _board.UpdateTile(cell.GlobalCellPosition, cell);
+        //_board.Draw(_cellGrid);
     }
 
     private IEnumerator Flood(BaseCell cell)
@@ -360,9 +362,10 @@ public class SimpleGridManager : MonoBehaviour
             UpdateOpenedCells();
         }
 
-        _board.Draw(_cellGrid);
+        //_board.Draw(_cellGrid);
+        _board.UpdateTile(cell.GlobalCellPosition, cell);
 
-        yield return null;
+        yield return new WaitForSeconds(0.05f);
 
         if (cell.CellState == CellState.Empty)
         {
@@ -414,6 +417,8 @@ public class SimpleGridManager : MonoBehaviour
         bool isPlacingFlag = !cell.IsFlagged;
         cell.IsFlagged = !cell.IsFlagged;
 
+        _board.UpdateTile(cell.GlobalCellPosition, cell);
+
         UpdateFlagsCount(isPlacingFlag);
         SignalBus.Fire(new FlagPlacingSignal(isPlacingFlag));
 
@@ -424,7 +429,7 @@ public class SimpleGridManager : MonoBehaviour
             VibrateOnAction();
         }
 
-        _board.Draw(_cellGrid);
+        //_board.Draw(_cellGrid);
         CheckWinCondition();
     }
 
@@ -498,7 +503,7 @@ public class SimpleGridManager : MonoBehaviour
             }
         }
 
-        _board.Draw(_cellGrid);
+        //_board.Draw(_cellGrid);
     }
 
     private async void Explode(BaseCell cell)

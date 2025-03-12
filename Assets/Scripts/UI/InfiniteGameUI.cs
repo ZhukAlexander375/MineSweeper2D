@@ -22,6 +22,7 @@ public class InfiniteGameUI : MonoBehaviour
 
     [Header("Texts")]
     [SerializeField] private TMP_Text _awardText;
+    [SerializeField] private TMP_Text _awardPopupText;
     [SerializeField] private TMP_Text _flagsTexts;
     [SerializeField] private TMP_Text _gameModeText;
     [SerializeField] private TMP_Text _timerText;
@@ -33,9 +34,9 @@ public class InfiniteGameUI : MonoBehaviour
     //[Header("Toggle")]
     //[SerializeField] private Toggle _testToggle;
 
-    private InfiniteGridManager _infiniteGridManager;
-    private Tween _fadeTween;
-    private bool _isShowing;    
+    private InfiniteGridManager _infiniteGridManager;    
+    private bool _isShowing;
+    private Tween _awardTween;
 
     private void Awake()
     {       
@@ -57,6 +58,7 @@ public class InfiniteGameUI : MonoBehaviour
         UpdateTexts();
         CheckReplayLevelButtonInteractable(new OnGameRewardSignal());
 
+        _awardPopupText.gameObject.SetActive(false);
         //_testToggle.onValueChanged.AddListener(OnToggleChanged);
     }
 
@@ -171,7 +173,31 @@ public class InfiniteGameUI : MonoBehaviour
 
     private void UpdateAwardUI(OnGameRewardSignal signal)
     {
-        _awardText.text = PlayerProgress.Instance.TotalReward.ToString();
+        _awardTween?.Kill();
+
+        string sign = signal.Count >= 0 ? "+" : "-";
+        _awardPopupText.text = $"{sign}{Mathf.Abs(signal.Count)}";
+
+        _awardPopupText.color = new Color(_awardPopupText.color.r, _awardPopupText.color.g, _awardPopupText.color.b, 1);
+        _awardPopupText.gameObject.SetActive(true);
+
+        Vector3 startPosition = _awardPopupText.transform.position; // Исходная позиция
+        Vector3 targetPosition = _awardText.transform.position; // Конечная позиция
+
+        Sequence sequence = DOTween.Sequence();
+
+        sequence.AppendInterval(1.5f) // Ждем 1.5 секунды
+            .Append(_awardPopupText.transform.DOMove(targetPosition, 0.5f).SetEase(Ease.InOutQuad)) // Перемещение
+            .Join(_awardPopupText.DOFade(0, 0.5f)) // Одновременно уменьшаем прозрачность
+            .OnComplete(() =>
+            {
+                _awardText.text = PlayerProgress.Instance.TotalReward.ToString(); // Обновляем текст награды
+                _awardPopupText.transform.position = startPosition; // Возвращаем на место
+                _awardPopupText.color = new Color(_awardPopupText.color.r, _awardPopupText.color.g, _awardPopupText.color.b, 0); // Сбрасываем альфу
+                _awardPopupText.gameObject.SetActive(false); // Прячем объект
+            });
+
+        _awardTween = sequence; // Сохраняем текущую анимацию в переменную
     }
 
     private void UpdateFlagText(FlagPlacingSignal signal)
@@ -288,8 +314,7 @@ public class InfiniteGameUI : MonoBehaviour
         SignalBus.Subscribe<GameOverSignal>(OpenLoseScreen);
         SignalBus.Subscribe<WrongСlickSignal>(ShowPopup);
 
-        SetReplayButton();
-        
+        SetReplayButton();        
     }
     private void OnDisable()
     {
