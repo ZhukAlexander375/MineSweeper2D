@@ -1,11 +1,13 @@
 using DG.Tweening;
+using MoreMountains.NiceVibrations;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using Random = UnityEngine.Random;
+using MoreMountains.NiceVibrations;
+using System;
 
 
 public class InfiniteGridManager : MonoBehaviour
@@ -578,6 +580,11 @@ public class InfiniteGridManager : MonoBehaviour
             case CellState.Mine:
                 if (!cell.IsExploded)
                 {
+                    if (GameSettingsManager.Instance.IsVibrationEnabled)
+                    {
+                        VibrateOnAction(cell);
+                    }
+
                     SignalBus.Fire<OnMineRevealedSignal>();
                     CheckLoseConditions(cell.Sector, cell);     //check sector of this cell
                 }
@@ -617,6 +624,11 @@ public class InfiniteGridManager : MonoBehaviour
 
         cell.Sector.UpdateTile(cell.GlobalCellPosition, cell);
 
+        if (GameSettingsManager.Instance.IsVibrationEnabled)
+        {
+            VibrateOnAction(cell);
+        }
+
         UpdateFlagsCount(isPlacingFlag);
         SignalBus.Fire(new FlagPlacingSignal(isPlacingFlag));
 
@@ -631,10 +643,10 @@ public class InfiniteGridManager : MonoBehaviour
         _statisticController.SetLastClickPosition(_lastClickPosition);
 
         // Вибрация и перерисовка
-        if (GameSettingsManager.Instance.IsVibrationEnabled)
-        {
-            VibrateOnAction();
-        }
+        //if (GameSettingsManager.Instance.IsVibrationEnabled)
+        //{
+            //VibrateOnAction();
+        //}
         
         //RedrawSectors();
 
@@ -648,12 +660,22 @@ public class InfiniteGridManager : MonoBehaviour
         Destroy(particleInstance, 2f);
     }
 
-    private void VibrateOnAction()
+    private void VibrateOnAction(InfiniteCell cell)
     {
 #if UNITY_ANDROID || UNITY_IOS
-        Handheld.Vibrate();
+
+        //if (cell.IsExploded) MMVibrationManager.Haptic(HapticTypes.Warning);
+
+        if (cell.IsExploded) Handheld.Vibrate();
+
+        if (cell.IsFlagged) MMVibrationManager.Haptic(HapticTypes.RigidImpact);
+        if (!cell.IsFlagged) MMVibrationManager.Haptic(HapticTypes.SoftImpact);
+        else return;
+        
+        //MMVibrationManager.Vibrate();
+        //Handheld.Vibrate();
 #endif
-    }
+        }
 
     public void Unchord(Sector currentSector, InfiniteCell currentCell)
     {
