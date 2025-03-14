@@ -577,7 +577,12 @@ public class InfiniteGridManager : MonoBehaviour
         {
             case CellState.Mine:
                 if (!cell.IsExploded)
-                {
+                {                    
+                    if (GameSettingsManager.Instance.IsVibrationEnabled)
+                    {
+                        VibrateOnAction();
+                    }
+
                     SignalBus.Fire<OnMineRevealedSignal>();
                     CheckLoseConditions(cell.Sector, cell);     //check sector of this cell
                 }
@@ -628,13 +633,7 @@ public class InfiniteGridManager : MonoBehaviour
         InstantiateParticleAtCell(isPlacingFlag ? _flagPlaceParticle : _flagRemoveParticle, cell);
 
         _lastClickPosition = cell.GlobalCellPosition;
-        _statisticController.SetLastClickPosition(_lastClickPosition);
-
-        // Вибрация и перерисовка
-        if (GameSettingsManager.Instance.IsVibrationEnabled)
-        {
-            VibrateOnAction();
-        }
+        _statisticController.SetLastClickPosition(_lastClickPosition);               
         
         //RedrawSectors();
 

@@ -516,7 +516,7 @@ public class MainMenuUI : MonoBehaviour
         SignalBus.Subscribe<OnBonusGrantSignal>(OnBonusAvailable);
         SignalBus.Subscribe<OnGameRewardSignal>(OnBonusCollected);
 
-        OnBonusAvailable(new OnBonusGrantSignal(RewardManager.Instance.CurrentReward));
+        //OnBonusAvailable(new OnBonusGrantSignal(RewardManager.Instance.CurrentReward));
     }
 
     private void OnDestroy()
