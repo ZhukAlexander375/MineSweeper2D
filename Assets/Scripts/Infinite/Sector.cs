@@ -149,7 +149,7 @@ public class Sector : MonoBehaviour
 
             else if (!clickedCell.IsActive)
             {
-                SignalBus.Fire(new Wrong—lickSignal());
+                SignalBus.Fire(new WrongClickSignal());
             }
             
             //_gridManager.Reveal(this, clickedCell);

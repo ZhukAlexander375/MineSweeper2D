@@ -289,7 +289,7 @@ public class InfiniteGameUI : MonoBehaviour
         SignalBus.Fire(new OnVisibleMinesSignal(isOn));
     }*/
 
-    public void ShowPopup(WrongÑlickSignal signal)
+    public void ShowPopup(WrongClickSignal signal)
     {
         if (_isShowing) return; // Åñëè popup óæå àêòèâåí, èãíîðèðóåì âûçîâ
 
@@ -312,7 +312,7 @@ public class InfiniteGameUI : MonoBehaviour
         SignalBus.Subscribe<FlagPlacingSignal>(UpdateFlagText);
         SignalBus.Subscribe<LoadCompletedSignal>(UpdateTexts);
         SignalBus.Subscribe<GameOverSignal>(OpenLoseScreen);
-        SignalBus.Subscribe<WrongÑlickSignal>(ShowPopup);
+        SignalBus.Subscribe<WrongClickSignal>(ShowPopup);
 
         SetReplayButton();        
     }
@@ -323,7 +323,7 @@ public class InfiniteGameUI : MonoBehaviour
         SignalBus.Unsubscribe<LoadCompletedSignal>(UpdateTexts);
         SignalBus.Unsubscribe<GameOverSignal>(OpenLoseScreen);
         SignalBus.Unsubscribe<OnGameRewardSignal>(CheckReplayLevelButtonInteractable);
-        SignalBus.Unsubscribe<WrongÑlickSignal>(ShowPopup);
+        SignalBus.Unsubscribe<WrongClickSignal>(ShowPopup);
     }
 
 }

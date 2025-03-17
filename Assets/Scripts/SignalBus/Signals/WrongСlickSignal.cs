@@ -1,2 +1,2 @@
 
-public struct WrongСlickSignal { }
+public struct WrongClickSignal { }
