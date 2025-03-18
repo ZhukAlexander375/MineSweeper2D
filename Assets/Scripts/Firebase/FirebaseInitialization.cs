@@ -28,7 +28,7 @@ public class FirebaseInitializer : MonoBehaviour
                 // Create and hold a reference to your FirebaseApp,
                 // where app is a Firebase.FirebaseApp property of your application class.
                 var app = Firebase.FirebaseApp.DefaultInstance;
-
+                Crashlytics.ReportUncaughtExceptionsAsFatal = true;
                 // Set a flag here to indicate whether Firebase is ready to use by your app.
             }
             else
