@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.Tilemaps;
 using Cysharp.Threading.Tasks;
 using DG.Tweening;
+using Zenject;
 
 public class Sector : MonoBehaviour
 {
@@ -31,8 +32,23 @@ public class Sector : MonoBehaviour
     private int _currentTileSetIndex;
     private int _currentRevealedCells;
     private int _totalCellsCount;
-    
-    
+
+
+    private ThemeManager _themeManager;
+    private PlayerProgress _playerProgress;
+    private GameManager _gameManager;
+    private SceneLoader _sceneLoader;
+
+    [Inject]
+    private void Construct(ThemeManager themeManager, PlayerProgress playerProgress, GameManager gameManager, SceneLoader sceneLoader)
+    {
+        _themeManager = themeManager;
+        _playerProgress = playerProgress;
+        _gameManager = gameManager;
+        _sceneLoader = sceneLoader;
+    }
+
+
     private void Start()
     {
         _tilemap = GetComponent<Tilemap>();        
@@ -43,15 +59,20 @@ public class Sector : MonoBehaviour
             GenerateAward();
         }
         //DrawBorders();
-        
-        _sectorUi.SetSector(this);
+
+        SectorUIInit();
         CheckExplodedSector();
         SectorCompletionCheck();
 
         SignalBus.Subscribe<OnCellActiveSignal>(SectorActivate);
         SignalBus.Subscribe<ThemeChangeSignal>(OnThemeChanged);
         //SignalBus.Subscribe<OnVisibleMinesSignal>(ShowMines);
-        TryApplyTheme(ThemeManager.Instance.CurrentThemeIndex);
+        TryApplyTheme(_themeManager.CurrentThemeIndex);
+    }
+
+    private void SectorUIInit()
+    {
+        _sectorUi.SectorInit(this, _themeManager, _playerProgress, _gameManager, _sceneLoader);
     }
 
     private void DrawBorders()      //FOR CHANGE COLOR MB
@@ -149,7 +170,7 @@ public class Sector : MonoBehaviour
 
             else if (!clickedCell.IsActive)
             {
-                SignalBus.Fire(new Wrong—lickSignal());
+                SignalBus.Fire(new WrongClickSignal());
             }
             
             //_gridManager.Reveal(this, clickedCell);
@@ -292,7 +313,7 @@ public class Sector : MonoBehaviour
             _tilemap.SetTile(localPosition, mineTile);
             _tilemap.SetTransformMatrix(localPosition, Matrix4x4.identity);
             _tilemap.RefreshTile(localPosition);
-
+            //Debug.Log("+1");
             return;
         }
 
@@ -329,6 +350,7 @@ public class Sector : MonoBehaviour
 
             _tilemap.SetTransformMatrix(localPosition, Matrix4x4.identity);
             _tilemap.RefreshTile(localPosition);
+            //Debug.Log("+1");
         }
         else
         {
@@ -513,6 +535,12 @@ public class Sector : MonoBehaviour
         }
     }
 
+
+    public void NotifyThemeChange()
+    {
+        SignalBus.Fire(new ThemeChangeSignal(_themeManager.CurrentTheme, _themeManager.CurrentThemeIndex));
+    }
+
     public void TryApplyTheme(int themeIndex)
     {
         if (themeIndex < 0 || themeIndex >= _tileSets.Count)
@@ -569,7 +597,7 @@ public class Sector : MonoBehaviour
 
     public void OpenSector(int priseCount)
     {
-        if (PlayerProgress.Instance.CheckAwardCount(priseCount))
+        if (_playerProgress.CheckAwardCount(priseCount))
         {
             IsExploded = false;
             SignalBus.Fire(new OnGameRewardSignal(0, -priseCount));

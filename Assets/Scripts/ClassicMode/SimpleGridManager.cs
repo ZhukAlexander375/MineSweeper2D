@@ -2,6 +2,7 @@ using Cysharp.Threading.Tasks;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using Zenject;
 
 [DefaultExecutionOrder(-1)]
 public class SimpleGridManager : MonoBehaviour
@@ -33,26 +34,29 @@ public class SimpleGridManager : MonoBehaviour
     private bool _flagSet;
     private float _lastClickTime = -1f;
     private const float DoubleClickThreshold = 0.3f; // Порог для двойного клика (в секундах)
-
-    private SaveManager _saveManager;
-    private PlayerProgress _playerProgress;
-    private GameManager _gameManager;
+        
     private IStatisticController _statisticController;
 
     //private float _lastCameraInteractionTime = 0f;
     private bool IsInputLocked;
 
-    private void Awake()
-    {
+    private SaveManager _saveManager;
+    private PlayerProgress _playerProgress;
+    private GameManager _gameManager;
+    private GameSettingsManager _gameSettingsManager;
 
+    [Inject]
+    private void Construct(SaveManager saveManager, PlayerProgress playerProgress, GameManager gameManager, GameSettingsManager gameSettingsManager)
+    {
+        _saveManager = saveManager;
+        _playerProgress = playerProgress;
+        _gameManager = gameManager;
+        _gameSettingsManager = gameSettingsManager;
     }
 
     private void Start()
     {
-        _saveManager = SaveManager.Instance;
-        _playerProgress = PlayerProgress.Instance;
-        _gameManager = GameManager.Instance;
-        _statisticController = GameManager.Instance.CurrentStatisticController;
+        _statisticController = _gameManager.CurrentStatisticController;
 
         CheckGameStart();
     }
@@ -98,36 +102,42 @@ public class SimpleGridManager : MonoBehaviour
         {
             return;
         }
+        float currentTime = Time.time;
 
         if (Input.GetMouseButtonDown(0))
         {
-            float currentTime = Time.time;
-
             // Проверка на двойной клик
-            if (currentTime - _lastClickTime <= DoubleClickThreshold)
+            if (_gameSettingsManager.OnDoubleClick)
             {
-                Unchord();
-                _lastClickTime = -1f; // Сброс времени клика
+                if (currentTime - _lastClickTime <= DoubleClickThreshold)
+                {
+                    Unchord();
+                    _lastClickTime = 0; // Сброс времени клика
+                    return;
+                }
             }
-            else
-            {
-                _clickStartTime = currentTime;
-                _isHolding = true;
-                _flagSet = false;
-                _lastClickTime = currentTime; // Обновляем время последнего клика
-            }
+
+            _clickStartTime = currentTime;
+            _isHolding = true;
+            _flagSet = false;
+            _lastClickTime = currentTime; // Обновляем время последнего клика
         }
 
         if (Input.GetMouseButtonUp(0))
         {
-            if (!_flagSet && _isHolding && Time.time - _clickStartTime < GameSettingsManager.Instance.HoldTime)
+            if (!_flagSet && _isHolding && Time.time - _clickStartTime < _gameSettingsManager.HoldTime)
             {
                 Reveal();
             }
             _isHolding = false;
+
+            if (!_gameSettingsManager.OnDoubleClick)
+            {
+                Unchord();
+            }
         }
 
-        if (_isHolding && !_flagSet && Time.time - _clickStartTime >= GameSettingsManager.Instance.HoldTime)
+        if (_isHolding && !_flagSet && Time.time - _clickStartTime >= _gameSettingsManager.HoldTime)
         {
             Flag();
             _flagSet = true;
@@ -136,7 +146,7 @@ public class SimpleGridManager : MonoBehaviour
 
     private void CheckGameStart()
     {
-        switch (GameManager.Instance.CurrentGameMode)
+        switch (_gameManager.CurrentGameMode)
         {
             case GameMode.ClassicEasy:
                 if (_gameManager.ClassicStats.IsGameStarted)
@@ -148,7 +158,7 @@ public class SimpleGridManager : MonoBehaviour
                     {
                         SignalBus.Fire(
                             new GameOverSignal(
-                                GameManager.Instance.CurrentGameMode,
+                                _gameManager.CurrentGameMode,
                                 _gameManager.ClassicStats.IsGameOver,
                                 _gameManager.ClassicStats.IsGameWin
                             )
@@ -171,7 +181,7 @@ public class SimpleGridManager : MonoBehaviour
                     {
                         SignalBus.Fire(
                             new GameOverSignal(
-                                GameManager.Instance.CurrentGameMode,
+                                _gameManager.CurrentGameMode,
                                 _gameManager.ClassicStats.IsGameOver,
                                 _gameManager.ClassicStats.IsGameWin
                             )
@@ -194,7 +204,7 @@ public class SimpleGridManager : MonoBehaviour
                     {
                         SignalBus.Fire(
                             new GameOverSignal(
-                                GameManager.Instance.CurrentGameMode,
+                                _gameManager.CurrentGameMode,
                                 _gameManager.ClassicStats.IsGameOver,
                                 _gameManager.ClassicStats.IsGameWin
                             )
@@ -217,7 +227,7 @@ public class SimpleGridManager : MonoBehaviour
                     {
                         SignalBus.Fire(
                             new GameOverSignal(
-                                GameManager.Instance.CurrentGameMode,
+                                _gameManager.CurrentGameMode,
                                 _gameManager.ClassicStats.IsGameOver,
                                 _gameManager.ClassicStats.IsGameWin
                             )
@@ -234,7 +244,7 @@ public class SimpleGridManager : MonoBehaviour
 
     private void StartLevel(int levelIndex)
     {        
-        var levels = GameManager.Instance.PredefinedLevels;
+        var levels = _gameManager.PredefinedLevels;
 
         if (levelIndex >= 0 && levelIndex < levels.Count)
         {
@@ -424,7 +434,7 @@ public class SimpleGridManager : MonoBehaviour
 
         InstantiateParticleAtCell(isPlacingFlag ? _flagPlaceParticle : _flagRemoveParticle, cell);
 
-        if (GameSettingsManager.Instance.IsVibrationEnabled)
+        if (_gameSettingsManager.IsVibrationEnabled)
         {
             VibrateOnAction();
         }
@@ -437,7 +447,7 @@ public class SimpleGridManager : MonoBehaviour
     {
         Vector3 worldPosition = cell.GlobalCellPosition;
 
-        GameObject particleInstance = Instantiate(particlePrefab, worldPosition, Quaternion.identity);
+        GameObject particleInstance = Instantiate(particlePrefab, new Vector3(worldPosition.x + 0.5f, worldPosition.y + 0.5f, 0), Quaternion.identity);
 
         Destroy(particleInstance, 2f);
     }
@@ -534,7 +544,7 @@ public class SimpleGridManager : MonoBehaviour
 
         SignalBus.Fire(
             new GameOverSignal(
-                GameManager.Instance.CurrentGameMode,
+                _gameManager.CurrentGameMode,
                 _gameManager.ClassicStats.IsGameOver,
                 _gameManager.ClassicStats.IsGameWin
             )
@@ -615,7 +625,7 @@ public class SimpleGridManager : MonoBehaviour
 
         SignalBus.Fire(
             new GameOverSignal(
-                GameManager.Instance.CurrentGameMode,
+                _gameManager.CurrentGameMode,
                 _gameManager.ClassicStats.IsGameOver,
                 _gameManager.ClassicStats.IsGameWin
             )
@@ -625,13 +635,13 @@ public class SimpleGridManager : MonoBehaviour
 
     public void SaveCurrentGame()
     {
-        switch (GameManager.Instance.CurrentGameMode)
+        switch (_gameManager.CurrentGameMode)
         {
             case GameMode.ClassicEasy:
             case GameMode.ClassicMedium:
             case GameMode.ClassicHard:
             case GameMode.Custom:
-                _saveManager.SaveClassicGame(_cellGrid, GameManager.Instance.ClassicStats);
+                _saveManager.SaveClassicGame(_cellGrid, _gameManager.ClassicStats);
                 break;
 
             default:
@@ -647,7 +657,7 @@ public class SimpleGridManager : MonoBehaviour
         if (gridData == null)
         {
             //Debug.Log("No saved data found. Starting a new game.");
-            switch (GameManager.Instance.CurrentGameMode)
+            switch (_gameManager.CurrentGameMode)
             {
                 case GameMode.ClassicEasy:
                     StartLevel(0);

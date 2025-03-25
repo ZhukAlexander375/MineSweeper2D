@@ -2,6 +2,7 @@ using System;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using Zenject;
 
 public class BonusScreen : MonoBehaviour
 {
@@ -16,6 +17,16 @@ public class BonusScreen : MonoBehaviour
     private float _timerUpdateInterval = 1f;
     private float _timerUpdateTime;
 
+    private RewardManager _rewardManager;
+    private ThemeManager _themeManager;
+
+    [Inject]
+    private void Construct(RewardManager rewardManager, ThemeManager themeManager)
+    {
+        _rewardManager = rewardManager;
+        _themeManager = themeManager;
+    }
+
     private void Awake()
     {        
         SignalBus.Subscribe<OnGameRewardSignal>(OnBonusCollected);
@@ -28,7 +39,7 @@ public class BonusScreen : MonoBehaviour
 
     private void Update()
     {
-        if (RewardManager.Instance == null) return;
+        if (_rewardManager == null) return;
         {
             if (Time.time >= _timerUpdateTime)
             {
@@ -42,9 +53,9 @@ public class BonusScreen : MonoBehaviour
 
     private void UpdateTimer()
     {
-        if (RewardManager.Instance == null) return;
+        if (_rewardManager == null) return;
 
-        TimeSpan timeUntilNextReward = RewardManager.Instance.GetTimeUntilNextReward();
+        TimeSpan timeUntilNextReward = _rewardManager.GetTimeUntilNextReward();
         _timerText.text = FormatTimeSpan(timeUntilNextReward);
     }
 
@@ -63,7 +74,7 @@ public class BonusScreen : MonoBehaviour
 
     private void GetBonus()
     {
-        RewardManager.Instance.CollectBonus();
+        _rewardManager.CollectBonus();
 
         OnBonusCollected(new OnGameRewardSignal());        
     }
@@ -82,18 +93,18 @@ public class BonusScreen : MonoBehaviour
 
     private void UpdateButtonInteractable()
     {
-        _getBonusButton.interactable = RewardManager.Instance.CurrentReward > 0;
-        SignalBus.Fire(new ThemeChangeSignal(ThemeManager.Instance.CurrentTheme, ThemeManager.Instance.CurrentThemeIndex));
+        _getBonusButton.interactable = _rewardManager.CurrentReward > 0;
+        SignalBus.Fire(new ThemeChangeSignal(_themeManager.CurrentTheme, _themeManager.CurrentThemeIndex));
     }
 
     private void UpdateTexts()
     {
-        bool isActive = RewardManager.Instance.CurrentReward > 0;
+        bool isActive = _rewardManager.CurrentReward > 0;
 
         _timerText.gameObject.SetActive(!isActive);
         _getBonusText.gameObject.SetActive(isActive);
 
-        _awardText.text = RewardManager.Instance.CurrentReward.ToString();
+        _awardText.text = _rewardManager.CurrentReward.ToString();
     }
 
     private void OnEnable()

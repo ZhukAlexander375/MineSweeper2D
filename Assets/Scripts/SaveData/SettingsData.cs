@@ -7,6 +7,10 @@ public class SettingsData
     public bool IsMusicEnabled = true;
     public bool IsVibrationEnabled = true;
     public bool OnDoubleClick = true;
-    public float CameraZoom = 0.1f;
-    public float HoldTime = 0.3f;     
+    public float CameraZoomMin;
+    public float CameraZoomMax;
+    public float CameraZoom;
+    public float HoldTimeMin;
+    public float HoldTimeMax;
+    public float HoldTime;     
 }

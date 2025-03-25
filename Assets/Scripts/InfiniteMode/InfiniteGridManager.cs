@@ -2,9 +2,9 @@ using DG.Tweening;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using Zenject;
 using Random = UnityEngine.Random;
 
 
@@ -16,9 +16,7 @@ public class InfiniteGridManager : MonoBehaviour
     //[SerializeField] private float _postCameraInteractionDelay = 0.15f;
 
     [Header("Settings")]
-    [SerializeField] private Sector _sectorPrefab;
-    [SerializeField] private int _minMinesCount;
-    [SerializeField] private int _maxMinesCount;
+    [SerializeField] private Sector _sectorPrefab;   
     [SerializeField] private GameObject _flagPlaceParticle;
     [SerializeField] private GameObject _flagRemoveParticle;
     [SerializeField] private GameObject _targetRewardUIElement;
@@ -46,10 +44,8 @@ public class InfiniteGridManager : MonoBehaviour
     private bool _flagSet;
     private float _lastClickTime = -1f; // Время последнего клика
     private const float DoubleClickThreshold = 0.3f; // Порог для двойного клика (в секундах)
-
-    private SaveManager _saveManager;
-    private PlayerProgress _playerProgress;
-    private GameManager _gameManager;
+    
+    
     private IStatisticController _statisticController;
     private int _currentRewardLevel;
     private int _currentSectorBuyoutLevel;
@@ -60,12 +56,36 @@ public class InfiniteGridManager : MonoBehaviour
     //private float _lastCameraInteractionTime = 0f;
     private bool IsInputLocked;
 
-    void Start()
+    private DiContainer _container;
+    private ThemeManager _themeManager;
+    private SaveManager _saveManager;
+    private PlayerProgress _playerProgress;
+    private GameManager _gameManager;
+    private TimeModeTimerManager _timeModeTimerManager;
+    private GameSettingsManager _gameSettingsManager;
+
+    [Inject]
+    private void Construct(DiContainer container, 
+        ThemeManager themeManager, 
+        SaveManager saveManager, 
+        PlayerProgress playerProgress, 
+        GameManager gameManager,
+        TimeModeTimerManager timeModeTimerManager,
+        GameSettingsManager gameSettingsManager)
     {
-        _saveManager = SaveManager.Instance;
-        _playerProgress = PlayerProgress.Instance;
-        _gameManager = GameManager.Instance;
-        _statisticController = GameManager.Instance.CurrentStatisticController;
+        _container = container;
+        _themeManager = themeManager;
+        _saveManager = saveManager;
+        _playerProgress = playerProgress;
+        _gameManager = gameManager;
+        _timeModeTimerManager = timeModeTimerManager;
+        _gameSettingsManager = gameSettingsManager;
+    }
+
+
+    void Start()
+    {   
+        _statisticController = _gameManager.CurrentStatisticController;
 
         mainCamera = Camera.main;
 
@@ -116,7 +136,7 @@ public class InfiniteGridManager : MonoBehaviour
        
     private void CheckGameStart()
     {        
-        switch (GameManager.Instance.CurrentGameMode)
+        switch (_gameManager.CurrentGameMode)
         {
             case GameMode.SimpleInfinite:
                 if (_gameManager.SimpleInfiniteStats.IsGameStarted)
@@ -140,7 +160,7 @@ public class InfiniteGridManager : MonoBehaviour
                     {
                         SignalBus.Fire(
                             new GameOverSignal(
-                                GameManager.Instance.CurrentGameMode,
+                                _gameManager.CurrentGameMode,
                                 _gameManager.HardcoreStats.IsGameOver,
                                 _gameManager.HardcoreStats.IsGameWin
                             )
@@ -155,15 +175,15 @@ public class InfiniteGridManager : MonoBehaviour
 
             case GameMode.TimeTrial:
                 if (_gameManager.TimeTrialStats.IsGameStarted)
-                {                    
+                {
                     LoadSavedGame();
                     SignalBus.Fire<LoadCompletedSignal>();
 
-                    if (!TimeModeTimerManager.Instance.IsTimerRunning && TimeModeTimerManager.Instance.IsTimeUp())
+                    if (_timeModeTimerManager.IsTimerOver)
                     {
                         SignalBus.Fire(
                             new GameOverSignal(
-                                GameManager.Instance.CurrentGameMode,
+                                _gameManager.CurrentGameMode,
                                 _gameManager.TimeTrialStats.IsGameOver,
                                 _gameManager.TimeTrialStats.IsGameWin
                             )
@@ -171,26 +191,33 @@ public class InfiniteGridManager : MonoBehaviour
                         return;
                     }
 
-                    if (_gameManager.TimeTrialStats.IsGameOver)
+                    if (!_timeModeTimerManager.IsTimerRunning && _timeModeTimerManager.IsTimeUp())
+                    {
+                        _timeModeTimerManager.ResetModeTimer();
+                        _timeModeTimerManager.StartModeTimer();
+                        return;
+                    }
+
+                    if (_gameManager.TimeTrialStats.IsGameOver && _timeModeTimerManager.IsTimerOver)
                     {
                         SignalBus.Fire(
                             new GameOverSignal(
-                                GameManager.Instance.CurrentGameMode,
+                                _gameManager.CurrentGameMode,
                                 _gameManager.TimeTrialStats.IsGameOver,
                                 _gameManager.TimeTrialStats.IsGameWin
                             )
                         );
                     }
-
                     else
                     {
-                        TimeModeTimerManager.Instance.StartModeTimer();
+                        _timeModeTimerManager.StartModeTimer();
                     }
                 }
                 else
                 {
+                    _timeModeTimerManager.ResetModeTimer();
                     StartNewGame();
-                    TimeModeTimerManager.Instance.StartModeTimer();
+                    _timeModeTimerManager.StartModeTimer();
                 }
                 break;
 
@@ -233,7 +260,7 @@ public class InfiniteGridManager : MonoBehaviour
         if (Input.GetMouseButtonDown(0))
         {
             // Проверка на двойной клик
-            if (GameSettingsManager.Instance.OnDoubleClick)
+            if (_gameSettingsManager.OnDoubleClick)
             {
                 if (currentTime - _lastClickTime <= DoubleClickThreshold)
                 {
@@ -252,19 +279,19 @@ public class InfiniteGridManager : MonoBehaviour
 
         if (Input.GetMouseButtonUp(0))
         {
-            if (!_flagSet && _isHolding && Time.time - _clickStartTime < GameSettingsManager.Instance.HoldTime)
+            if (!_flagSet && _isHolding && Time.time - _clickStartTime < _gameSettingsManager.HoldTime)
             {
                 GetSectorAtClick();
             }
             _isHolding = false;
 
-            if (!GameSettingsManager.Instance.OnDoubleClick)
+            if (!_gameSettingsManager.OnDoubleClick)
             {
                 GetSectorAtDoubleClick();
             }
         }
 
-        if (_isHolding && !_flagSet && Time.time - _clickStartTime >= GameSettingsManager.Instance.HoldTime)
+        if (_isHolding && !_flagSet && Time.time - _clickStartTime >= _gameSettingsManager.HoldTime)
         {
             GetSectorForFlagAtClick();
             _flagSet = true;
@@ -631,7 +658,7 @@ public class InfiniteGridManager : MonoBehaviour
         _statisticController.SetLastClickPosition(_lastClickPosition);
 
         // Вибрация и перерисовка
-        if (GameSettingsManager.Instance.IsVibrationEnabled)
+        if (_gameSettingsManager.IsVibrationEnabled)
         {
             VibrateOnAction();
         }
@@ -644,7 +671,7 @@ public class InfiniteGridManager : MonoBehaviour
     private void InstantiateParticleAtCell(GameObject particlePrefab, InfiniteCell cell)
     {
         Vector3 worldPosition = cell.GlobalCellPosition;
-        GameObject particleInstance = Instantiate(particlePrefab, worldPosition, Quaternion.identity);
+        GameObject particleInstance = Instantiate(particlePrefab, new Vector3(worldPosition.x + 0.5f, worldPosition.y + 0.5f, 0), Quaternion.identity);
         Destroy(particleInstance, 2f);
     }
 
@@ -793,8 +820,19 @@ public class InfiniteGridManager : MonoBehaviour
 
     private void CheckLoseConditions(Sector currentSector, InfiniteCell cell)
     {
-        switch (GameManager.Instance.CurrentGameMode)
+        switch (_gameManager.CurrentGameMode)
         {
+            case GameMode.SimpleInfinite:
+
+                UpdateExplodedMinesCount();
+                UpdateSectorBuyoutLevel();
+
+                currentSector.SetBuyoutCost(_sectorBuyoutCostConfig, _currentSectorBuyoutLevel);
+                currentSector.ExplodeSector(cell);
+
+                SaveCurrentGame();
+                break;
+
             case GameMode.Hardcore:
                 UpdateExplodedMinesCount();
 
@@ -808,32 +846,22 @@ public class InfiniteGridManager : MonoBehaviour
                 SignalBus.Fire(
                     new GameOverSignal(
                         GameMode.Hardcore,
-                        GameManager.Instance.HardcoreStats.IsGameOver,
-                        GameManager.Instance.HardcoreStats.IsGameWin
+                        _gameManager.HardcoreStats.IsGameOver,
+                        _gameManager.HardcoreStats.IsGameWin
                     )
                 );
                 break;
-
-            case GameMode.SimpleInfinite:
-
-                UpdateExplodedMinesCount();
-                UpdateSectorBuyoutLevel();
-
-                currentSector.SetBuyoutCost(_sectorBuyoutCostConfig, _currentSectorBuyoutLevel);
-                currentSector.ExplodeSector(cell);
-
-                SaveCurrentGame();
-                break;
+            
 
             case GameMode.TimeTrial:
 
-                if (!TimeModeTimerManager.Instance.IsTimerRunning && TimeModeTimerManager.Instance.IsTimeUp())
+                if (!_timeModeTimerManager.IsTimerRunning && _timeModeTimerManager.IsTimeUp())
                 {
                     SignalBus.Fire(
                         new GameOverSignal(
                             GameMode.Hardcore,
-                            GameManager.Instance.TimeTrialStats.IsGameOver,
-                            GameManager.Instance.TimeTrialStats.IsGameWin
+                            _gameManager.TimeTrialStats.IsGameOver,
+                            _gameManager.TimeTrialStats.IsGameWin
                         )
                     );
                     return;
@@ -858,9 +886,10 @@ public class InfiniteGridManager : MonoBehaviour
         SetCurrentRewardLevel();
         
         int currentReward = CalculateCurrentReward(_statisticController.RewardLevel);
+        Debug.Log($"Отправка сигнала: RewardId=0, Count={currentReward}");
 
         SignalBus.Fire(new OnGameRewardSignal(0, currentReward));
-        //Debug.Log($"Номер награды: {_currentRewardLevel}, награда: {currentReward}");
+        Debug.Log($"Сигнал отправлен: Награда {currentReward}");        
         cell.IsAward = false;
 
         MoveAwardSprite(cell, _targetRewardUIElement);
@@ -876,7 +905,7 @@ public class InfiniteGridManager : MonoBehaviour
         
         baseReward = Mathf.Clamp(baseReward, currentRewardLevel.MinReward, currentRewardLevel.MaxReward);
 
-        float modeMultiplier = _sectorRewardConfig.GetMultiplier(GameManager.Instance.CurrentGameMode);
+        float modeMultiplier = _sectorRewardConfig.GetMultiplier(_gameManager.CurrentGameMode);
         int finalReward = Mathf.FloorToInt(baseReward * modeMultiplier);
 
         return finalReward;
@@ -998,12 +1027,13 @@ public class InfiniteGridManager : MonoBehaviour
         if (!_sectors.ContainsKey(position))
         {
             var sectorWorldPosition = new Vector3(position.x * _sectorSize, position.y * _sectorSize, 0);
-            var newSector = Instantiate(_sectorPrefab, sectorWorldPosition, Quaternion.identity, transform);
+            var newSector = _container.InstantiatePrefabForComponent<Sector>(_sectorPrefab, sectorWorldPosition, Quaternion.identity, transform);
+            //var newSector = Instantiate(_sectorPrefab, sectorWorldPosition, Quaternion.identity, transform);
             newSector.SetManager(this);
 
-            if (ThemeManager.Instance != null)
+            if (_themeManager != null)
             {
-                newSector.TryApplyTheme(ThemeManager.Instance.CurrentThemeIndex);
+                newSector.TryApplyTheme(_themeManager.CurrentThemeIndex);
             }
 
             _sectors.Add(position, newSector);       //tut sector position -2 -1 i t.d.( / 8)
@@ -1065,18 +1095,18 @@ public class InfiniteGridManager : MonoBehaviour
         var activeSectors = _sectors.Values.Where(s => s.IsActive).ToList();
         var sectorDataList = activeSectors.Select(sector => sector.SaveSectorData()).ToList();
 
-        switch (GameManager.Instance.CurrentGameMode)
+        switch (_gameManager.CurrentGameMode)
         {
             case GameMode.SimpleInfinite:
-                _saveManager.SaveSimpleInfiniteGame(sectorDataList, GameManager.Instance.SimpleInfiniteStats);
+                _saveManager.SaveSimpleInfiniteGame(sectorDataList, _gameManager.SimpleInfiniteStats);
                 break;
 
             case GameMode.Hardcore:
-                _saveManager.SaveHardcoreGame(sectorDataList, GameManager.Instance.HardcoreStats);
+                _saveManager.SaveHardcoreGame(sectorDataList, _gameManager.HardcoreStats);
                 break;
 
             case GameMode.TimeTrial:
-                _saveManager.SaveTimeTrialGame(sectorDataList, GameManager.Instance.TimeTrialStats);
+                _saveManager.SaveTimeTrialGame(sectorDataList, _gameManager.TimeTrialStats);
                 break;
 
             default:
@@ -1087,7 +1117,7 @@ public class InfiniteGridManager : MonoBehaviour
 
     public void LoadSavedGame()
     {
-        if (!_saveManager.HasSavedData(GameManager.Instance.CurrentGameMode))
+        if (!_saveManager.HasSavedData(_gameManager.CurrentGameMode))
         {
             StartNewGame();
             return;
@@ -1095,7 +1125,7 @@ public class InfiniteGridManager : MonoBehaviour
 
         List<SectorData> loadedSectors;        
 
-        switch (GameManager.Instance.CurrentGameMode)
+        switch (_gameManager.CurrentGameMode)
         {
             case GameMode.SimpleInfinite:
                 var simpleSectors = _saveManager.LoadSimpleInfiniteGameGrid();
@@ -1159,12 +1189,14 @@ public class InfiniteGridManager : MonoBehaviour
                 logicalPosition.y * _sectorSize,
                 0);
 
-            var newSector = Instantiate(_sectorPrefab, sectorWorldPosition, Quaternion.identity, transform);
+            var newSector = _container.InstantiatePrefabForComponent<Sector>(_sectorPrefab, sectorWorldPosition, Quaternion.identity, transform);
+            //var newSector = Instantiate(_sectorPrefab, sectorWorldPosition, Quaternion.identity, transform);
+            
             newSector.SetManager(this);
 
-            if (ThemeManager.Instance != null)
+            if (_themeManager != null)
             {
-                newSector.TryApplyTheme(ThemeManager.Instance.CurrentThemeIndex);
+                newSector.TryApplyTheme(_themeManager.CurrentThemeIndex);
             }
 
             _sectors.Add(logicalPosition, newSector);

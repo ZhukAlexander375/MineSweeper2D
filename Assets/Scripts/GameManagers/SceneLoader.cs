@@ -1,48 +1,34 @@
-using UnityEditor;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using Zenject;
 
 public class SceneLoader : MonoBehaviour
 {
-    public static SceneLoader Instance { get; private set; }
+    private ScenesConfig _scenesConfig;
 
-    [SerializeField] private string _mainMenuScene;
-    [SerializeField] private string _infiniteMinesweeperScene;
-    [SerializeField] private string _classicMinesweeperScene;
-
-    private void Awake()
+    [Inject]
+    public void Construct(ScenesConfig scenesConfig)
     {
-        if (Instance != null && Instance != this)
+        _scenesConfig = scenesConfig;
+    }
+
+    public void LoadScene(SceneType sceneType)
+    {
+        string sceneName = _scenesConfig.GetSceneName(sceneType);
+        if (string.IsNullOrEmpty(sceneName))
         {
-            Destroy(gameObject);
+            Debug.LogError($"Scene '{sceneType}' не найдена в SceneSettings!");
             return;
         }
 
-        Instance = this;
-        DontDestroyOnLoad(gameObject);
+        LoadSceneInternal(sceneName);
     }
 
-    public void LoadMainMenuScene()
-    {
-        LoadScene(_mainMenuScene);
-    }
-
-    public void LoadInfiniteMinesweeperScene()
-    {
-        LoadScene(_infiniteMinesweeperScene);
-        //Debug.Log($"LOAD SCENE: IsDownloadedInfiniteGame: {GameModesManager.Instance.IsDownloadedInfiniteGame}, IsNewInfiniteGame: {GameModesManager.Instance.IsNewInfiniteGame}");
-    }
-
-    public void LoadClassicMinesweeperScene()
-    {
-        LoadScene(_classicMinesweeperScene);
-    }
-
-    private void LoadScene(string sceneName)
+    private void LoadSceneInternal(string sceneName)
     {
         if (!IsSceneInBuildSettings(sceneName))
         {
-            Debug.LogError($"Scene '{sceneName}' is not added to Build Settings!");
+            Debug.LogError($"Scene '{sceneName}' не добавлена в Build Settings!");
             return;
         }
 

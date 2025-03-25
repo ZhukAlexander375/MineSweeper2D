@@ -1,5 +1,6 @@
 using TMPro;
 using UnityEngine;
+using Zenject;
 
 public class InfinityModesStatisticsUI : MonoBehaviour
 {
@@ -21,7 +22,15 @@ public class InfinityModesStatisticsUI : MonoBehaviour
     [SerializeField] private TMP_Text _minesTimeTrialText;
     [SerializeField] private TMP_Text _playTimeTimeTrialText;
     
-    
+    private GameManager _gameManager;
+
+    [Inject]
+    private void Construct(GameManager gameManager)
+    {
+        _gameManager = gameManager;
+    }
+
+
     private void OnEnable()
     {
         SignalBus.Subscribe<LoadCompletedSignal>(UpdateStatisticsUI);
@@ -31,19 +40,19 @@ public class InfinityModesStatisticsUI : MonoBehaviour
     public void UpdateStatisticsUI(LoadCompletedSignal signal)
     {
         //_openedCellsSimpleInfiniteText.text = "Opened cells: " + SimpleInfiniteStatisticController.Instance.OpenedCells.ToString();
-        _openedSectorsSimpleInfiniteText.text = "Open sectors: " + GameManager.Instance.SimpleInfiniteStats.CompletedSectors.ToString();
-        _minesSimpleInfiniteText.text = "Mines: " + GameManager.Instance.SimpleInfiniteStats.ExplodedMines.ToString();
-        _playTimeSimpleInfiniteText.text = "Time spent: " + FormatTime(GameManager.Instance.SimpleInfiniteStats.TotalPlayTime, "SimpleInfinite");
+        _openedSectorsSimpleInfiniteText.text = "Open sectors: " + _gameManager.SimpleInfiniteStats.CompletedSectors.ToString();
+        _minesSimpleInfiniteText.text = "Mines: " + _gameManager.SimpleInfiniteStats.ExplodedMines.ToString();
+        _playTimeSimpleInfiniteText.text = "Time spent: " + FormatTime(_gameManager.SimpleInfiniteStats.TotalPlayTime, "SimpleInfinite");
 
         //_openedCellsHardcoreText.text = "Opened cells: " + HardcoreStatisticController.Instance.OpenedCells.ToString();
-        _openedSectorsHardcoreText.text = "Open sectors: " + GameManager.Instance.HardcoreStats.CompletedSectors.ToString();
-        _minesHardcoreText.text = "Mines: " + GameManager.Instance.HardcoreStats.ExplodedMines.ToString();
-        _playTimeHardcoreText.text = "Time spent: " + FormatTime(GameManager.Instance.HardcoreStats.TotalPlayTime, "Hardcore");
+        _openedSectorsHardcoreText.text = "Open sectors: " + _gameManager.HardcoreStats.CompletedSectors.ToString();
+        _minesHardcoreText.text = "Mines: " + _gameManager.HardcoreStats.ExplodedMines.ToString();
+        _playTimeHardcoreText.text = "Time spent: " + FormatTime(_gameManager.HardcoreStats.TotalPlayTime, "Hardcore");
 
         //_openedCellsTimeTrialText.text = "Opened cells: " + TimeTrialStatisticController.Instance.OpenedCells.ToString();
-        _openedSectorsTimeTrialText.text = "Open sectors: " + GameManager.Instance.TimeTrialStats.CompletedSectors.ToString();
-        _minesTimeTrialText.text = "Mines: " + GameManager.Instance.TimeTrialStats.ExplodedMines.ToString();
-        _playTimeTimeTrialText.text = "Time spent: " + FormatTime(GameManager.Instance.TimeTrialStats.TotalPlayTime, "TimeTrial");
+        _openedSectorsTimeTrialText.text = "Open sectors: " + _gameManager.TimeTrialStats.CompletedSectors.ToString();
+        _minesTimeTrialText.text = "Mines: " + _gameManager.TimeTrialStats.ExplodedMines.ToString();
+        _playTimeTimeTrialText.text = "Time spent: " + FormatTime(_gameManager.TimeTrialStats.TotalPlayTime, "TimeTrial");
     }
 
     private string FormatTime(float totalSeconds, string modeName)

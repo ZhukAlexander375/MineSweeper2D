@@ -1,49 +1,44 @@
-
 using System;
 using UnityEngine;
+using Zenject;
 
 public class TimeModeTimerManager : MonoBehaviour
 {
-    public static TimeModeTimerManager Instance { get; private set; }
-
-    [SerializeField] private TimeTrialSettings _timeTrialSettings;
     public long TimerStartTime { get; private set; }
     public float DurationInSec { get; private set; }
     public bool IsTimerRunning { get; private set; }
     public bool IsTimerOver { get; private set; }
+        
+    private SaveManager _saveManager;
+    private GameManager _gameManager;
+    private TimeTrialSettings _timeTrialSettings;
 
-    private void Awake()
+    [Inject]
+    private void Construct(SaveManager saveManager, GameManager gameManager, TimeTrialSettings timeTrialSettings)
     {
-        if (Instance != null && Instance != this)
-        {
-            Destroy(gameObject);
-            return;
-        }
-
-        Instance = this;
-        DontDestroyOnLoad(gameObject);
-
-        SetTimeDuration();
-    }    
+        _saveManager = saveManager;
+        _gameManager = gameManager;
+        _timeTrialSettings = timeTrialSettings;
+    }
 
     private void Start()
-    {               
+    {
+        SetTimeDuration();        
         LoadTimer();
-        
+
         if (!IsTimerRunning && IsTimeUp() && IsTimerOver)
         {
-            Debug.Log("Time is up! The game ended while you were away.");
             SignalBus.Fire(
                 new GameOverSignal(
-                    GameManager.Instance.CurrentGameMode,
-                    GameManager.Instance.TimeTrialStats.IsGameOver,
-                    GameManager.Instance.TimeTrialStats.IsGameWin
+                    _gameManager.CurrentGameMode,
+                    _gameManager.TimeTrialStats.IsGameOver,
+                    _gameManager.TimeTrialStats.IsGameWin
                 )
             );
         }
     }
 
-    private void Update()
+    private void FixedUpdate()
     {
         if (IsTimerRunning && IsTimeUp())
         {
@@ -53,15 +48,21 @@ public class TimeModeTimerManager : MonoBehaviour
 
     public void StartModeTimer()
     {
-        //Debug.Log($"на старте таймера: {TimerStartTime}, {IsTimerRunning}, {IsTimerOver}");
-        if (!IsTimerRunning && IsTimerOver)
-        {
-            //Debug.Log("старт таймер");
-            TimerStartTime = GetUnixTimeNow();
-            IsTimerRunning = true;
-            IsTimerOver = false;
-            SaveTimer();
+        if (IsTimerRunning)
+        {            
+            return;
         }
+
+        if (IsTimerOver)
+        {
+            ResetModeTimer();
+        }
+
+        TimerStartTime = GetUnixTimeNow();
+        IsTimerRunning = true;
+        IsTimerOver = false;
+        SaveTimer();
+        
     }
 
     public void StopModeTimer()
@@ -71,13 +72,13 @@ public class TimeModeTimerManager : MonoBehaviour
             IsTimerRunning = false;
             IsTimerOver = true;
 
-            GameManager.Instance.TimeTrialStats.IsGameOver = true;
+            _gameManager.TimeTrialStats.IsGameOver = true;
 
             SignalBus.Fire(
                 new GameOverSignal(
-                    GameManager.Instance.CurrentGameMode,
-                    GameManager.Instance.TimeTrialStats.IsGameOver,
-                    GameManager.Instance.TimeTrialStats.IsGameWin
+                    _gameManager.CurrentGameMode,
+                    _gameManager.TimeTrialStats.IsGameOver,
+                    _gameManager.TimeTrialStats.IsGameWin
                 )
             );
 
@@ -88,7 +89,9 @@ public class TimeModeTimerManager : MonoBehaviour
     public void ResetModeTimer()
     {
         IsTimerRunning = false;
-        IsTimerOver = true;
+        IsTimerOver = false;
+        TimerStartTime = GetUnixTimeNow();
+        SaveTimer();
     }
 
     public float GetRemainingTime()
@@ -116,7 +119,7 @@ public class TimeModeTimerManager : MonoBehaviour
             IsTimerOver = IsTimerOver
         };
         //Debug.Log($"сохранение: {TimerStartTime}, {IsTimerRunning}, {IsTimerOver}");
-        SaveManager.Instance.SaveTimer(timerManager);
+        _saveManager.SaveTimer(timerManager);
     }
 
     private void SetTimeDuration()
@@ -131,13 +134,32 @@ public class TimeModeTimerManager : MonoBehaviour
 
     private void LoadTimer()
     {
-        TimerManagerData timerManagerData = SaveManager.Instance.LoadTimerManager();
+        TimerManagerData timerManagerData = _saveManager.LoadTimerManager();
 
         if (timerManagerData != null)
         {
             TimerStartTime = timerManagerData.TimerStartTime;
             IsTimerRunning = timerManagerData.IsTimerRunning;
-            IsTimerOver= timerManagerData.IsTimerOver;
+            IsTimerOver = timerManagerData.IsTimerOver;
+        }
+
+        if (IsTimeUp())
+        {
+            IsTimerRunning = false;
+            IsTimerOver = true;
+            _gameManager.TimeTrialStats.IsGameOver = true;
+
+            //Debug.Log("Time is up! The game ended while you were away.");
+
+            SignalBus.Fire(
+                new GameOverSignal(
+                    _gameManager.CurrentGameMode,
+                    _gameManager.TimeTrialStats.IsGameOver,
+                    _gameManager.TimeTrialStats.IsGameWin
+                )
+            );
+
+            SaveTimer();
         }
     }
 

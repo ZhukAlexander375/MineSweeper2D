@@ -1,11 +1,20 @@
 using UnityEngine;
 using UnityEngine.UI;
+using Zenject;
 
 public class ThemeSelector : MonoBehaviour
 {
     [SerializeField] private Button[] _themeButtons;
     [SerializeField] private Image[] _themeImages;
     [SerializeField] private GameObject _chooseFrame;
+
+    private ThemeManager _themeManager;
+
+    [Inject]
+    private void Construct(ThemeManager themeManager)
+    {
+        _themeManager = themeManager;
+    }
 
     private void Start()
     {
@@ -15,13 +24,13 @@ public class ThemeSelector : MonoBehaviour
             _themeButtons[i].onClick.AddListener(() => SelectTheme(themeIndex));
         }
 
-        int currentThemeIndex = ThemeManager.Instance.CurrentThemeIndex;
-        ShowOutline(new ThemeChangeSignal(ThemeManager.Instance.CurrentTheme, currentThemeIndex));
+        int currentThemeIndex = _themeManager.CurrentThemeIndex;
+        ShowOutline(new ThemeChangeSignal(_themeManager.CurrentTheme, currentThemeIndex));
     }
 
     private void SelectTheme(int index)
     {
-        ThemeManager.Instance.ApplyTheme(index);        
+        _themeManager.ApplyTheme(index);        
     }
 
     private void ShowOutline(ThemeChangeSignal signal)

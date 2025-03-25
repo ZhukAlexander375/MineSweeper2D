@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.Tilemaps;
+using Zenject;
 
 [RequireComponent(typeof(Tilemap))]
 public class Board : MonoBehaviour
@@ -14,6 +15,13 @@ public class Board : MonoBehaviour
     private TileSetConfig _currentTileSet;
     private int _currentTileSetIndex;
 
+    private ThemeManager _themeManager;
+
+    [Inject]
+    private void Construct(ThemeManager themeManager)
+    {
+        _themeManager = themeManager;
+    }
 
     private void Awake()
     {
@@ -23,7 +31,7 @@ public class Board : MonoBehaviour
     private void Start()
     {
         SignalBus.Subscribe<ThemeChangeSignal>(OnThemeChanged);
-        TryApplyTheme(ThemeManager.Instance.CurrentThemeIndex);
+        TryApplyTheme(_themeManager.CurrentThemeIndex);
     }
     /*public void DrawFreeForm(FreeForm freeGrid, CellGrid grid)
     {
@@ -89,7 +97,7 @@ public class Board : MonoBehaviour
             Tilemap.SetTile(localPosition, mineTile);
             Tilemap.SetTransformMatrix(localPosition, Matrix4x4.identity);
             Tilemap.RefreshTile(localPosition);
-
+            //Debug.Log("+1");
             return;
         }
 
@@ -125,7 +133,7 @@ public class Board : MonoBehaviour
             //_tilemap.SetTile(localPosition, staticTile);
 
             Tilemap.SetTransformMatrix(localPosition, Matrix4x4.identity);
-            Tilemap.RefreshTile(localPosition);
+            Tilemap.RefreshTile(localPosition);            
         }
         else
         {
@@ -137,9 +145,9 @@ public class Board : MonoBehaviour
 
     public void Draw(CellGrid grid)
     {
-        if (ThemeManager.Instance != null)
+        if (_themeManager != null)
         {
-            _currentTileSetIndex = ThemeManager.Instance.CurrentThemeIndex;
+            _currentTileSetIndex = _themeManager.CurrentThemeIndex;
         }        
 
         ClearGrid();

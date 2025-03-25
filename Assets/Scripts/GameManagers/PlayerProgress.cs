@@ -3,10 +3,10 @@ using PixelAnticheat.SecuredTypes;
 using UnityEngine;
 using PixelAnticheat.Models;
 using PixelAnticheat;
+using Zenject;
 
 public class PlayerProgress : MonoBehaviour
 {
-    public static PlayerProgress Instance { get; private set; }
     public SecuredInt TotalReward { get; private set; }
     public GameMode LastSessionGameMode { get; private set; }
     public GameMode LastClassicSessionMode { get; private set; }
@@ -18,17 +18,17 @@ public class PlayerProgress : MonoBehaviour
     //public int TotalOpenedCells { get; private set; }
     //public int TotalExplodedMines {  get; private set; }
 
+    private SaveManager _saveManager;
+
+    [Inject]
+    private void Construct(SaveManager saveManager)
+    {
+        _saveManager = saveManager;
+    }
 
     private void Awake()
     {
-        if (Instance != null && Instance != this)
-        {
-            Destroy(gameObject);
-            return;
-        }
-
-        Instance = this;
-        DontDestroyOnLoad(gameObject);               
+        SignalBus.Subscribe<OnGameRewardSignal>(ChangePlayersReward);        
     }
 
     private void Start()
@@ -75,7 +75,7 @@ public class PlayerProgress : MonoBehaviour
         };
 
 
-        SaveManager.Instance.SavePlayerProgress(playerProgress);
+        _saveManager.SavePlayerProgress(playerProgress);
     }
 
     public bool CheckAwardCount(int value)
@@ -109,16 +109,16 @@ public class PlayerProgress : MonoBehaviour
 
     private void OnPlayerProgressHackDetected(string messege)
     {        
-        TotalReward = 0;
+        /*TotalReward = 0;
         SignalBus.Fire(new OnGameRewardSignal(0, TotalReward));
-        Debug.Log(messege);
+        Debug.Log(messege);*/
     }
 
     private void ChangePlayersReward(OnGameRewardSignal signal)
     {
         switch (signal.RewardId)
         {
-            case 0:                
+            case 0:
                 TotalReward += signal.Count;                
                 break;
         }
@@ -151,15 +151,14 @@ public class PlayerProgress : MonoBehaviour
 
     private void LoadProgress()
     {
-        PlayerProgressData playerProgress = SaveManager.Instance.LoadPlayerProgress();
+        PlayerProgressData playerProgress = _saveManager.LoadPlayerProgress();
 
         if (playerProgress != null)
         {
             TotalReward = playerProgress.TotalReward;
             LastSessionGameMode = playerProgress.LastSessionGameMode;
             LastClassicSessionMode = playerProgress.LastClassicSessionMode;
-            IsFirstTimePlayed = playerProgress.IsFirstTimePlayed;
-
+            IsFirstTimePlayed = playerProgress.IsFirstTimePlayed;            
             SignalBus.Fire<PlayerProgressLoadCompletedSignal>();
         }
 
@@ -171,12 +170,14 @@ public class PlayerProgress : MonoBehaviour
 
     private void OnEnable()
     {
-        SignalBus.Subscribe<OnGameRewardSignal>(ChangePlayersReward);        
+        //SignalBus.Subscribe<OnGameRewardSignal>(ChangePlayersReward);
+        //Debug.Log("Подписка на событие?");
     }
 
     private void OnDestroy()
     {
         SignalBus.Unsubscribe<OnGameRewardSignal>(ChangePlayersReward);
+        
         //SignalBus.Unsubscribe<FlagPlacingSignal>(UpdateFlagsCount);
         //SignalBus.Unsubscribe<CellRevealedSignal>(UpdateCellsCount);
     }

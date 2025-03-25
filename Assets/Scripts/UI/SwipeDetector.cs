@@ -3,6 +3,7 @@ using UnityEngine.EventSystems;
 using UnityEngine;
 using UnityEngine.UI;
 using DG.Tweening;
+using Zenject;
 
 public class SwipeDetector : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IDragHandler
 {
@@ -25,6 +26,17 @@ public class SwipeDetector : MonoBehaviour, IPointerDownHandler, IPointerUpHandl
     private bool _isTouching = false;
     private int _currentMenuIndex = 0;
     private float _menuWidth;
+
+    private ThemeManager _themeManager;
+    private SaveManager _saveManager;
+
+    [Inject]
+    private void Construct(ThemeManager themeManager, SaveManager saveManager)
+    {
+        _themeManager = themeManager;
+        _saveManager = saveManager;
+    }
+
 
     private void Start()
     {
@@ -141,12 +153,12 @@ public class SwipeDetector : MonoBehaviour, IPointerDownHandler, IPointerUpHandl
 
             for (int i = 0; i < _continuedButtons.Length; i++)
             {
-                bool hasSaveData = SaveManager.Instance.HasSavedData(gameModes[i]);
+                bool hasSaveData = _saveManager.HasSavedData(gameModes[i]);
                 //_continuedButtons[i].gameObject.SetActive(hasSaveData);
 
                 _continuedButtons[i].interactable = hasSaveData;
             }
-            SignalBus.Fire(new ThemeChangeSignal(ThemeManager.Instance.CurrentTheme, ThemeManager.Instance.CurrentThemeIndex));
+            SignalBus.Fire(new ThemeChangeSignal(_themeManager.CurrentTheme, _themeManager.CurrentThemeIndex));
         }        
     }
 

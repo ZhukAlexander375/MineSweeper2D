@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8fc9c5438f85d0c44b38f6be54d0aacf, type: 3}
-  m_Name: SectorRewards
+  m_Name: SectorRewardsConfig
   m_EditorClassIdentifier: 
   RewardLevels:
   - DiamondNumber: 1

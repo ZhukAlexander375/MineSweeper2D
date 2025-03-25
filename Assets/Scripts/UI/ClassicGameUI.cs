@@ -1,6 +1,7 @@
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using Zenject;
 
 
 public class ClassicGameUI : MonoBehaviour
@@ -36,6 +37,18 @@ public class ClassicGameUI : MonoBehaviour
     
 
     private SimpleGridManager _simpleGridManager;
+    private PlayerProgress _playerProgress;
+    private GameManager _gameManager;
+    private SceneLoader _sceneLoader;
+
+    [Inject]
+    private void Construct(PlayerProgress playerProgress, GameManager gameManager, SceneLoader sceneLoader)
+    {
+        _playerProgress = playerProgress;
+        _gameManager = gameManager;
+        _sceneLoader = sceneLoader;
+    }
+
 
     private void Awake()
     {        
@@ -58,34 +71,34 @@ public class ClassicGameUI : MonoBehaviour
     private void OpenPauseMenu()
     {
         _pauseMenuScreen.gameObject.SetActive(true);
-        GameManager.Instance.CurrentStatisticController.StopTimer();
+        _gameManager.CurrentStatisticController.StopTimer();
     }
 
     private void ClosePauseMenu()
     {
         _pauseMenuScreen.gameObject.SetActive(false);
-        GameManager.Instance.CurrentStatisticController.StartTimer();
+        _gameManager.CurrentStatisticController.StartTimer();
     }
 
     private void OpenSettings()
     {
         _settingsScreen.gameObject.SetActive(true);
-        GameManager.Instance.CurrentStatisticController.StopTimer();
+        _gameManager.CurrentStatisticController.StopTimer();
     }
 
     private void ReplayGame()
     {
         _loseScreen.gameObject.SetActive(false);
-        GameManager.Instance.ResetCurrentModeStatistic();
-        GameManager.Instance.ClearCurrentGame(GameManager.Instance.CurrentGameMode);
-        GameManager.Instance.SetCurrentGameMode(GameManager.Instance.CurrentGameMode);
-        SceneLoader.Instance.LoadClassicMinesweeperScene();
+        _gameManager.ResetCurrentModeStatistic();
+        _gameManager.ClearCurrentGame(_gameManager.CurrentGameMode);
+        _gameManager.SetCurrentGameMode(_gameManager.CurrentGameMode);
+        _sceneLoader.LoadScene(SceneType.ClassicModeScene);
     }
 
 
     private void SetModeName()
     {
-        switch (GameManager.Instance.CurrentGameMode)
+        switch (_gameManager.CurrentGameMode)
         {
             case GameMode.ClassicEasy:
                 _gameModeName.text = "Easy";
@@ -107,20 +120,20 @@ public class ClassicGameUI : MonoBehaviour
 
     private void ReturnToMainMenu()
     {
-        GameManager.Instance.CurrentStatisticController.StopTimer();
-        PlayerProgress.Instance.SavePlayerProgress();
+        _gameManager.CurrentStatisticController.StopTimer();
+        _playerProgress.SavePlayerProgress();
 
         if (_simpleGridManager.IsFirstClick)
         {            
             _simpleGridManager.SaveCurrentGame();
         }
 
-        SceneLoader.Instance.LoadMainMenuScene();
+        _sceneLoader.LoadScene(SceneType.MainMenu);        
     }
 
     private void OpenLoseScreen(GameOverSignal signal)
     {
-        if (signal.CurrentGameMode == GameManager.Instance.CurrentGameMode)
+        if (signal.CurrentGameMode == _gameManager.CurrentGameMode)
         {
             if (signal.IsGameOver == true || signal.IsGameWin == true)
             {
@@ -138,9 +151,9 @@ public class ClassicGameUI : MonoBehaviour
 
     private void UpdateFlagText(FlagPlacingSignal signal)
     {
-        if (GameManager.Instance.CurrentStatisticController != null)
+        if (_gameManager.CurrentStatisticController != null)
         {
-            _flagsText.text = GameManager.Instance.CurrentStatisticController.PlacedFlags.ToString();
+            _flagsText.text = _gameManager.CurrentStatisticController.PlacedFlags.ToString();
         }
         else
         {
@@ -150,7 +163,7 @@ public class ClassicGameUI : MonoBehaviour
 
     private void UpdateBombText()
     {
-        switch (GameManager.Instance.CurrentGameMode)
+        switch (_gameManager.CurrentGameMode)
         {
             case GameMode.ClassicEasy:
                 SetMinesCount(0);
@@ -165,14 +178,14 @@ public class ClassicGameUI : MonoBehaviour
                 break;
 
             case GameMode.Custom:
-                SetMinesCount(GameManager.Instance.CustomLevel);
+                SetMinesCount(_gameManager.CustomLevel);
                 break;
         }
     }
 
     private void SetMinesCount(int levelIndex)
     {
-        var levels = GameManager.Instance.PredefinedLevels;
+        var levels = _gameManager.PredefinedLevels;
 
         if (levelIndex >= 0 && levelIndex < levels.Count)
         {
@@ -200,7 +213,7 @@ public class ClassicGameUI : MonoBehaviour
     {
         UpdateBombText();
         
-        _flagsText.text = GameManager.Instance.CurrentStatisticController.PlacedFlags.ToString();
+        _flagsText.text = _gameManager.CurrentStatisticController.PlacedFlags.ToString();
 
     }
 

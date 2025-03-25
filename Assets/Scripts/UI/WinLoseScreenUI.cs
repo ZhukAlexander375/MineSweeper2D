@@ -1,6 +1,7 @@
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using Zenject;
 
 public class WinLoseScreenUI : MonoBehaviour
 {
@@ -35,6 +36,26 @@ public class WinLoseScreenUI : MonoBehaviour
     private InfiniteGridManager _infiniteGridManager;
     private SimpleGridManager _simpleGridManager;
 
+    private ThemeManager _themeManager;
+    private PlayerProgress _playerProgress;
+    private GameManager _gameManager;
+    private TimeModeTimerManager _timeModeTimerManager;
+    private SceneLoader _sceneLoader;
+
+    [Inject]
+    private void Construct(ThemeManager themeManager, 
+        PlayerProgress playerProgress, 
+        GameManager gameManager,
+        TimeModeTimerManager timeModeTimerManager,
+        SceneLoader sceneLoader)
+    {
+        _themeManager = themeManager;
+        _playerProgress = playerProgress;
+        _gameManager = gameManager;
+        _timeModeTimerManager = timeModeTimerManager;
+        _sceneLoader = sceneLoader;
+    }
+
     private void Awake()
     {
         _infiniteGridManager = FindObjectOfType<InfiniteGridManager>();
@@ -53,33 +74,33 @@ public class WinLoseScreenUI : MonoBehaviour
 
     private void ReplayGame()
     {
-        gameObject.SetActive(false);        
-        GameManager.Instance.CurrentStatisticController.ResetStatistic();
+        gameObject.SetActive(false);
+        _gameManager.CurrentStatisticController.ResetStatistic();
 
-        if (GameManager.Instance.CurrentStatisticController is TimeTrialStatisticController)
+        if (_gameManager.CurrentStatisticController is TimeTrialStatisticController)
         {
-            if (TimeModeTimerManager.Instance.IsTimerOver && !TimeModeTimerManager.Instance.IsTimerRunning)
+            if (_timeModeTimerManager.IsTimerOver && !_timeModeTimerManager.IsTimerRunning)
             {
-                TimeModeTimerManager.Instance.ResetModeTimer();
+                _timeModeTimerManager.ResetModeTimer();
             }
         }
 
-        GameManager.Instance.ResetCurrentModeStatistic();
-        GameManager.Instance.ClearCurrentGame(GameManager.Instance.CurrentGameMode);
-        GameManager.Instance.SetCurrentGameMode(GameManager.Instance.CurrentGameMode);
+        _gameManager.ResetCurrentModeStatistic();
+        _gameManager.ClearCurrentGame(_gameManager.CurrentGameMode);
+        _gameManager.SetCurrentGameMode(_gameManager.CurrentGameMode);
         
-        switch (GameManager.Instance.CurrentGameMode)
+        switch (_gameManager.CurrentGameMode)
         {
             case GameMode.SimpleInfinite:
-                SceneLoader.Instance.LoadInfiniteMinesweeperScene();
+                _sceneLoader.LoadScene(SceneType.InfiniteModeScene);
                 break;
 
             case GameMode.Hardcore:
             case GameMode.TimeTrial:
-                if (PlayerProgress.Instance.CheckAwardCount(GameManager.Instance.HardcoreTimeModeCost))
+                if (_playerProgress.CheckAwardCount(_gameManager.HardcoreTimeModeCost))
                 {
-                    SignalBus.Fire(new OnGameRewardSignal(0, -GameManager.Instance.HardcoreTimeModeCost));
-                    SceneLoader.Instance.LoadInfiniteMinesweeperScene();
+                    SignalBus.Fire(new OnGameRewardSignal(0, -_gameManager.HardcoreTimeModeCost));
+                    _sceneLoader.LoadScene(SceneType.InfiniteModeScene);
                 }
                 break;
 
@@ -87,17 +108,17 @@ public class WinLoseScreenUI : MonoBehaviour
             case GameMode.ClassicMedium:
             case GameMode.ClassicHard:
             case GameMode.Custom:
-                SceneLoader.Instance.LoadClassicMinesweeperScene();
+                _sceneLoader.LoadScene(SceneType.ClassicModeScene);
                 break;
         }        
     }
 
     private void ReturnToMainMenu()
     {
-        GameManager.Instance.CurrentStatisticController.StopTimer();
-        PlayerProgress.Instance.SavePlayerProgress();
+        _gameManager.CurrentStatisticController.StopTimer();
+        _playerProgress.SavePlayerProgress();
 
-        switch (GameManager.Instance.CurrentGameMode)
+        switch (_gameManager.CurrentGameMode)
         {
             case GameMode.Hardcore:
             case GameMode.TimeTrial:
@@ -118,7 +139,7 @@ public class WinLoseScreenUI : MonoBehaviour
                 break;
         }
 
-        SceneLoader.Instance.LoadMainMenuScene();
+        _sceneLoader.LoadScene(SceneType.MainMenu);
     }
 
     private void HideLoseMenu()
@@ -142,7 +163,7 @@ public class WinLoseScreenUI : MonoBehaviour
 
     private void SetTitleIconAndText()
     {
-        switch (GameManager.Instance.CurrentGameMode)
+        switch (_gameManager.CurrentGameMode)
         {
             case GameMode.Hardcore:
             case GameMode.TimeTrial:
@@ -154,12 +175,12 @@ public class WinLoseScreenUI : MonoBehaviour
             case GameMode.ClassicMedium:
             case GameMode.ClassicHard:
             case GameMode.Custom:
-                if (GameManager.Instance.CurrentStatisticController.IsGameOver)
+                if (_gameManager.CurrentStatisticController.IsGameOver)
                 {
                     _titleImage.sprite = _loseSprite;
                     _titleText.text = "Try again";
                 }
-                else if (GameManager.Instance.CurrentStatisticController.IsGameWin)
+                else if (_gameManager.CurrentStatisticController.IsGameWin)
                 {
                     _titleImage.sprite = _winSprite;
                     _titleText.text = "You win";
@@ -171,7 +192,7 @@ public class WinLoseScreenUI : MonoBehaviour
 
     private void SetModeNameText()
     {
-        switch (GameManager.Instance.CurrentGameMode)
+        switch (_gameManager.CurrentGameMode)
         {
             case (GameMode.Hardcore):
                 _modeNameText.text = "Hardcore";
@@ -201,7 +222,7 @@ public class WinLoseScreenUI : MonoBehaviour
 
     private void SetResultTexts()
     {
-        switch (GameManager.Instance.CurrentGameMode)
+        switch (_gameManager.CurrentGameMode)
         {
             case (GameMode.Hardcore):
                 _resultText1Text.text = "Time in mode:";
@@ -231,30 +252,30 @@ public class WinLoseScreenUI : MonoBehaviour
 
     private void SetResultValueTexts()
     {
-        switch (GameManager.Instance.CurrentGameMode)
+        switch (_gameManager.CurrentGameMode)
         {
             case (GameMode.Hardcore):
-                _resultValueText1Text.text = FormatTime(GameManager.Instance.CurrentStatisticController.TotalPlayTime);
-                _resultValueText2Text.text = GameManager.Instance.CurrentStatisticController.OpenedCells.ToString();
-                _resultValueText3Text.text = GameManager.Instance.CurrentStatisticController.PlacedFlags.ToString();
-                _resultValueText4Text.text = GameManager.Instance.CurrentStatisticController.CompletedSectors.ToString();
+                _resultValueText1Text.text = FormatTime(_gameManager.CurrentStatisticController.TotalPlayTime);
+                _resultValueText2Text.text = _gameManager.CurrentStatisticController.OpenedCells.ToString();
+                _resultValueText3Text.text = _gameManager.CurrentStatisticController.PlacedFlags.ToString();
+                _resultValueText4Text.text = _gameManager.CurrentStatisticController.CompletedSectors.ToString();
                 break;
 
             case (GameMode.TimeTrial):
-                _resultValueText1Text.text = GameManager.Instance.CurrentStatisticController.OpenedCells.ToString();
-                _resultValueText2Text.text = GameManager.Instance.CurrentStatisticController.PlacedFlags.ToString();
-                _resultValueText3Text.text = GameManager.Instance.CurrentStatisticController.CompletedSectors.ToString();
-                _resultValueText4Text.text = GameManager.Instance.CurrentStatisticController.ExplodedMines.ToString();
+                _resultValueText1Text.text = _gameManager.CurrentStatisticController.OpenedCells.ToString();
+                _resultValueText2Text.text = _gameManager.CurrentStatisticController.PlacedFlags.ToString();
+                _resultValueText3Text.text = _gameManager.CurrentStatisticController.CompletedSectors.ToString();
+                _resultValueText4Text.text = _gameManager.CurrentStatisticController.ExplodedMines.ToString();
                 break;
 
             case (GameMode.ClassicEasy):
             case (GameMode.ClassicMedium):
             case (GameMode.ClassicHard):
             case (GameMode.Custom):
-                _resultValueText1Text.text = FormatTime(GameManager.Instance.CurrentStatisticController.TotalPlayTime);
-                _resultValueText2Text.text = GameManager.Instance.CurrentStatisticController.OpenedCells.ToString();
-                _resultValueText3Text.text = GameManager.Instance.CurrentStatisticController.PlacedFlags.ToString();
-                _resultValueText4Text.text = GameManager.Instance.CurrentStatisticController.ExplodedMines.ToString();
+                _resultValueText1Text.text = FormatTime(_gameManager.CurrentStatisticController.TotalPlayTime);
+                _resultValueText2Text.text = _gameManager.CurrentStatisticController.OpenedCells.ToString();
+                _resultValueText3Text.text = _gameManager.CurrentStatisticController.PlacedFlags.ToString();
+                _resultValueText4Text.text = _gameManager.CurrentStatisticController.ExplodedMines.ToString();
                 break;
         }
     }
@@ -281,11 +302,11 @@ public class WinLoseScreenUI : MonoBehaviour
 
     private void SetReplayButton()
     {
-        switch (GameManager.Instance.CurrentGameMode)
+        switch (_gameManager.CurrentGameMode)
         {
             case (GameMode.Hardcore):
             case (GameMode.TimeTrial):
-                _replayLevelText.text = $"Replay level \n<sprite=0> {GameManager.Instance.HardcoreTimeModeCost}";
+                _replayLevelText.text = $"Replay level \n<sprite=0> {_gameManager.HardcoreTimeModeCost}";
                 break;
 
             default:
@@ -296,11 +317,11 @@ public class WinLoseScreenUI : MonoBehaviour
 
     private void CheckReplayLevelButtonInteractable(OnGameRewardSignal signal)
     {
-        switch (GameManager.Instance.CurrentGameMode)
+        switch (_gameManager.CurrentGameMode)
         {
             case (GameMode.Hardcore):
             case (GameMode.TimeTrial):
-                _replayLevelButton.interactable = PlayerProgress.Instance.CheckAwardCount(GameManager.Instance.HardcoreTimeModeCost);
+                _replayLevelButton.interactable = _playerProgress.CheckAwardCount(_gameManager.HardcoreTimeModeCost);
                 break;
 
             default:
@@ -308,7 +329,7 @@ public class WinLoseScreenUI : MonoBehaviour
                 break;
         }
 
-        SignalBus.Fire(new ThemeChangeSignal(ThemeManager.Instance.CurrentTheme, ThemeManager.Instance.CurrentThemeIndex));
+        SignalBus.Fire(new ThemeChangeSignal(_themeManager.CurrentTheme, _themeManager.CurrentThemeIndex));
     }
 
     private void OnEnable()

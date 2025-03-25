@@ -3,6 +3,7 @@ using System.Collections;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using Zenject;
 
 public class InfiniteGameUI : MonoBehaviour
 {
@@ -10,7 +11,7 @@ public class InfiniteGameUI : MonoBehaviour
     [SerializeField] private Button _pauseButton;
     [SerializeField] private Button _continueButton;
     [SerializeField] private Button _settingsButton;
-    [SerializeField] private Button _replayLevelButton;    
+    [SerializeField] private Button _replayLevelButton;
     [SerializeField] private Button _goHomeButton;
     [SerializeField] private Button _backLastClickButton;
 
@@ -34,12 +35,32 @@ public class InfiniteGameUI : MonoBehaviour
     //[Header("Toggle")]
     //[SerializeField] private Toggle _testToggle;
 
-    private InfiniteGridManager _infiniteGridManager;    
+    private InfiniteGridManager _infiniteGridManager;
     private bool _isShowing;
     private Tween _awardTween;
 
+    private ThemeManager _themeManager;
+    private PlayerProgress _playerProgress;
+    private GameManager _gameManager;
+    private TimeModeTimerManager _timeModeTimerManager;
+    private SceneLoader _sceneLoader;
+
+    [Inject]
+    private void Construct(ThemeManager themeManager,
+        PlayerProgress playerProgress,
+        GameManager gameManager,
+        TimeModeTimerManager timeModeTimerManager,
+        SceneLoader sceneLoader)
+    {
+        _themeManager = themeManager;
+        _playerProgress = playerProgress;
+        _gameManager = gameManager;
+        _timeModeTimerManager = timeModeTimerManager;
+        _sceneLoader = sceneLoader;
+    }
+
     private void Awake()
-    {       
+    {
         _infiniteGridManager = FindObjectOfType<InfiniteGridManager>();
 
         SignalBus.Subscribe<OnGameRewardSignal>(CheckReplayLevelButtonInteractable);
@@ -49,8 +70,8 @@ public class InfiniteGameUI : MonoBehaviour
     {
         _pauseButton.onClick.AddListener(OpenPauseMenu);
         _continueButton.onClick.AddListener(ClosePauseMenu);
-        _settingsButton.onClick.AddListener(OpenSettings);        
-        _replayLevelButton.onClick.AddListener(ReplayGame);        
+        _settingsButton.onClick.AddListener(OpenSettings);
+        _replayLevelButton.onClick.AddListener(ReplayGame);
         _goHomeButton.onClick.AddListener(ReturnToMainMenu);
         _backLastClickButton.onClick.AddListener(BackToLastClickButton);
 
@@ -62,95 +83,90 @@ public class InfiniteGameUI : MonoBehaviour
         //_testToggle.onValueChanged.AddListener(OnToggleChanged);
     }
 
-    private void Update()
+    private void FixedUpdate()
     {
-        if (GameManager.Instance.CurrentGameMode == GameMode.TimeTrial && TimeModeTimerManager.Instance != null)
+        /*if (_gameManager.CurrentGameMode == GameMode.TimeTrial && _timeModeTimerManager != null)
         {
-            float remainingTime = TimeModeTimerManager.Instance.GetRemainingTime();
+            
+            float remainingTime = _timeModeTimerManager.GetRemainingTime();
             if (remainingTime >= 0)
             {
+                Debug.Log($"{FormatTime(remainingTime)}");
                 _timerText.text = FormatTime(remainingTime);
             }
             ///
             ///
-        }
-    }
-
-    private string FormatTime(float time)
-    {
-        int minutes = Mathf.FloorToInt(time / 60);
-        int seconds = Mathf.FloorToInt(time % 60);
-        return $"{minutes:D2}:{seconds:D2}";
+        }*/
     }
 
     private void ReturnToMainMenu()
     {
-        GameManager.Instance.CurrentStatisticController.StopTimer();        
-        PlayerProgress.Instance.SavePlayerProgress();
-               
+        _gameManager.CurrentStatisticController.StopTimer();
+        _playerProgress.SavePlayerProgress();
+
         if (_infiniteGridManager.IsFirstClick)
         {
             _infiniteGridManager.SaveCurrentGame();
-        } 
+        }
 
-        SceneLoader.Instance.LoadMainMenuScene();
+        _sceneLoader.LoadScene(SceneType.MainMenu);
     }
 
     private void ReplayGame()
     {
-        _loseScreen.gameObject.SetActive(false);       
-        GameManager.Instance.CurrentStatisticController.ResetStatistic();
+        _loseScreen.gameObject.SetActive(false);
+        _gameManager.CurrentStatisticController.ResetStatistic();
 
-        if (GameManager.Instance.CurrentStatisticController is TimeTrialStatisticController)
+        if (_gameManager.CurrentStatisticController is TimeTrialStatisticController)
         {
-            if (TimeModeTimerManager.Instance.IsTimerOver && !TimeModeTimerManager.Instance.IsTimerRunning)
+            if (_timeModeTimerManager.IsTimerOver && !_timeModeTimerManager.IsTimerRunning)
             {
-                TimeModeTimerManager.Instance.ResetModeTimer();
-            }            
+                _timeModeTimerManager.ResetModeTimer();
+            }
         }
 
-        GameManager.Instance.ResetCurrentModeStatistic();
-        GameManager.Instance.ClearCurrentGame(GameManager.Instance.CurrentGameMode);
-        GameManager.Instance.SetCurrentGameMode(GameManager.Instance.CurrentGameMode);
+        _gameManager.ResetCurrentModeStatistic();
+        _gameManager.ClearCurrentGame(_gameManager.CurrentGameMode);
+        _gameManager.SetCurrentGameMode(_gameManager.CurrentGameMode);
 
-        switch (GameManager.Instance.CurrentGameMode)
+        switch (_gameManager.CurrentGameMode)
         {
             case GameMode.Hardcore:
             case GameMode.TimeTrial:
-                if (PlayerProgress.Instance.CheckAwardCount(GameManager.Instance.HardcoreTimeModeCost))
+                if (_playerProgress.CheckAwardCount(_gameManager.HardcoreTimeModeCost))
                 {
-                    SignalBus.Fire(new OnGameRewardSignal(0, -GameManager.Instance.HardcoreTimeModeCost));
-                    SceneLoader.Instance.LoadInfiniteMinesweeperScene();
+                    SignalBus.Fire(new OnGameRewardSignal(0, -_gameManager.HardcoreTimeModeCost));
+                    _sceneLoader.LoadScene(SceneType.InfiniteModeScene);                    
                 }
                 break;
 
-            case GameMode.SimpleInfinite:            
-                SceneLoader.Instance.LoadInfiniteMinesweeperScene();
+            case GameMode.SimpleInfinite:
+                _sceneLoader.LoadScene(SceneType.InfiniteModeScene);                
                 break;
-        }        
+        }
     }
 
     private void OpenPauseMenu()
     {
         _pauseMenuScreen.gameObject.SetActive(true);
-        GameManager.Instance.CurrentStatisticController.StopTimer();
+        _gameManager.CurrentStatisticController.StopTimer();
     }
 
     private void ClosePauseMenu()
     {
         _pauseMenuScreen.gameObject.SetActive(false);
-        GameManager.Instance.CurrentStatisticController.StartTimer();
+        _gameManager.CurrentStatisticController.StartTimer();
     }
 
     private void OpenSettings()
     {
         _settingsScreen.gameObject.SetActive(true);
-        GameManager.Instance.CurrentStatisticController.StopTimer();
-    }    
+        _gameManager.CurrentStatisticController.StopTimer();
+    }
 
     private void OpenLoseScreen(GameOverSignal signal)
     {
-        if (signal.CurrentGameMode == GameManager.Instance.CurrentGameMode)
+        if (signal.CurrentGameMode == _gameManager.CurrentGameMode)
         {
             if (signal.IsGameOver == true)
             {
@@ -163,7 +179,7 @@ public class InfiniteGameUI : MonoBehaviour
                 _loseScreen.gameObject.SetActive(false);
                 _pauseButton.gameObject.SetActive(true);
             }
-        }        
+        }
     }
 
     private void BackToLastClickButton()
@@ -191,7 +207,7 @@ public class InfiniteGameUI : MonoBehaviour
             .Join(_awardPopupText.DOFade(0, 0.5f)) // Одновременно уменьшаем прозрачность
             .OnComplete(() =>
             {
-                _awardText.text = PlayerProgress.Instance.TotalReward.ToString(); // Обновляем текст награды
+                _awardText.text = _playerProgress.TotalReward.ToString(); // Обновляем текст награды
                 _awardPopupText.transform.position = startPosition; // Возвращаем на место
                 _awardPopupText.color = new Color(_awardPopupText.color.r, _awardPopupText.color.g, _awardPopupText.color.b, 0); // Сбрасываем альфу
                 _awardPopupText.gameObject.SetActive(false); // Прячем объект
@@ -202,9 +218,9 @@ public class InfiniteGameUI : MonoBehaviour
 
     private void UpdateFlagText(FlagPlacingSignal signal)
     {
-        if (GameManager.Instance.CurrentStatisticController != null)
+        if (_gameManager.CurrentStatisticController != null)
         {
-            _flagsTexts.text = GameManager.Instance.CurrentStatisticController.PlacedFlags.ToString();
+            _flagsTexts.text = _gameManager.CurrentStatisticController.PlacedFlags.ToString();
         }
         else
         {
@@ -219,7 +235,7 @@ public class InfiniteGameUI : MonoBehaviour
 
     private void CheckGameMode()
     {
-        switch (GameManager.Instance.CurrentGameMode)
+        switch (_gameManager.CurrentGameMode)
         {
             case (GameMode.TimeTrial):
                 _timerObject.SetActive(true);
@@ -233,10 +249,10 @@ public class InfiniteGameUI : MonoBehaviour
 
     private void UpdateTexts()
     {
-        _awardText.text = PlayerProgress.Instance.TotalReward.ToString();
-        _flagsTexts.text = GameManager.Instance.CurrentStatisticController.PlacedFlags.ToString();
+        _awardText.text = _playerProgress.TotalReward.ToString();
+        _flagsTexts.text = _gameManager.CurrentStatisticController.PlacedFlags.ToString();
 
-        switch (GameManager.Instance.CurrentGameMode)
+        switch (_gameManager.CurrentGameMode)
         {
             case GameMode.SimpleInfinite:
                 _gameModeText.text = "Infinity";
@@ -252,11 +268,11 @@ public class InfiniteGameUI : MonoBehaviour
 
     private void SetReplayButton()
     {
-        switch (GameManager.Instance.CurrentGameMode)
+        switch (_gameManager.CurrentGameMode)
         {
             case (GameMode.Hardcore):
             case (GameMode.TimeTrial):
-                _replayLevelText.text = $"Replay level \n<sprite=0> {GameManager.Instance.HardcoreTimeModeCost}";
+                _replayLevelText.text = $"Replay level \n<sprite=0> {_gameManager.HardcoreTimeModeCost}";
                 break;
 
             default:
@@ -267,7 +283,7 @@ public class InfiniteGameUI : MonoBehaviour
 
     private void CheckReplayLevelButtonInteractable(OnGameRewardSignal signal)
     {
-        switch (GameManager.Instance.CurrentGameMode)
+        switch (_gameManager.CurrentGameMode)
         {
             case GameMode.SimpleInfinite:
                 _replayLevelButton.interactable = true;
@@ -276,11 +292,11 @@ public class InfiniteGameUI : MonoBehaviour
             case GameMode.Hardcore:
             case GameMode.TimeTrial:
 
-                _replayLevelButton.interactable = PlayerProgress.Instance.CheckAwardCount(GameManager.Instance.HardcoreTimeModeCost);
+                _replayLevelButton.interactable = _playerProgress.CheckAwardCount(_gameManager.HardcoreTimeModeCost);
                 break;
         }
 
-        SignalBus.Fire(new ThemeChangeSignal(ThemeManager.Instance.CurrentTheme, ThemeManager.Instance.CurrentThemeIndex));
+        SignalBus.Fire(new ThemeChangeSignal(_themeManager.CurrentTheme, _themeManager.CurrentThemeIndex));
     }
 
     /*private void OnToggleChanged(bool isOn)
@@ -289,7 +305,7 @@ public class InfiniteGameUI : MonoBehaviour
         SignalBus.Fire(new OnVisibleMinesSignal(isOn));
     }*/
 
-    public void ShowPopup(WrongСlickSignal signal)
+    public void ShowPopup(WrongClickSignal signal)
     {
         if (_isShowing) return; // Если popup уже активен, игнорируем вызов
 
@@ -302,9 +318,28 @@ public class InfiniteGameUI : MonoBehaviour
     {
         yield return new WaitForSeconds(delay);
 
-       _wrongClickPopupScreen.gameObject.SetActive(false);
-       _isShowing = false;
+        _wrongClickPopupScreen.gameObject.SetActive(false);
+        _isShowing = false;
     }
+
+    private void UpdateTimerUI()
+    {
+        if (_timeModeTimerManager == null) return;
+
+        float remainingTime = _timeModeTimerManager.GetRemainingTime();
+        if (remainingTime >= 0)
+        {
+            _timerText.text = FormatTime(remainingTime);
+        }
+    }
+
+    private string FormatTime(float time)
+    {
+        int minutes = Mathf.FloorToInt(time / 60);
+        int seconds = Mathf.FloorToInt(time % 60);
+        return $"{minutes:D2}:{seconds:D2}";
+    }
+
 
     private void OnEnable()
     {
@@ -312,9 +347,13 @@ public class InfiniteGameUI : MonoBehaviour
         SignalBus.Subscribe<FlagPlacingSignal>(UpdateFlagText);
         SignalBus.Subscribe<LoadCompletedSignal>(UpdateTexts);
         SignalBus.Subscribe<GameOverSignal>(OpenLoseScreen);
-        SignalBus.Subscribe<WrongСlickSignal>(ShowPopup);
+        SignalBus.Subscribe<WrongClickSignal>(ShowPopup);
 
-        SetReplayButton();        
+        SetReplayButton();
+        if (_gameManager.CurrentGameMode == GameMode.TimeTrial)
+        {
+            InvokeRepeating(nameof(UpdateTimerUI), 0f, 1f);
+        }
     }
     private void OnDisable()
     {
@@ -323,7 +362,14 @@ public class InfiniteGameUI : MonoBehaviour
         SignalBus.Unsubscribe<LoadCompletedSignal>(UpdateTexts);
         SignalBus.Unsubscribe<GameOverSignal>(OpenLoseScreen);
         SignalBus.Unsubscribe<OnGameRewardSignal>(CheckReplayLevelButtonInteractable);
-        SignalBus.Unsubscribe<WrongСlickSignal>(ShowPopup);
+        SignalBus.Unsubscribe<WrongClickSignal>(ShowPopup);
+        CancelInvoke(nameof(UpdateTimerUI));
+
+        _awardTween?.Kill();
     }
 
+    private void OnApplicationQuit()
+    {
+        _awardTween?.Kill();
+    }
 }

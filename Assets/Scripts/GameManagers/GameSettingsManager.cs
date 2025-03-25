@@ -1,46 +1,38 @@
 using UnityEngine;
+using Zenject;
 
-public class GameSettingsManager : MonoBehaviour
+public class GameSettingsManager : IInitializable
 {
-    public static GameSettingsManager Instance { get; private set; }
+    public bool IsSoundEnabled { get; private set; }
+    public bool IsMusicEnabled { get; private set; }
+    public bool IsVibrationEnabled { get; private set; }
+    public bool OnDoubleClick { get; private set; }
 
-    [Header("Audio Settings")]
-    [SerializeField] public bool IsSoundEnabled = true;
-    [SerializeField] public bool IsMusicEnabled = true;
+    public float CameraZoom { get; private set; }
+    public float CameraZoomMin { get; private set; }
+    public float CameraZoomMax { get; private set; }
 
-    [Header("Vibrarion Settings")]
-    [SerializeField] public bool IsVibrationEnabled = true;
 
-    [Header("Camera Settings")]
-    [SerializeField] public float _cameraZoomMin = 0.05f;
-    [SerializeField] public float _cameraZoomMax = 2f;
-    [SerializeField] private float _cameraZoom = 0.1f;
+    public float HoldTimeMin { get; private set; }
+    public float HoldTimeMax { get; private set; }
+    public float HoldTime { get; private set; }
 
-    [Header("Input Settings")]
-    [SerializeField] public bool OnDoubleClick = true;
+    private GameSettingsConfig _defaultSettingsConfig;
+    private SaveManager _saveManager;
 
-    [Header("Hold Duration")]
-    [SerializeField] public float _holdTimeMin = 0.15f;
-    [SerializeField] public float _holdTimeMax = 0.75f;
-    [SerializeField] private float _holdTime = 0.3f;
 
-    private void Awake()
+    [Inject]
+    private void Construct(GameSettingsConfig settingsConfig, SaveManager saveManager)
     {
-        if (Instance != null && Instance != this)
-        {
-            Destroy(gameObject);
-            return;
-        }
-
-        Instance = this;
-        DontDestroyOnLoad(gameObject);
+        _defaultSettingsConfig = settingsConfig;
+        _saveManager = saveManager;
     }
 
-    void Start()
+    public void Initialize()
     {
+        ApplyDefaultSettings();  // Загружаем СО в память
         LoadSettings();
         QualitySettings.vSyncCount = 0;
-
         Application.targetFrameRate = 60;
     }
 
@@ -65,25 +57,24 @@ public class GameSettingsManager : MonoBehaviour
         SaveSettings();
     }
 
-    public float CameraZoom
+    public void SetCameraZoom(float value)
     {
-        get => _cameraZoom;
-        set
-        {
-            _cameraZoom = Mathf.Clamp(value, _cameraZoomMin, _cameraZoomMax);
-            SaveSettings();
-        }
+        CameraZoom = Mathf.Clamp(value, CameraZoomMin, CameraZoomMax);
+        SaveSettings();
     }
 
-    public float HoldTime
+    public void SetHoldTime(float value)
     {
-        get => _holdTime;
-        set
-        {
-            _holdTime = Mathf.Clamp(value, _holdTimeMin, _holdTimeMax);
-            SaveSettings();
-        }
+        HoldTime = Mathf.Clamp(value, HoldTimeMin, HoldTimeMax);
+        SaveSettings();
     }
+
+    public void ToogleDoubleClick()
+    {
+        OnDoubleClick = !OnDoubleClick;
+        SaveSettings();
+    }
+
 
     public void SaveSettings()
     {
@@ -92,36 +83,57 @@ public class GameSettingsManager : MonoBehaviour
             IsSoundEnabled = IsSoundEnabled,
             IsMusicEnabled = IsMusicEnabled,
             IsVibrationEnabled = IsVibrationEnabled,
-            CameraZoom = _cameraZoom,
-            HoldTime = _holdTime,
-            OnDoubleClick = OnDoubleClick
+            OnDoubleClick = OnDoubleClick,
+            CameraZoom = CameraZoom,
+            CameraZoomMin = CameraZoomMin,
+            CameraZoomMax = CameraZoomMax,
+            HoldTime = HoldTime,
+            HoldTimeMin = HoldTimeMin,
+            HoldTimeMax = HoldTimeMax
         };
 
-        SaveManager.Instance.SaveSettings(settings);
+        _saveManager.SaveSettings(settings);
     }
 
     public void LoadSettings()
     {
-        SettingsData settings = SaveManager.Instance.LoadSettings();
-        if (settings != null)
+        SettingsData settings = _saveManager.LoadSettings();
+
+        if (settings == null || settings.CameraZoomMax == 0) // Если файл пустой или некорректный
         {
-            IsSoundEnabled = settings.IsSoundEnabled;
-            IsMusicEnabled = settings.IsMusicEnabled;
-            IsVibrationEnabled = settings.IsVibrationEnabled;
-            _cameraZoom = settings.CameraZoom;
-            _holdTime = settings.HoldTime;
-            OnDoubleClick = settings.OnDoubleClick;
-            //Debug.Log("Settings Loaded Successfully");
+            SaveSettings(); // Сохраняем дефолтные настройки
+            Debug.LogWarning("No valid settings found. Using defaults and saving them.");
+            return;
         }
-        else
-        {
-            Debug.LogWarning("Failed to load settings, applying default values.");
-        }
+
+        IsSoundEnabled = settings.IsSoundEnabled;
+        IsMusicEnabled = settings.IsMusicEnabled;
+        IsVibrationEnabled = settings.IsVibrationEnabled;
+        OnDoubleClick = settings.OnDoubleClick;
+        CameraZoom = settings.CameraZoom;
+        HoldTime = settings.HoldTime;
+
+        CameraZoomMin = settings.CameraZoomMin > 0 ? settings.CameraZoomMin : _defaultSettingsConfig.CameraZoomMin;
+        CameraZoomMax = settings.CameraZoomMax > 0 ? settings.CameraZoomMax : _defaultSettingsConfig.CameraZoomMax;
+
+        HoldTimeMin = settings.HoldTimeMin > 0 ? settings.HoldTimeMin : _defaultSettingsConfig.HoldTimeMin;
+        HoldTimeMax = settings.HoldTimeMax > 0 ? settings.HoldTimeMax : _defaultSettingsConfig.HoldTimeMax;
     }
 
-    public void ToogleDoubleClick()
+    private void ApplyDefaultSettings()
     {
-        OnDoubleClick = !OnDoubleClick;
-        SaveSettings();
+        IsSoundEnabled = _defaultSettingsConfig.IsSoundEnabled;
+        IsMusicEnabled = _defaultSettingsConfig.IsMusicEnabled;
+        IsVibrationEnabled = _defaultSettingsConfig.IsVibrationEnabled;
+        OnDoubleClick = _defaultSettingsConfig.OnDoubleClick;
+
+        CameraZoomMin = _defaultSettingsConfig.CameraZoomMin;
+        CameraZoomMax = _defaultSettingsConfig.CameraZoomMax;
+        CameraZoom = _defaultSettingsConfig.CameraZoom;
+
+        HoldTimeMin = _defaultSettingsConfig.HoldTimeMin;
+        HoldTimeMax = _defaultSettingsConfig.HoldTimeMax;
+        HoldTime = _defaultSettingsConfig.HoldTime;
     }
 }
+

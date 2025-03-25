@@ -3,6 +3,7 @@ using System.Collections;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using Zenject;
 using Vector3 = UnityEngine.Vector3;
 
 public class MainMenuUI : MonoBehaviour
@@ -64,6 +65,30 @@ public class MainMenuUI : MonoBehaviour
 
     private Tween _bonusButtonTween;
     private Tween _bonusButtonRotationTween;
+
+    private RewardManager _rewardManager;
+    private ThemeManager _themeManager;
+    private SaveManager _saveManager;
+    private PlayerProgress _playerProgress;
+    private GameManager _gameManager;
+    private SceneLoader _sceneLoader;
+
+    [Inject]
+    private void Construct(
+        RewardManager rewardManager, 
+        ThemeManager themeManager, 
+        SaveManager saveManager, 
+        PlayerProgress playerProgress, 
+        GameManager gameManager,
+        SceneLoader sceneLoader)
+    {
+        _rewardManager = rewardManager;
+        _themeManager = themeManager;
+        _saveManager = saveManager;
+        _playerProgress = playerProgress;
+        _gameManager = gameManager;
+        _sceneLoader = sceneLoader;
+    }
 
     private void Awake()
     {
@@ -128,126 +153,114 @@ public class MainMenuUI : MonoBehaviour
 
     private void ContinueLastSession()
     {
-        if (GameManager.Instance != null && GameManager.Instance.CurrentStatisticController != null)
+        if (_gameManager != null && _gameManager.CurrentStatisticController != null)
         {
-            if (GameManager.Instance.LastSessionGameMode == GameMode.SimpleInfinite ||
-                GameManager.Instance.LastSessionGameMode == GameMode.Hardcore ||
-                GameManager.Instance.LastSessionGameMode == GameMode.TimeTrial)
+            if (_gameManager.LastSessionGameMode == GameMode.SimpleInfinite ||
+                _gameManager.LastSessionGameMode == GameMode.Hardcore ||
+                _gameManager.LastSessionGameMode == GameMode.TimeTrial)
             {
-                GameManager.Instance.SetCurrentGameMode(GameManager.Instance.LastSessionGameMode);
-                SceneLoader.Instance.LoadInfiniteMinesweeperScene();
+                _gameManager.SetCurrentGameMode(_gameManager.LastSessionGameMode);
+                _sceneLoader.LoadScene(SceneType.InfiniteModeScene);
             }
-            else if (GameManager.Instance.LastSessionGameMode == GameMode.ClassicEasy ||
-                GameManager.Instance.LastSessionGameMode == GameMode.ClassicMedium ||
-                GameManager.Instance.LastSessionGameMode == GameMode.ClassicHard ||
-                GameManager.Instance.LastSessionGameMode == GameMode.Custom)
+            else if (_gameManager.LastSessionGameMode == GameMode.ClassicEasy ||
+                _gameManager.LastSessionGameMode == GameMode.ClassicMedium ||
+                _gameManager.LastSessionGameMode == GameMode.ClassicHard ||
+                _gameManager.LastSessionGameMode == GameMode.Custom)
             {
-                GameManager.Instance.SetCurrentGameMode(GameManager.Instance.LastSessionGameMode);
-                SceneLoader.Instance.LoadClassicMinesweeperScene();
+                _gameManager.SetCurrentGameMode(_gameManager.LastSessionGameMode);
+                _sceneLoader.LoadScene(SceneType.ClassicModeScene);
             }
         }
         else
         {
-            GameManager.Instance.SetCurrentGameMode(GameMode.SimpleInfinite);
-            SceneLoader.Instance.LoadInfiniteMinesweeperScene();
+            _gameManager.SetCurrentGameMode(GameMode.SimpleInfinite);
+            _sceneLoader.LoadScene(SceneType.InfiniteModeScene);
         }
     }
 
     private void ContinueLastClassicSession()
     {
-        if (GameManager.Instance != null && GameManager.Instance.CurrentStatisticController != null)
+        if (_gameManager != null && _gameManager.CurrentStatisticController != null)
         {
-            GameManager.Instance.SetCurrentGameMode(GameManager.Instance.LastClassicSessionMode);
-            SceneLoader.Instance.LoadClassicMinesweeperScene();
+            _gameManager.SetCurrentGameMode(_gameManager.LastClassicSessionMode);
+            _sceneLoader.LoadScene(SceneType.ClassicModeScene);
         }        
     }
 
     private void NewInfinityGame()
     {
-        GameManager.Instance.SetCurrentGameMode(GameMode.SimpleInfinite);
-        GameManager.Instance.ClearCurrentGame(GameMode.SimpleInfinite);
-        SceneLoader.Instance.LoadInfiniteMinesweeperScene();
-        //Debug.Log($"{GameManager.Instance.CurrentGameMode}");
-
-        PlayerProgress.Instance.SetFirstTimePlayed();
+        _gameManager.SetCurrentGameMode(GameMode.SimpleInfinite);
+        _gameManager.ClearCurrentGame(GameMode.SimpleInfinite);
+        _sceneLoader.LoadScene(SceneType.InfiniteModeScene);        
+        _playerProgress.SetFirstTimePlayed();
     }
 
     private void ContinuedInfinityGame()
     {
-        GameManager.Instance.SetCurrentGameMode(GameMode.SimpleInfinite);
-        SceneLoader.Instance.LoadInfiniteMinesweeperScene();
+        _gameManager.SetCurrentGameMode(GameMode.SimpleInfinite);
+        _sceneLoader.LoadScene(SceneType.InfiniteModeScene);
     }
 
     private void NewHardcoreGame()
     {
-        if (PlayerProgress.Instance.CheckAwardCount(GameManager.Instance.HardcoreTimeModeCost))
+        if (_playerProgress.CheckAwardCount(_gameManager.HardcoreTimeModeCost))
         {            
-            SignalBus.Fire(new OnGameRewardSignal(0, -GameManager.Instance.HardcoreTimeModeCost));
+            SignalBus.Fire(new OnGameRewardSignal(0, -_gameManager.HardcoreTimeModeCost));
 
-            GameManager.Instance.SetCurrentGameMode(GameMode.Hardcore);
-            GameManager.Instance.ClearCurrentGame(GameMode.Hardcore);
-            SceneLoader.Instance.LoadInfiniteMinesweeperScene();
-            //Debug.Log($"{GameManager.Instance.CurrentGameMode}");
-
-            PlayerProgress.Instance.SetFirstTimePlayed();
+            _gameManager.SetCurrentGameMode(GameMode.Hardcore);
+            _gameManager.ClearCurrentGame(GameMode.Hardcore);
+            _sceneLoader.LoadScene(SceneType.InfiniteModeScene);            
+            _playerProgress.SetFirstTimePlayed();
         }       
     }
 
     private void ContinuedHardcoreGame()
     {
-        GameManager.Instance.SetCurrentGameMode(GameMode.Hardcore);
-        SceneLoader.Instance.LoadInfiniteMinesweeperScene();
+        _gameManager.SetCurrentGameMode(GameMode.Hardcore);
+        _sceneLoader.LoadScene(SceneType.InfiniteModeScene);
     }
 
     private void NewTimeTrialGame()
     {
-        if (PlayerProgress.Instance.CheckAwardCount(GameManager.Instance.HardcoreTimeModeCost))
+        if (_playerProgress.CheckAwardCount(_gameManager.HardcoreTimeModeCost))
         {
-            SignalBus.Fire(new OnGameRewardSignal(0, -GameManager.Instance.HardcoreTimeModeCost));
+            SignalBus.Fire(new OnGameRewardSignal(0, -_gameManager.HardcoreTimeModeCost));
 
-            GameManager.Instance.SetCurrentGameMode(GameMode.TimeTrial);
-            GameManager.Instance.ClearCurrentGame(GameMode.TimeTrial);
-            SceneLoader.Instance.LoadInfiniteMinesweeperScene();
-            //Debug.Log($"{GameManager.Instance.CurrentGameMode}");
-
-            PlayerProgress.Instance.SetFirstTimePlayed();
+            _gameManager.SetCurrentGameMode(GameMode.TimeTrial);
+            _gameManager.ClearCurrentGame(GameMode.TimeTrial);
+            _sceneLoader.LoadScene(SceneType.InfiniteModeScene);
+            _playerProgress.SetFirstTimePlayed();
         }        
     }
 
     private void ContinuedTimeTrialGame()
     {
-        GameManager.Instance.SetCurrentGameMode(GameMode.TimeTrial);
-        SceneLoader.Instance.LoadInfiniteMinesweeperScene();
+        _gameManager.SetCurrentGameMode(GameMode.TimeTrial);
+        _sceneLoader.LoadScene(SceneType.InfiniteModeScene);
     }
 
     private void NewClassicEasyGame()
     {
-        GameManager.Instance.SetCurrentGameMode(GameMode.ClassicEasy);
-        GameManager.Instance.ClearCurrentGame(GameMode.ClassicEasy);
-        //GameManager.Instance.ResetCurrentModeStatistic();
-        SceneLoader.Instance.LoadClassicMinesweeperScene();
-
-        PlayerProgress.Instance.SetFirstTimePlayed();
+        _gameManager.SetCurrentGameMode(GameMode.ClassicEasy);
+        _gameManager.ClearCurrentGame(GameMode.ClassicEasy);
+        _sceneLoader.LoadScene(SceneType.ClassicModeScene);
+        _playerProgress.SetFirstTimePlayed();
     }
 
     private void NewClassicMediumGame()
     {
-        GameManager.Instance.SetCurrentGameMode(GameMode.ClassicMedium);
-        GameManager.Instance.ClearCurrentGame(GameMode.ClassicMedium);
-        //GameManager.Instance.ResetCurrentModeStatistic();
-        SceneLoader.Instance.LoadClassicMinesweeperScene();
-
-        PlayerProgress.Instance.SetFirstTimePlayed();
+        _gameManager.SetCurrentGameMode(GameMode.ClassicMedium);
+        _gameManager.ClearCurrentGame(GameMode.ClassicMedium);
+        _sceneLoader.LoadScene(SceneType.ClassicModeScene);
+        _playerProgress.SetFirstTimePlayed();
     }
 
     private void NewClassicHardGame()
     {
-        GameManager.Instance.SetCurrentGameMode(GameMode.ClassicHard);
-        GameManager.Instance.ClearCurrentGame(GameMode.ClassicHard);
-        //GameManager.Instance.ResetCurrentModeStatistic();
-        SceneLoader.Instance.LoadClassicMinesweeperScene();
-
-        PlayerProgress.Instance.SetFirstTimePlayed();
+        _gameManager.SetCurrentGameMode(GameMode.ClassicHard);
+        _gameManager.ClearCurrentGame(GameMode.ClassicHard);
+        _sceneLoader.LoadScene(SceneType.ClassicModeScene);
+        _playerProgress.SetFirstTimePlayed();
     }
 
     private void OpenCustomGameSettingsScreen()
@@ -296,12 +309,12 @@ public class MainMenuUI : MonoBehaviour
     {
         yield return null;
         
-        if (GameManager.Instance != null && GameManager.Instance.CurrentStatisticController != null)
+        if (_gameManager != null && _gameManager.CurrentStatisticController != null)
         {
-            _lastModeText.text = GetGameModeName(GameManager.Instance.LastSessionGameMode);
-            _timeSpentText.text = "Time spent: " + FormatTime(GameManager.Instance.CurrentStatisticController.TotalPlayTime);
-            _flagsPlacedText.text = "Flags placed: " + GameManager.Instance.CurrentStatisticController.PlacedFlags.ToString();
-            _cellsOpenText.text = "Cells open: " + GameManager.Instance.CurrentStatisticController.OpenedCells.ToString();
+            _lastModeText.text = GetGameModeName(_gameManager.LastSessionGameMode);
+            _timeSpentText.text = "Time spent: " + FormatTime(_gameManager.CurrentStatisticController.TotalPlayTime);
+            _flagsPlacedText.text = "Flags placed: " + _gameManager.CurrentStatisticController.PlacedFlags.ToString();
+            _cellsOpenText.text = "Cells open: " + _gameManager.CurrentStatisticController.OpenedCells.ToString();
         }
         else
         {
@@ -314,13 +327,13 @@ public class MainMenuUI : MonoBehaviour
 
     private void UpdateLastClassicSessionStatistic(GameManagerLoadCompletedSignal signal)
     {
-        if (GameManager.Instance != null && GameManager.Instance.ClassicStats != null)
+        if (_gameManager != null && _gameManager.ClassicStats != null)
         {
             //_lastClassicSessionText.text = "Last session " + GetGameModeName(GameManager.Instance.LastClassicSessionMode);
-            _difficultyLevelText.text = "Difficulty level: " + GetGameModeDifficulty(GameManager.Instance.LastClassicSessionMode);            
-            _classicSessionCellsOpenText.text = "Cells open: " + GameManager.Instance.ClassicStats.OpenedCells.ToString();
-            _classicSessionFlagsPlacedText.text = "Flags placed: " + GameManager.Instance.ClassicStats.PlacedFlags.ToString();
-            _classicSessionTimeSpentText.text = "Time spent: " + FormatTime(GameManager.Instance.ClassicStats.TotalPlayTime);            
+            _difficultyLevelText.text = "Difficulty level: " + GetGameModeDifficulty(_gameManager.LastClassicSessionMode);            
+            _classicSessionCellsOpenText.text = "Cells open: " + _gameManager.ClassicStats.OpenedCells.ToString();
+            _classicSessionFlagsPlacedText.text = "Flags placed: " + _gameManager.ClassicStats.PlacedFlags.ToString();
+            _classicSessionTimeSpentText.text = "Time spent: " + FormatTime(_gameManager.ClassicStats.TotalPlayTime);            
         }
     }
 
@@ -397,16 +410,16 @@ public class MainMenuUI : MonoBehaviour
 
     private void ContinueClassicButtonInteractable()
     {
-        _continueClassicGameButton.interactable = SaveManager.Instance.HasClassicGameSave();
-        SignalBus.Fire(new ThemeChangeSignal(ThemeManager.Instance.CurrentTheme, ThemeManager.Instance.CurrentThemeIndex));
+        _continueClassicGameButton.interactable = _saveManager.HasClassicGameSave();
+        SignalBus.Fire(new ThemeChangeSignal(_themeManager.CurrentTheme, _themeManager.CurrentThemeIndex));
     }
 
     private void PlayButtonInteractable(PlayerProgressLoadCompletedSignal signal)
     {
-        if (PlayerProgress.Instance != null)
+        if (_playerProgress != null)
         {
-            _startTutorialObject.gameObject.SetActive(!PlayerProgress.Instance.IsFirstTimePlayed);
-            _containerLastSession.SetActive(PlayerProgress.Instance.IsFirstTimePlayed);
+            _startTutorialObject.gameObject.SetActive(!_playerProgress.IsFirstTimePlayed);
+            _containerLastSession.SetActive(_playerProgress.IsFirstTimePlayed);
 
 
             UpdateAwardText(new OnGameRewardSignal());              ///KOSTYLISCHE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -423,20 +436,20 @@ public class MainMenuUI : MonoBehaviour
         yield return null;
         foreach (var text in _awardTexts)
         {
-            text.text = PlayerProgress.Instance.TotalReward.ToString();
+            text.text = _playerProgress.TotalReward.ToString();
         }
     }
 
     private void UpdateNewGameButtonsText()
     {
-        _hardcoreNewGameText.text = $"New game \n<sprite=0> {GameManager.Instance.HardcoreTimeModeCost}";
-        _timeTrialNewGameText.text = $"New game \n<sprite=0> {GameManager.Instance.HardcoreTimeModeCost}";
+        _hardcoreNewGameText.text = $"New game \n<sprite=0> {_gameManager.HardcoreTimeModeCost}";
+        _timeTrialNewGameText.text = $"New game \n<sprite=0> {_gameManager.HardcoreTimeModeCost}";
     }
 
     private void CheckNewGameButtonsInteractable(OnGameRewardSignal signal)
     {
-        _hardcoreNewGameMenuButton.interactable = PlayerProgress.Instance.CheckAwardCount(GameManager.Instance.HardcoreTimeModeCost); 
-        _timeTrialNewGameButton.interactable = PlayerProgress.Instance.CheckAwardCount(GameManager.Instance.HardcoreTimeModeCost);
+        _hardcoreNewGameMenuButton.interactable = _playerProgress.CheckAwardCount(_gameManager.HardcoreTimeModeCost); 
+        _timeTrialNewGameButton.interactable = _playerProgress.CheckAwardCount(_gameManager.HardcoreTimeModeCost);
     }
 
     private void OnBonusAvailable(OnBonusGrantSignal signal)
@@ -516,7 +529,7 @@ public class MainMenuUI : MonoBehaviour
         SignalBus.Subscribe<OnBonusGrantSignal>(OnBonusAvailable);
         SignalBus.Subscribe<OnGameRewardSignal>(OnBonusCollected);
 
-        OnBonusAvailable(new OnBonusGrantSignal(RewardManager.Instance.CurrentReward));
+        OnBonusAvailable(new OnBonusGrantSignal(_rewardManager.CurrentReward));
     }
 
     private void OnDestroy()
