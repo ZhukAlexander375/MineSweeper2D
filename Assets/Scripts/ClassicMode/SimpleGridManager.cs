@@ -339,6 +339,12 @@ public class SimpleGridManager : MonoBehaviour
             case CellState.Mine:
                 UpdateExplodedMinesCount();
                 SignalBus.Fire<OnMineRevealedSignal>();
+
+                if (_gameSettingsManager.IsVibrationEnabled)
+                {
+                    VibrateOnAction();
+                }
+
                 Explode(cell);
                 SaveCurrentGame();
                 break;
@@ -433,12 +439,7 @@ public class SimpleGridManager : MonoBehaviour
         SignalBus.Fire(new FlagPlacingSignal(isPlacingFlag));
 
         InstantiateParticleAtCell(isPlacingFlag ? _flagPlaceParticle : _flagRemoveParticle, cell);
-
-        if (_gameSettingsManager.IsVibrationEnabled)
-        {
-            VibrateOnAction();
-        }
-
+                
         //_board.Draw(_cellGrid);
         CheckWinCondition();
     }

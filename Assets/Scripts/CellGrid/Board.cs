@@ -65,6 +65,7 @@ public class Board : MonoBehaviour
     {
         if (Tilemap == null) return;
 
+        if (cell == null) return;
         Tilemap.SetTile(localPosition, GetTile(cell));
         Tilemap.RefreshTile(localPosition);
 
@@ -74,17 +75,19 @@ public class Board : MonoBehaviour
 
             float duration = 0.7f; // Длительность тряски
             float shakeStrength = 0.2f; // Сила тряски
-
-            await DOTween.To(() => 0f, x =>
+            try
             {
-                // Генерируем случайные смещения (эмуляция DOShakePosition)
-                float shakeX = Random.Range(-shakeStrength, shakeStrength);
-                float shakeY = Random.Range(-shakeStrength, shakeStrength);
-                Matrix4x4 shakeMatrix = Matrix4x4.TRS(new Vector3(shakeX, shakeY, 0), Quaternion.identity, Vector3.one);
-                Tilemap.SetTransformMatrix(localPosition, shakeMatrix);
-                Tilemap.RefreshTile(localPosition);
-            }, 1f, duration).SetEase(Ease.Linear).AsyncWaitForCompletion();
-
+                await DOTween.To(() => 0f, x =>
+                {
+                    // Генерируем случайные смещения (эмуляция DOShakePosition)
+                    float shakeX = Random.Range(-shakeStrength, shakeStrength);
+                    float shakeY = Random.Range(-shakeStrength, shakeStrength);
+                    Matrix4x4 shakeMatrix = Matrix4x4.TRS(new Vector3(shakeX, shakeY, 0), Quaternion.identity, Vector3.one);
+                    Tilemap.SetTransformMatrix(localPosition, shakeMatrix);
+                    Tilemap.RefreshTile(localPosition);
+                }, 1f, duration).SetEase(Ease.Linear).AsyncWaitForCompletion();
+            }
+            catch { return; }
             // Анимация увеличения (взрыв)
             //await DOTween.To(() => 1f, x => {
             //    Matrix4x4 explodeMatrix = Matrix4x4.TRS(Vector3.zero, Quaternion.identity, new Vector3(x * 3f, x * 3f, 1f));
@@ -93,6 +96,7 @@ public class Board : MonoBehaviour
             //}, 1f, 0.15f).SetEase(Ease.InOutExpo).AsyncWaitForCompletion();
 
             // **Ставим статичным тайлом**
+            if (Tilemap == null) return;
             TileBase mineTile = GetFinalTile(cell);
             Tilemap.SetTile(localPosition, mineTile);
             Tilemap.SetTransformMatrix(localPosition, Matrix4x4.identity);
@@ -106,12 +110,14 @@ public class Board : MonoBehaviour
             cell.HasAnimated = true;
 
             TileBase staticTile = GetFinalTile(cell);
+            if (Tilemap == null) return;
             Tilemap.SetTile(localPosition, staticTile);
 
             // Начальная матрица: масштаб 0 (тайл "невидим")
             Matrix4x4 startMatrix = Matrix4x4.TRS(Vector3.zero, Quaternion.identity, Vector3.zero);
 
             // Устанавливаем начальную матрицу
+            if (Tilemap == null) return;
             Tilemap.SetTransformMatrix(localPosition, startMatrix);
             Tilemap.RefreshTile(localPosition);
 
@@ -120,24 +126,30 @@ public class Board : MonoBehaviour
             // Анимируем масштаб (поскольку DOTween напрямую не интерполирует матрицы,
             // интерполируем скалярное значение от 0 до 1, и каждый раз пересчитываем матрицу)
             float currentScale = 0.3f;
+            try
+            {
+                await DOTween.To(() => currentScale, x =>
+                {
+                    currentScale = x;
+                    Matrix4x4 currentMatrix = Matrix4x4.TRS(Vector3.zero, Quaternion.identity, new Vector3(currentScale, currentScale, 1f));
+                    Tilemap.SetTransformMatrix(localPosition, currentMatrix);
+                    Tilemap.RefreshTile(localPosition);
+                }, 1f, duration).AsyncWaitForCompletion();
+            }
+            catch { return; }
 
-            await DOTween.To(() => currentScale, x => {
-                currentScale = x;
-                Matrix4x4 currentMatrix = Matrix4x4.TRS(Vector3.zero, Quaternion.identity, new Vector3(currentScale, currentScale, 1f));
-                Tilemap.SetTransformMatrix(localPosition, currentMatrix);
-                Tilemap.RefreshTile(localPosition);
-            }, 1f, duration).AsyncWaitForCompletion();
 
             // По окончании анимации устанавливаем финальный статичный тайл и сбрасываем матрицу в Identity
             //TileBase staticTile = GetFinalTile(cell);
             //_tilemap.SetTile(localPosition, staticTile);
-
+            if (Tilemap == null) return;
             Tilemap.SetTransformMatrix(localPosition, Matrix4x4.identity);
             Tilemap.RefreshTile(localPosition);            
         }
         else
         {
             // Для остальных случаев просто обновляем тайл
+            if (Tilemap == null) return;
             Tilemap.SetTile(localPosition, GetTile(cell));
             Tilemap.RefreshTile(localPosition);
         }
