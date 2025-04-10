@@ -1,14 +1,9 @@
 using System.Collections.Generic;
 using UnityEngine;
+using Zenject;
 
 public class GameManager : MonoBehaviour
 {
-    public static GameManager Instance { get; private set; }
-
-    [SerializeField] private SimpleInfiniteStatisticController _simpleInfiniteStatisticController;
-    [SerializeField] private HardcoreStatisticController _hardcoreStatisticController;
-    [SerializeField] private TimeTrialStatisticController _timeTrialStatisticController;
-    [SerializeField] private ClassicModeStatisticController _classicStatisticController;
     [SerializeField] public List<LevelConfig> PredefinedLevels;    
     [SerializeField] private int _hardcoreTimeModeCost;
 
@@ -27,17 +22,29 @@ public class GameManager : MonoBehaviour
     public int CustomHeight { get; private set; }
     public int CustomMines { get; private set; }
 
+    private SaveManager _saveManager;
+    private PlayerProgress _playerProgress;
+    private SimpleInfiniteStatisticController _simpleInfiniteStatisticController;
+    private HardcoreStatisticController _hardcoreStatisticController;
+    private TimeTrialStatisticController _timeTrialStatisticController;
+    private ClassicModeStatisticController _classicStatisticController;
 
-    private void Awake()
+    [Inject]
+    private void Construct(
+        SaveManager saveManager, 
+        PlayerProgress playerProgress, 
+        SimpleInfiniteStatisticController simpleInfiniteStatisticController,
+        HardcoreStatisticController hardcoreStatisticController,
+        TimeTrialStatisticController timeTrialStatisticController,
+        ClassicModeStatisticController classicStatisticController)
     {
-        if (Instance != null && Instance != this)
-        {
-            Destroy(gameObject);
-            return;
-        }
+        _saveManager = saveManager;
+        _playerProgress = playerProgress; 
 
-        Instance = this;
-        DontDestroyOnLoad(gameObject);
+        _simpleInfiniteStatisticController = simpleInfiniteStatisticController;
+        _hardcoreStatisticController = hardcoreStatisticController;
+        _timeTrialStatisticController = timeTrialStatisticController;
+        _classicStatisticController = classicStatisticController;
     }
 
     private void Start()
@@ -49,7 +56,7 @@ public class GameManager : MonoBehaviour
     public void SetCustomLevelSettings(LevelConfig customLevel)
     {
         CustomLevel = customLevel;
-        SaveManager.Instance.SaveCustomLevel(customLevel);
+        _saveManager.SaveCustomLevel(customLevel);
     }
 
 
@@ -104,8 +111,8 @@ public class GameManager : MonoBehaviour
                 break;
         }
 
-        PlayerProgress.Instance.SetLastSessionGameMode(LastSessionGameMode);
-        PlayerProgress.Instance.SetLastClassicSessionGameMode(LastClassicSessionMode);
+        _playerProgress.SetLastSessionGameMode(LastSessionGameMode);
+        _playerProgress.SetLastClassicSessionGameMode(LastClassicSessionMode);
     }
 
     public void ResetCurrentModeStatistic()
@@ -144,22 +151,22 @@ public class GameManager : MonoBehaviour
         switch (mode)
         {
             case GameMode.SimpleInfinite:
-                SaveManager.Instance.ClearSavedSimpleInfiniteGame();
+                _saveManager.ClearSavedSimpleInfiniteGame();
                 break;
 
             case GameMode.Hardcore:
-                SaveManager.Instance.ClearSavedHardcoreGame();
+                _saveManager.ClearSavedHardcoreGame();
                 break;
 
             case GameMode.TimeTrial:
-                SaveManager.Instance.ClearSavedTimeTrialGame();
+                _saveManager.ClearSavedTimeTrialGame();
                 break;
 
             case GameMode.ClassicEasy:
             case GameMode.ClassicMedium:
             case GameMode.ClassicHard:
             case GameMode.Custom:
-                SaveManager.Instance.ClearSavesClassicGame();
+                _saveManager.ClearSavesClassicGame();
                 break;
 
             default:
@@ -170,21 +177,21 @@ public class GameManager : MonoBehaviour
     
     private void LoadGameState()
     {
-        _simpleInfiniteStatisticController.InitializeFromData(SaveManager.Instance.LoadSimpleInfiniteModeStats());
-        _hardcoreStatisticController.InitializeFromData(SaveManager.Instance.LoadHardcoreModeStats());
-        _timeTrialStatisticController.InitializeFromData(SaveManager.Instance.LoadTimeTrialModeStats());
-        _classicStatisticController.InitializeFromData(SaveManager.Instance.LoadClassicModeStats());       
+        _simpleInfiniteStatisticController.InitializeFromData(_saveManager.LoadSimpleInfiniteModeStats());
+        _hardcoreStatisticController.InitializeFromData(_saveManager.LoadHardcoreModeStats());
+        _timeTrialStatisticController.InitializeFromData(_saveManager.LoadTimeTrialModeStats());
+        _classicStatisticController.InitializeFromData(_saveManager.LoadClassicModeStats());       
     }
 
     private void LoadCustomLevelData()
     {
-        CustomLevel = SaveManager.Instance.LoadCustomLevel();
+        CustomLevel = _saveManager.LoadCustomLevel();
     }
 
     private void OnPlayerProgressLoaded(PlayerProgressLoadCompletedSignal signal)
     {
-        LastSessionGameMode = PlayerProgress.Instance.LastSessionGameMode;
-        LastClassicSessionMode = PlayerProgress.Instance.LastClassicSessionMode;
+        LastSessionGameMode = _playerProgress.LastSessionGameMode;
+        LastClassicSessionMode = _playerProgress.LastClassicSessionMode;
 
         switch (LastSessionGameMode)
         {

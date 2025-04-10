@@ -1,6 +1,7 @@
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using Zenject;
 
 public class CustomGameSettingsScreen : MonoBehaviour
 {
@@ -15,6 +16,21 @@ public class CustomGameSettingsScreen : MonoBehaviour
 
     [Header("Texts")]
     [SerializeField] private TMP_Text _minesText;
+
+
+    private ThemeManager _themeManager;
+    private PlayerProgress _playerProgress;
+    private GameManager _gameManager;
+    private SceneLoader _sceneLoader;
+
+    [Inject]
+    private void Construct(ThemeManager themeManager, PlayerProgress playerProgress, GameManager gameManager, SceneLoader sceneLoader)
+    {
+        _themeManager = themeManager;
+        _playerProgress = playerProgress;
+        _gameManager = gameManager;
+        _sceneLoader = sceneLoader;
+    }
 
 
     void Start()
@@ -96,7 +112,7 @@ public class CustomGameSettingsScreen : MonoBehaviour
                                     && !string.IsNullOrEmpty(_inputHeight.InputField.text)
                                     && !string.IsNullOrEmpty(_inputMines.InputField.text);
 
-        SignalBus.Fire(new ThemeChangeSignal(ThemeManager.Instance.CurrentTheme, ThemeManager.Instance.CurrentThemeIndex));
+        SignalBus.Fire(new ThemeChangeSignal(_themeManager.CurrentTheme, _themeManager.CurrentThemeIndex));
     }
 
     private void CloseScreen()
@@ -119,14 +135,14 @@ public class CustomGameSettingsScreen : MonoBehaviour
         customLevel.Width = width;
         customLevel.Height = height;
         customLevel.MineCount = mines;
-        GameManager.Instance.SetCustomLevelSettings(customLevel);
+        _gameManager.SetCustomLevelSettings(customLevel);
 
-        GameManager.Instance.SetCurrentGameMode(GameMode.Custom);
-        GameManager.Instance.ClearCurrentGame(GameMode.Custom);
-        //GameManager.Instance.ResetCurrentModeStatistic();
-        SceneLoader.Instance.LoadClassicMinesweeperScene();
+        _gameManager.SetCurrentGameMode(GameMode.Custom);
+        _gameManager.ClearCurrentGame(GameMode.Custom);
+        //_gameManager.ResetCurrentModeStatistic();
 
-        PlayerProgress.Instance.SetFirstTimePlayed();
+        _sceneLoader.LoadScene(SceneType.ClassicModeScene);
+        _playerProgress.SetFirstTimePlayed();
 
         ClearInputFields();
     }

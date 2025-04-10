@@ -1,6 +1,7 @@
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using Zenject;
 
 public class SettingsScreenUI : MonoBehaviour
 {
@@ -29,16 +30,14 @@ public class SettingsScreenUI : MonoBehaviour
     [SerializeField] private TMP_Text _holdDurationText;
     [SerializeField] private TMP_Text _cameraZoomText;
 
-    [Header("Supports ")]
-
     private GameSettingsManager _settingsManager;
 
-
-    private void Awake()
+    [Inject]
+    private void Construct(GameSettingsManager settingsManager)
     {
-        _settingsManager = GameSettingsManager.Instance;
-
+        _settingsManager = settingsManager;
     }
+
     private void Start()
     {
         UpdateSettingsScreen();
@@ -89,15 +88,15 @@ public class SettingsScreenUI : MonoBehaviour
 
     private void SetCameraZoomSliderValue()
     {
-        _cameraZoomSlider.minValue = _settingsManager._cameraZoomMin;
-        _cameraZoomSlider.maxValue = _settingsManager._cameraZoomMax;
-        _cameraZoomSlider.value = _settingsManager.CameraZoom;        
+        _cameraZoomSlider.minValue = _settingsManager.CameraZoomMin;
+        _cameraZoomSlider.maxValue = _settingsManager.CameraZoomMax;
+        _cameraZoomSlider.value = _settingsManager.CameraZoom;
     }
 
     private void SetTimeDurationSliderValue()
     {
-        _holdDurationSlider.minValue = _settingsManager._holdTimeMin;
-        _holdDurationSlider.maxValue = _settingsManager._holdTimeMax;
+        _holdDurationSlider.minValue = _settingsManager.HoldTimeMin;
+        _holdDurationSlider.maxValue = _settingsManager.HoldTimeMax;
         _holdDurationSlider.value = _settingsManager.HoldTime;
     }
 
@@ -123,23 +122,20 @@ public class SettingsScreenUI : MonoBehaviour
     private void OnZoomValueChanged(float value)
     {
         value = Mathf.Round(value * 20f) / 20f;
-        GameSettingsManager.Instance.CameraZoom = value;        
+        _settingsManager.SetCameraZoom(value);        
         UpdateCameraZoomText(value);
-        GameSettingsManager.Instance.SaveSettings();
     }
 
     private void OnHoldDurationChanged(float value)
     {
         value = Mathf.Round(value * 20f) / 20f;
-        GameSettingsManager.Instance.HoldTime = value;
+        _settingsManager.SetHoldTime(value);
         UpdateHoldDurationText(value);
-        GameSettingsManager.Instance.SaveSettings();
     }
 
     private void OnDoubleClickToggled(bool isOn)
     {
-        _settingsManager.OnDoubleClick = isOn;
-        _settingsManager.SaveSettings();
+        _settingsManager.ToogleDoubleClick();
     }
 
     private void UpdateCameraZoomText(float value)

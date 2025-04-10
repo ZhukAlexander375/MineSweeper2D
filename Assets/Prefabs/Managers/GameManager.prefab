@@ -100,8 +100,8 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 809eb419a1fd21441bd23215f253914b, type: 2}
   - {fileID: 11400000, guid: 91ec2021c4e450e4fb5c9a41bd2542c5, type: 2}
   - {fileID: 11400000, guid: 44a11d31d5086794b97b303058c7035f, type: 2}
-  CustomLevel: {fileID: 0}
   _hardcoreTimeModeCost: 50
+  CustomLevel: {fileID: 0}
 --- !u!1 &3314963670760268119
 GameObject:
   m_ObjectHideFlags: 0

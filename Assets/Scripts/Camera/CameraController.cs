@@ -1,6 +1,6 @@
 using DG.Tweening;
 using UnityEngine;
-using UnityEngine.UIElements;
+using Zenject;
 
 public class CameraController : MonoBehaviour
 {
@@ -24,14 +24,24 @@ public class CameraController : MonoBehaviour
     private bool isSwitchingToSingleTouch = false;
     private Vector3 lastTouchPosition;
 
+    private ThemeManager _themeManager;
+    private GameSettingsManager _gameSettingsManager;
+
+    [Inject]
+    private void Construct(ThemeManager themeManager, GameSettingsManager gameSettingsManager)
+    {
+        _themeManager = themeManager;
+        _gameSettingsManager = gameSettingsManager;
+    }
+
     private void Start()
     {
         mainCamera = Camera.main;
         SignalBus.Subscribe<ThemeChangeSignal>(OnThemeChanged);
         SignalBus.Subscribe<OnMineRevealedSignal>(ShakeCameraAndChangeBackground);
-        TryApplyTheme(ThemeManager.Instance.CurrentTheme);
+        TryApplyTheme(_themeManager.CurrentTheme);
 
-        zoomSpeed = GameSettingsManager.Instance.CameraZoom;        
+        zoomSpeed = _gameSettingsManager.CameraZoom;        
     }
 
     private void Update()
@@ -177,7 +187,7 @@ public class CameraController : MonoBehaviour
 
     private void ZoomCamera(float deltaDistance)
     {
-        float zoomSpeed = GameSettingsManager.Instance.CameraZoom;
+        float zoomSpeed = _gameSettingsManager.CameraZoom;
         var newSize = mainCamera.orthographicSize - deltaDistance * zoomSpeed;
         mainCamera.orthographicSize = Mathf.Clamp(newSize, minZoom, maxZoom);
     }

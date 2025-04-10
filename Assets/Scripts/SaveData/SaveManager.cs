@@ -6,8 +6,6 @@ using UnityEngine;
 
 public class SaveManager : MonoBehaviour
 {
-    public static SaveManager Instance { get; private set; }
-
     private const string SaveThemeFileName = "Theme.json";
     private const string SaveSettingsFileName = "GameSettings.json";
     private const string SavePlayerProgressFileName = "PlayerProgress.json";
@@ -20,19 +18,7 @@ public class SaveManager : MonoBehaviour
 
     private const string SaveTimerFileName = "TimerSave.json";
     private const string RewardSaveFileName = "RewardData.json";
-
-    private void Awake()
-    {
-        if (Instance != null && Instance != this)
-        {
-            Destroy(gameObject);
-            return;
-        }
-
-        Instance = this;
-        DontDestroyOnLoad(gameObject);
-
-    }
+       
 
     public bool HasSavedData(GameMode mode)
     {
@@ -441,10 +427,10 @@ public class SaveManager : MonoBehaviour
 
     public void SaveSettings(SettingsData settings)
     {
-        SettingsWrapper wrapper = new SettingsWrapper();
-        wrapper.SettingsData = settings;
+        //SettingsWrapper wrapper = new SettingsWrapper();
+        //wrapper.SettingsData = settings;
 
-        string json = JsonUtility.ToJson(wrapper, true);
+        string json = JsonUtility.ToJson(settings, true);
         var filePath = Path.Combine(Application.persistentDataPath, SaveSettingsFileName);
         File.WriteAllText(filePath, json);
     }
@@ -455,12 +441,13 @@ public class SaveManager : MonoBehaviour
         if (!File.Exists(filePath))
         {
             //Debug.LogWarning("Settings save file not found.");
-            return new SettingsData();
+            return null;
         }
 
         string json = File.ReadAllText(filePath);
-        SettingsWrapper wrapper = JsonUtility.FromJson<SettingsWrapper>(json);
-        return wrapper.SettingsData;
+        //SettingsWrapper wrapper = JsonUtility.FromJson<SettingsWrapper>(json);
+        //return wrapper.SettingsData;
+        return JsonUtility.FromJson<SettingsData>(json);
     }
 
     public void SavePlayerProgress(PlayerProgressData playerData)

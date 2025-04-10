@@ -1,6 +1,7 @@
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using Zenject;
 
 public class ThemeUIController : MonoBehaviour
 {
@@ -61,22 +62,30 @@ public class ThemeUIController : MonoBehaviour
 
 
     private ThemeConfig _currentAppliedTheme;
+    private ThemeManager _themeManager;
+
+    [Inject]
+    private void Construct(ThemeManager themeManager)
+    {
+        _themeManager = themeManager;
+    }
+
 
     private void Start()
     {
         SignalBus.Subscribe<ThemeChangeSignal>(OnThemeChanged);
-        TryApplyTheme(ThemeManager.Instance.CurrentTheme);
+        TryApplyTheme(_themeManager.CurrentTheme);
     }
 
     private void OnEnable()
     {
-        if (ThemeManager.Instance == null)
+        if (_themeManager == null)
         {
             //Debug.Log("ThemeManager.Instance не инициализирован!");
             return;
         }
 
-        TryApplyTheme(ThemeManager.Instance.CurrentTheme);
+        TryApplyTheme(_themeManager.CurrentTheme);
     }
 
     private void OnThemeChanged(ThemeChangeSignal signal)

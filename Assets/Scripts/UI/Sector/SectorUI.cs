@@ -2,6 +2,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
+
 public class SectorUI : MonoBehaviour
 {
     [Header("Lose Sector UI")]
@@ -17,13 +18,21 @@ public class SectorUI : MonoBehaviour
 
     [Header("Win Sector UI")]
     [SerializeField] private Image _completeSectorBackground;
-    [SerializeField] private Button _viewCompleteSectorButton;
-    [SerializeField] private Button _hideCompleteSectorButton;
+    //[SerializeField] private Button _viewCompleteSectorButton;
+    //[SerializeField] private Button _hideCompleteSectorButton;
 
+
+    private GraphicRaycaster _raycaster;
     private Sector _sector;
+    private ThemeManager _themeManager;             //          REPLACE IN SECTOR!!!!!!!!!!!!
+    private PlayerProgress _playerProgress;        //          REPLACE IN SECTOR!!!!!!!!!!!!
+    private GameManager _gameManager;             //          REPLACE IN SECTOR!!!!!!!!!!!!
+    private SceneLoader _sceneLoader;             //          REPLACE IN SECTOR!!!!!!!!!!!!
+
 
     private void Awake()
     {
+        _raycaster = GetComponent<GraphicRaycaster>();
         SignalBus.Subscribe<OnGameRewardSignal>(CheckRewardButtonInteractable);        
     }
 
@@ -35,17 +44,21 @@ public class SectorUI : MonoBehaviour
         _openSectorForAdButton.onClick.AddListener(OpenSectorForAd);
         _replayLevelButton.onClick.AddListener(ReplayLevel);
 
-        _viewCompleteSectorButton.onClick.AddListener(ShowCompleteSector);
-        _hideCompleteSectorButton.onClick.AddListener(CompletedSector);
+        //_viewCompleteSectorButton.onClick.AddListener(ShowCompleteSector);
+        //_hideCompleteSectorButton.onClick.AddListener(CompletedSector);
         //gameObject.SetActive(false);
         UpdatePrizeCountText();        
     }
 
-    public void SetSector(Sector sector)
+    public void SectorInit(Sector sector, ThemeManager themeManager, PlayerProgress playerProgress, GameManager gameManager, SceneLoader sceneLoader)
     {
         _sector = sector;
+        _themeManager = themeManager;
+        _playerProgress = playerProgress;
+        _gameManager = gameManager;
+        _sceneLoader = sceneLoader;
     }
-
+            
     private void ShowLostSector()
     {
         Color currentColor = _loseSectorBackground.color;
@@ -62,6 +75,12 @@ public class SectorUI : MonoBehaviour
         Color currentColor = _loseSectorBackground.color;
         currentColor.a = 0.99f;
         _loseSectorBackground.color = currentColor;
+
+        if (_raycaster.enabled == false)
+        {
+            _raycaster.enabled = true;
+        }        
+
         UpdatePrizeCountText();
 
         _loseSectorBackground.gameObject.SetActive(true);
@@ -71,20 +90,21 @@ public class SectorUI : MonoBehaviour
 
     public void CompletedSector()
     {
-        Color currentColor = Color.white;
-        currentColor.a = 0.20f;
-        _loseSectorBackground.color = currentColor;
+        Color currentColor = _completeSectorBackground.color;
+        currentColor.a = 0.15f;
+        _completeSectorBackground.color = currentColor;
+        _raycaster.enabled = false;
 
         _completeSectorBackground.gameObject.SetActive(true);
         _loseSectorBackground.gameObject.SetActive(false);
-        _hideCompleteSectorButton.gameObject.SetActive(false);
+        //_hideCompleteSectorButton.gameObject.SetActive(false);
     }
 
-    private void ShowCompleteSector()
+    /*private void ShowCompleteSector()
     {
         _completeSectorBackground.gameObject.SetActive(false);
         _hideCompleteSectorButton.gameObject.SetActive(true);        
-    }
+    }*/
 
     private void OpenSectorForAward()
     {
@@ -98,24 +118,24 @@ public class SectorUI : MonoBehaviour
 
     private void ReplayLevel()
     {
-        GameManager.Instance.CurrentStatisticController.ResetStatistic();
-        GameManager.Instance.ResetCurrentModeStatistic();
-        GameManager.Instance.ClearCurrentGame(GameManager.Instance.CurrentGameMode);
-        GameManager.Instance.SetCurrentGameMode(GameManager.Instance.CurrentGameMode);
+        _gameManager.CurrentStatisticController.ResetStatistic();
+        _gameManager.ResetCurrentModeStatistic();
+        _gameManager.ClearCurrentGame(_gameManager.CurrentGameMode);
+        _gameManager.SetCurrentGameMode(_gameManager.CurrentGameMode);
 
-        switch (GameManager.Instance.CurrentGameMode)
+        switch (_gameManager.CurrentGameMode)
         {
             case GameMode.SimpleInfinite:
-                SceneLoader.Instance.LoadInfiniteMinesweeperScene();
+                _sceneLoader.LoadScene(SceneType.InfiniteModeScene);
                 break;
 
             case GameMode.Hardcore:
             case GameMode.TimeTrial:
 
-                if (PlayerProgress.Instance.CheckAwardCount(GameManager.Instance.HardcoreTimeModeCost))
+                if (_playerProgress.CheckAwardCount(_gameManager.HardcoreTimeModeCost))
                 {
-                    SignalBus.Fire(new OnGameRewardSignal(0, -GameManager.Instance.HardcoreTimeModeCost));
-                    SceneLoader.Instance.LoadInfiniteMinesweeperScene();
+                    SignalBus.Fire(new OnGameRewardSignal(0, -_gameManager.HardcoreTimeModeCost));
+                    _sceneLoader.LoadScene(SceneType.InfiniteModeScene);
                 }
                 break;
         }
@@ -128,11 +148,11 @@ public class SectorUI : MonoBehaviour
 
     private void SetReplayButton()
     {
-        switch (GameManager.Instance.CurrentGameMode)
+        switch (_gameManager.CurrentGameMode)
         {
             case (GameMode.Hardcore):
             case (GameMode.TimeTrial):
-                _replayLevelText.text = $"Replay level <sprite=0> {GameManager.Instance.HardcoreTimeModeCost}";
+                _replayLevelText.text = $"Replay level <sprite=0> {_gameManager.HardcoreTimeModeCost}";
                 break;
 
             default:
@@ -143,18 +163,18 @@ public class SectorUI : MonoBehaviour
 
     private void CheckRewardButtonInteractable(OnGameRewardSignal signal)
     {
-        _openSectorForAwardButton.interactable = PlayerProgress.Instance.CheckAwardCount(_sector.CurrentBuyoutCost);
+        _openSectorForAwardButton.interactable = _playerProgress.CheckAwardCount(_sector.CurrentBuyoutCost);
 
-        SignalBus.Fire(new ThemeChangeSignal(ThemeManager.Instance.CurrentTheme, ThemeManager.Instance.CurrentThemeIndex));
+        SignalBus.Fire(new ThemeChangeSignal(_themeManager.CurrentTheme, _themeManager.CurrentThemeIndex));
     }
 
     private void CheckReplayLevelButtonInteractable(OnGameRewardSignal signal)
     {
-        switch (GameManager.Instance.CurrentGameMode)
+        switch (_gameManager.CurrentGameMode)
         {
             case (GameMode.Hardcore):
             case (GameMode.TimeTrial):
-                _replayLevelButton.interactable = PlayerProgress.Instance.CheckAwardCount(GameManager.Instance.HardcoreTimeModeCost);
+                _replayLevelButton.interactable = _playerProgress.CheckAwardCount(_gameManager.HardcoreTimeModeCost);
                 break;
 
             default:
@@ -162,7 +182,7 @@ public class SectorUI : MonoBehaviour
                 break;
         }
 
-        SignalBus.Fire(new ThemeChangeSignal(ThemeManager.Instance.CurrentTheme, ThemeManager.Instance.CurrentThemeIndex));
+        SignalBus.Fire(new ThemeChangeSignal(_themeManager.CurrentTheme, _themeManager.CurrentThemeIndex));
     }
 
     private void OnEnable()

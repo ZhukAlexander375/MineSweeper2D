@@ -6,31 +6,24 @@ using UnityEngine;
 using PixelAnticheat.Detectors;
 using PixelAnticheat.Models;
 using PixelAnticheat;
+using Zenject;
 
 public class RewardManager : MonoBehaviour
 {
-    public static RewardManager Instance { get; private set; }
     public int CurrentReward { get; private set; }
 
-    [SerializeField] private int _rewardAmount;
-    [SerializeField] private int[] _rewardHours = { 8, 12, 16, 20 };
-    [SerializeField] private int _maxMissedRewards = 2;
-    
+    private RewardConfig _rewardConfig;
     private RewardData _rewardData;
-    private TimeHackDetector _timeHackDetector;
+    private SaveManager _saveManager;
+    private TimeHackDetector _timeHackDetector;   
 
-
-    private void Awake()
+    [Inject]
+    private void Construct(SaveManager saveManager, RewardConfig rewardConfig)
     {
-        if (Instance != null && Instance != this)
-        {
-            Destroy(gameObject);
-            return;
-        }
-
-        Instance = this;
-        DontDestroyOnLoad(gameObject);
+        _saveManager = saveManager;
+        _rewardConfig = rewardConfig;
     }
+
 
     private void Start()
     {
@@ -46,7 +39,7 @@ public class RewardManager : MonoBehaviour
     {
         DateTime now = DateTime.Now;
 
-        foreach (int hour in _rewardHours)
+        foreach (int hour in _rewardConfig.RewardHours)
         {
             DateTime rewardTime = now.Date.AddHours(hour);
             if (rewardTime > now)
@@ -55,7 +48,7 @@ public class RewardManager : MonoBehaviour
             }
         }
 
-        DateTime firstRewardTomorrow = now.Date.AddDays(1).AddHours(_rewardHours[0]);
+        DateTime firstRewardTomorrow = now.Date.AddDays(1).AddHours(_rewardConfig.RewardHours[0]);
         return firstRewardTomorrow - now;
     }
 
@@ -136,7 +129,7 @@ public class RewardManager : MonoBehaviour
             .ToList();
 
         // Помечаем старые награды как "собранные", если они вне диапазона 2 последних
-        foreach (DateTime rewardTime in pastRewards.Take(pastRewards.Count - _maxMissedRewards))
+        foreach (DateTime rewardTime in pastRewards.Take(pastRewards.Count - _rewardConfig.MaxMissedRewards))
         {
             if (!_rewardData.CollectedRewards[rewardTime.Hour])
             {
@@ -146,7 +139,7 @@ public class RewardManager : MonoBehaviour
 
         // Делаем доступными только последние 2 награды
         _rewardData.AvailableRewards = new bool[24];
-        foreach (DateTime rewardTime in pastRewards.TakeLast(_maxMissedRewards))
+        foreach (DateTime rewardTime in pastRewards.TakeLast(_rewardConfig.MaxMissedRewards))
         {
             if (!_rewardData.CollectedRewards[rewardTime.Hour])
             {
@@ -161,7 +154,7 @@ public class RewardManager : MonoBehaviour
     {
         List<DateTime> rewardTimes = new List<DateTime>();
 
-        foreach (int hour in _rewardHours)
+        foreach (int hour in _rewardConfig.RewardHours)
         {
             rewardTimes.Add(now.Date.AddHours(hour));
         }
@@ -185,7 +178,7 @@ public class RewardManager : MonoBehaviour
         {
             if (_rewardData.AvailableRewards[i])
             {
-                CurrentReward += _rewardAmount;
+                CurrentReward += _rewardConfig.RewardAmount;
             }
         }
 
@@ -217,7 +210,7 @@ public class RewardManager : MonoBehaviour
 
     private void LoadRewardData()
     {
-        _rewardData = SaveManager.Instance.LoadRewardData();
+        _rewardData = _saveManager.LoadRewardData();
 
         if (_rewardData == null)
         {
@@ -227,7 +220,7 @@ public class RewardManager : MonoBehaviour
 
     private void SaveRewardData()
     {
-        SaveManager.Instance.SaveRewardData(_rewardData);
+        _saveManager.SaveRewardData(_rewardData);
     }
 
     /*
