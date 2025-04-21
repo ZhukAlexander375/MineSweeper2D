@@ -63,6 +63,11 @@ public class SimpleGridManager : MonoBehaviour
 
     private void Update()
     {
+        if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject())
+        {
+            return;
+        }
+
         if (_cameraController.IsCameraInteracting)
         {
             IsInputLocked = true;
@@ -74,12 +79,6 @@ public class SimpleGridManager : MonoBehaviour
         { 
             _cameraController.ResetFinishedInteracting();
             IsInputLocked = false;
-            return;
-        }
-
-        // check click on ui or gamefield
-        if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject())
-        {
             return;
         }
 

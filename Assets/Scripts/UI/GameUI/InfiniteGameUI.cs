@@ -17,7 +17,7 @@ public class InfiniteGameUI : MonoBehaviour
 
     [Header("Screens")]
     [SerializeField] private Canvas _pauseMenuScreen;
-    [SerializeField] private Canvas _settingsScreen;
+    //[SerializeField] private Canvas _settingsScreen;
     [SerializeField] private Canvas _loseScreen;
     [SerializeField] private Canvas _wrongClickPopupScreen;
 
@@ -70,7 +70,7 @@ public class InfiniteGameUI : MonoBehaviour
     {
         _pauseButton.onClick.AddListener(OpenPauseMenu);
         _continueButton.onClick.AddListener(ClosePauseMenu);
-        _settingsButton.onClick.AddListener(OpenSettings);
+        //_settingsButton.onClick.AddListener(OpenSettings);
         _replayLevelButton.onClick.AddListener(ReplayGame);
         _goHomeButton.onClick.AddListener(ReturnToMainMenu);
         _backLastClickButton.onClick.AddListener(BackToLastClickButton);
@@ -158,11 +158,11 @@ public class InfiniteGameUI : MonoBehaviour
         _gameManager.CurrentStatisticController.StartTimer();
     }
 
-    private void OpenSettings()
+    /*private void OpenSettings()
     {
         _settingsScreen.gameObject.SetActive(true);
         _gameManager.CurrentStatisticController.StopTimer();
-    }
+    }*/
 
     private void OpenLoseScreen(GameOverSignal signal)
     {

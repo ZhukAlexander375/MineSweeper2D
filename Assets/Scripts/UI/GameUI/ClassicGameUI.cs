@@ -1,4 +1,3 @@
-using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using Zenject;
@@ -7,17 +6,17 @@ using Zenject;
 public class ClassicGameUI : MonoBehaviour
 {
     [Header("Buttons")]
-    [SerializeField] private Button _settingsButton;
-    [SerializeField] private Button _pauseButton;
-    [SerializeField] private Button _continueButton;
-    [SerializeField] private Button _settingsOnPauseButton;
+    //[SerializeField] private Button _settingsButton;
+    //[SerializeField] private Button _pauseButton;
+    //[SerializeField] private Button _continueButton;
+    //[SerializeField] private Button _settingsOnPauseButton;
     [SerializeField] private Button _replayLevelButton;
     [SerializeField] private Button _goHomeButton;
     
     [Header("Texts")]
-    [SerializeField] private TMP_Text _gameModeName;
-    [SerializeField] private TMP_Text _minesCountText;
-    [SerializeField] private TMP_Text _flagsText;
+    //[SerializeField] private TMP_Text _gameModeName;
+    //[SerializeField] private TMP_Text _minesCountText;
+    //[SerializeField] private TMP_Text _flagsText;
 
     [Header("Screens")]
     [SerializeField] private Canvas _pauseMenuScreen;
@@ -36,67 +35,67 @@ public class ClassicGameUI : MonoBehaviour
     [SerializeField] private int _maxMines = 5000;*/
     
 
-    private SimpleGridManager _simpleGridManager;
-    private PlayerProgress _playerProgress;
-    private GameManager _gameManager;
-    private SceneLoader _sceneLoader;
+    //private SimpleGridManager _simpleGridManager;
+    //private PlayerProgress _playerProgress;
+    //private GameManager _gameManager;
+    //private SceneLoader _sceneLoader;
 
-    [Inject]
+    /*[Inject]
     private void Construct(PlayerProgress playerProgress, GameManager gameManager, SceneLoader sceneLoader)
     {
         _playerProgress = playerProgress;
         _gameManager = gameManager;
         _sceneLoader = sceneLoader;
-    }
+    }*/
 
 
     private void Awake()
     {        
-        _simpleGridManager = FindObjectOfType<SimpleGridManager>();
+        //_simpleGridManager = FindObjectOfType<SimpleGridManager>();
     }
 
     private void Start()
     {
-        _settingsButton.onClick.AddListener(OpenSettings);
-        _pauseButton.onClick.AddListener(OpenPauseMenu);
-        _continueButton.onClick.AddListener(ClosePauseMenu);
-        _settingsOnPauseButton.onClick.AddListener(OpenSettings);
-        _replayLevelButton.onClick.AddListener(ReplayGame);
-        _goHomeButton.onClick.AddListener(ReturnToMainMenu);
+        //_settingsButton.onClick.AddListener(OpenSettings);
+        //_pauseButton.onClick.AddListener(OpenPauseMenu);
+        //_continueButton.onClick.AddListener(ClosePauseMenu);
+        //_settingsOnPauseButton.onClick.AddListener(OpenSettings);
+        //_replayLevelButton.onClick.AddListener(ReplayGame);
+        //_goHomeButton.onClick.AddListener(ReturnToMainMenu);
         //_goHomeButtonOnPause.onClick.AddListener(ReturnToMainMenu);
                 
-        SetModeName();
+        //SetModeName();
     }
 
-    private void OpenPauseMenu()
+    /*private void OpenPauseMenu()
     {
         _pauseMenuScreen.gameObject.SetActive(true);
         _gameManager.CurrentStatisticController.StopTimer();
-    }
+    }*/
 
-    private void ClosePauseMenu()
+    /*private void ClosePauseMenu()
     {
         _pauseMenuScreen.gameObject.SetActive(false);
         _gameManager.CurrentStatisticController.StartTimer();
-    }
+    }*/
 
-    private void OpenSettings()
+    /*private void OpenSettings()
     {
         _settingsScreen.gameObject.SetActive(true);
         _gameManager.CurrentStatisticController.StopTimer();
-    }
+    }*/
 
-    private void ReplayGame()
+    /*private void ReplayGame()
     {
         _loseScreen.gameObject.SetActive(false);
         _gameManager.ResetCurrentModeStatistic();
         _gameManager.ClearCurrentGame(_gameManager.CurrentGameMode);
         _gameManager.SetCurrentGameMode(_gameManager.CurrentGameMode);
         _sceneLoader.LoadScene(SceneType.ClassicModeScene);
-    }
+    }*/
 
 
-    private void SetModeName()
+    /*private void SetModeName()
     {
         switch (_gameManager.CurrentGameMode)
         {
@@ -116,9 +115,9 @@ public class ClassicGameUI : MonoBehaviour
                 _gameModeName.text = "Custom";
                 break;
         }
-    }
+    }*/
 
-    private void ReturnToMainMenu()
+    /*private void ReturnToMainMenu()
     {
         _gameManager.CurrentStatisticController.StopTimer();
         _playerProgress.SavePlayerProgress();
@@ -129,9 +128,9 @@ public class ClassicGameUI : MonoBehaviour
         }
 
         _sceneLoader.LoadScene(SceneType.MainMenu);        
-    }
+    }*/
 
-    private void OpenLoseScreen(GameOverSignal signal)
+    /*private void OpenLoseScreen(GameOverSignal signal)
     {
         if (signal.CurrentGameMode == _gameManager.CurrentGameMode)
         {
@@ -147,9 +146,9 @@ public class ClassicGameUI : MonoBehaviour
                 _pauseButton.gameObject.SetActive(true);
             }
         }
-    }
+    }*/
 
-    private void UpdateFlagText(FlagPlacingSignal signal)
+    /*private void UpdateFlagText(FlagPlacingSignal signal)
     {
         if (_gameManager.CurrentStatisticController != null)
         {
@@ -159,9 +158,9 @@ public class ClassicGameUI : MonoBehaviour
         {
             _flagsText.text = "0";
         }
-    }
+    }*/
 
-    private void UpdateBombText()
+    /*private void UpdateBombText()
     {
         switch (_gameManager.CurrentGameMode)
         {
@@ -181,56 +180,56 @@ public class ClassicGameUI : MonoBehaviour
                 SetMinesCount(_gameManager.CustomLevel);
                 break;
         }
-    }
+    }*/
 
-    private void SetMinesCount(int levelIndex)
-    {
-        var levels = _gameManager.PredefinedLevels;
+    /* private void SetMinesCount(int levelIndex)
+     {
+         var levels = _gameManager.PredefinedLevels;
 
-        if (levelIndex >= 0 && levelIndex < levels.Count)
-        {
-            _minesCountText.text = levels[levelIndex].MineCount.ToString();
-            //Debug.Log($"{levels[levelIndex].MineCount}");
-        }
-        else
-        {
-            Debug.LogError("Level index out of range");
-        }
-    }
+         if (levelIndex >= 0 && levelIndex < levels.Count)
+         {
+             _minesCountText.text = levels[levelIndex].MineCount.ToString();
+             //Debug.Log($"{levels[levelIndex].MineCount}");
+         }
+         else
+         {
+             Debug.LogError("Level index out of range");
+         }
+     }*/
 
-    private void SetMinesCount(LevelConfig customLevel)
+    /*private void SetMinesCount(LevelConfig customLevel)
     {
         _minesCountText.text = customLevel.MineCount.ToString();
         //Debug.Log($"{customLevel.MineCount}");
-    }
+    }*/
 
     private void UpdateTexts(LoadCompletedSignal signal)
     {
-        UpdateTexts();
+        //UpdateTexts();
     }
 
     private void UpdateTexts()
     {
-        UpdateBombText();
+        //UpdateBombText();
         
-        _flagsText.text = _gameManager.CurrentStatisticController.PlacedFlags.ToString();
+        //_flagsText.text = _gameManager.CurrentStatisticController.PlacedFlags.ToString();
 
     }
 
 
     private void OnEnable()
     {        
-        SignalBus.Subscribe<LoadCompletedSignal>(UpdateTexts);
-        SignalBus.Subscribe<GameOverSignal>(OpenLoseScreen);
-        SignalBus.Subscribe<FlagPlacingSignal>(UpdateFlagText);        
+        //SignalBus.Subscribe<LoadCompletedSignal>(UpdateTexts);
+        //SignalBus.Subscribe<GameOverSignal>(OpenLoseScreen);
+        //SignalBus.Subscribe<FlagPlacingSignal>(UpdateFlagText);        
 
-        UpdateBombText();
+        //UpdateBombText();
     }
 
     private void OnDisable()
     {          
-        SignalBus.Unsubscribe<LoadCompletedSignal>(UpdateTexts);
-        SignalBus.Unsubscribe<GameOverSignal>(OpenLoseScreen);
-        SignalBus.Unsubscribe<FlagPlacingSignal>(UpdateFlagText);
+        //SignalBus.Unsubscribe<LoadCompletedSignal>(UpdateTexts);
+        //SignalBus.Unsubscribe<GameOverSignal>(OpenLoseScreen);
+        //SignalBus.Unsubscribe<FlagPlacingSignal>(UpdateFlagText);
     }
 }
